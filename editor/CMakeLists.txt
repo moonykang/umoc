@@ -10,4 +10,5 @@ TARGET_LINK_LIBRARIES(
     editor
     engine
     glfw
+    imgui
 )
