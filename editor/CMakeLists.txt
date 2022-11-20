@@ -1,0 +1,13 @@
+FILE(GLOB SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+FILE(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+
+ADD_EXECUTABLE(
+    editor
+    ${SOURCES} ${HEADERS}
+)
+
+TARGET_LINK_LIBRARIES(
+    editor
+    engine
+    glfw
+)
