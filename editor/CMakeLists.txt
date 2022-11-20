@@ -11,4 +11,5 @@ TARGET_LINK_LIBRARIES(
     engine
     glfw
     imgui
+    ${VULKAN_LIBRARY}
 )
