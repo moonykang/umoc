@@ -2,8 +2,11 @@
 
 namespace vk
 {
-    void empty()
-    {
-        
-    }
-}
+class Context
+{
+  public:
+    void init();
+
+  private:
+};
+} // namespace vk

@@ -1,6 +1,12 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#define VK_USE_PLATFORM_WIN32_KHR
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_COCOA
+#include <GLFW/glfw3native.h>
+
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -166,6 +172,20 @@ private:
     }
 
     void createSurface() {
+        VkMacOSSurfaceCreateInfoMVK surfaceCreateInfo = {};
+        surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK;
+        surfaceCreateInfo.pNext = NULL;
+        surfaceCreateInfo.flags = 0;
+        surfaceCreateInfo.pView = view;
+        err = vkCreateMacOSSurfaceMVK(instance, &surfaceCreateInfo, NULL, &surface);
+
+
+        VkWin32SurfaceCreateInfoKHR createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        createInfo.hwnd = glfwGetWin32Window(window);
+        createInfo.hinstance = GetModuleHandle(nullptr);
+
+
         if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
             throw std::runtime_error("failed to create window surface!");
         }
