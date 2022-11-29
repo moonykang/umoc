@@ -2,9 +2,7 @@
 
 namespace platform
 {
-class Asset
+class Input
 {
-  public:
-  private:
 };
 } // namespace platform
