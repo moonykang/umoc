@@ -11,6 +11,8 @@ class Context : public platform::Context
     static Context* createRHIContext(rhi::List rhi);
 
   public:
-    virtual void initRHI() = 0;
+    virtual Result initRHI() = 0;
+
+    virtual void terminateRHI() = 0;
 };
 } // namespace rhi

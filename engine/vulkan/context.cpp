@@ -1,115 +1,181 @@
-#include "context.h"
-#include "common/util.h"
+#include "vulkan/context.h"
+#include "vulkan/extension.h"
 #include "vulkan/platform/window.h"
 
 namespace vk
 {
-void Context::initRHI()
+Context::Context() : surface(nullptr)
 {
-    LOGD("init vulkan RHI");
-    window = Window::createWindow();
-    window->init();
 }
 
-void Context::initInstance()
+Result Context::initRHI()
 {
-    /*
-        VkInstanceCreateInfo instanceCreateInfo = {};
+    LOGD("init vulkan RHI");
 
-        VkApplicationInfo applicationInfo = {};
-        applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        applicationInfo.pApplicationName = "dev.samsung.littlerenderer";
-        applicationInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
-        applicationInfo.pEngineName = "dev.samsung.littlerenderer";
-        applicationInfo.engineVersion = VK_MAKE_VERSION(0, 0, 1);
-    #if VK_USE_PLATFORM_WIN32_KHR
-        applicationInfo.apiVersion = VK_MAKE_API_VERSION(0, 1, 2, 0);
-    #else
-        applicationInfo.apiVersion = VK_API_VERSION_1_2;
-    #endif
+    try(initInstance());
 
-        std::vector<const char*> requestedExtensions;
+    try(initPhysicalDevice());
 
-        instanceExtensions.push_back(
-            ExtensionFactory::createInstanceExtension(ExtensionName::PhysicalDeviceProperties2Extension));
+    window = Window::createWindow();
+    window->init();
 
-        uint32_t extensionCount = 0;
-        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-        std::vector<VkExtensionProperties> supportedExtensions(extensionCount);
-        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data());
+    try(initLogicalDevice());
 
-        for (auto& extension : instanceExtensions)
+    return Result::Continue;
+}
+
+void Context::terminateRHI()
+{
+    if (surface)
+    {
+    }
+
+    window->terminate();
+    instance.destroy();
+}
+
+Result Context::initInstance()
+{
+    VkInstanceCreateInfo instanceCreateInfo = {};
+
+    VkApplicationInfo applicationInfo = {};
+    applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    applicationInfo.pApplicationName = "Yalo";
+    applicationInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
+    applicationInfo.pEngineName = "Yalo";
+    applicationInfo.engineVersion = VK_MAKE_VERSION(0, 0, 1);
+#if VK_USE_PLATFORM_WIN32_KHR
+    applicationInfo.apiVersion = VK_MAKE_API_VERSION(0, 1, 2, 0);
+#else
+    applicationInfo.apiVersion = VK_API_VERSION_1_0;
+#endif
+
+    instanceExtensions.push_back(
+        ExtensionFactory::createInstanceExtension(ExtensionName::PhysicalDeviceProperties2Extension));
+    instanceExtensions.push_back(
+        ExtensionFactory::createInstanceExtension(ExtensionName::PortabilityEnumerationExtension));
+
+    uint32_t extensionCount = 0;
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+    std::vector<VkExtensionProperties> supportedExtensions(extensionCount);
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data());
+
+    std::vector<const char*> requestedExtensions;
+    for (auto& extension : instanceExtensions)
+    {
+        extension->check(supportedExtensions);
+        extension->add(requestedExtensions);
+    }
+
+    const bool enableValidationLayer = true;
+
+    if (enableValidationLayer)
+    {
+        LOGD("Finding layers...");
+        const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
         {
-            extension->check(supportedExtensions);
-            extension->add(requestedExtensions);
-        }
-
-        for (auto& extension : supportedExtensions)
-        {
-            bool notExist = true;
-
-            // TODO
-            for (auto requestedExtension : requestedExtensions)
+            uint32_t instanceLayerCount;
+            vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
+            std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
+            vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
+            bool validationLayerPresent = false;
+            for (VkLayerProperties layer : instanceLayerProperties)
             {
-                if (std::string(requestedExtension) == std::string(extension.extensionName))
+                LOGD("Layers : %s", layer.layerName);
+
+                if (strcmp(layer.layerName, validationLayerName) == 0)
                 {
-                    notExist = false;
+                    validationLayerPresent = true;
+                    break;
                 }
             }
-
-            if (notExist)
+            if (validationLayerPresent)
             {
-                requestedExtensions.push_back(extension.extensionName);
-                LOGD("%s", extension.extensionName);
+                instanceCreateInfo.ppEnabledLayerNames = &validationLayerName;
+                instanceCreateInfo.enabledLayerCount = 1;
+            }
+            else
+            {
+                LOGE("Validation layer VK_LAYER_KHRONOS_validation not present, "
+                     "validation is disabled");
             }
         }
+    }
 
-        if (enableValidationLayer)
-        {
-            LOGD("Finding layers...");
-            const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
-            {
-                uint32_t instanceLayerCount;
-                vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
-                std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
-                vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
-                bool validationLayerPresent = false;
-                for (VkLayerProperties layer : instanceLayerProperties)
-                {
-                    LOGD("Layers : %s", layer.layerName);
+    LOGD("==== List of enabled instance extensions ====");
+    for (auto& extension : requestedExtensions)
+    {
+        LOGD("%s", extension);
+    }
+    LOGD("==== End of enabled instance extensions ====");
 
-                    if (strcmp(layer.layerName, validationLayerName) == 0)
-                    {
-                        validationLayerPresent = true;
-                        break;
-                    }
-                }
-                if (validationLayerPresent)
-                {
-                    instanceCreateInfo.ppEnabledLayerNames = &validationLayerName;
-                    instanceCreateInfo.enabledLayerCount = 1;
-                }
-                else
-                {
-                    LOGE("Validation layer VK_LAYER_KHRONOS_validation not present, "
-                         "validation is disabled");
-                }
-            }
-        }
+    instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+#if PLATFORM_MAC
+    instanceCreateInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+    LOGD("instanceCreateInfo.flags: %u", instanceCreateInfo.flags);
+#endif
+    instanceCreateInfo.pApplicationInfo = &applicationInfo;
+    instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
+    instanceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
 
-        instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        instanceCreateInfo.pApplicationInfo = &applicationInfo;
-        instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
-        instanceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
+    vk_try(instance.init(instanceCreateInfo));
 
-        VKCALL(instance.init(instanceCreateInfo));
+    for (auto& extension : instanceExtensions)
+    {
+        extension->fetch(instance.getHandle());
+    }
 
-        for (auto& extension : instanceExtensions)
-        {
-            extension->fetch(instance.getHandle());
-        }
+    LOGD("Done to create instance %p", instance.getHandle());
 
-        LOGD("Done to create instance");
-    */
+    return Result::Continue;
+}
+
+Result Context::initPhysicalDevice()
+{
+    LOGD("Init physical device");
+    // Physical device
+    uint32_t gpuCount = 0;
+    // Get number of available physical devices
+    vk_try(vkEnumeratePhysicalDevices(instance.getHandle(), &gpuCount, nullptr));
+
+    LOGD("Number of GPUs : %u", gpuCount);
+
+    if (gpuCount == 0)
+    {
+        LOGE("No device with Vulkan support found");
+        return Result::Fail;
+    }
+
+    // Enumerate devices
+    std::vector<VkPhysicalDevice> physicalDevices(gpuCount);
+    vk_try(vkEnumeratePhysicalDevices(instance.getHandle(), &gpuCount, physicalDevices.data()));
+
+    uint32_t selectedDevice = 0;
+
+#if !PLATFORM_ANDROID
+    for (uint32_t i = 0; i < gpuCount; i++)
+    {
+        vkGetPhysicalDeviceProperties(physicalDevices[i], &physicalDeviceProperties);
+        LOGD("Device [%d]: %s", i, physicalDeviceProperties.deviceName);
+        // LOGD("Type: %s", debug::physicalDeviceTypeString(physicalDeviceProperties.deviceType).c_str());
+    }
+#endif
+
+    physicalDevice.setHandle(physicalDevices[selectedDevice]);
+    vkGetPhysicalDeviceProperties(physicalDevice.getHandle(), &physicalDeviceProperties);
+    vkGetPhysicalDeviceFeatures(physicalDevice.getHandle(), &physicalDeviceFeatures2.features);
+
+    // gpuName = std::string(physicalDeviceProperties.deviceName);
+
+    LOGD("Physical Device %s", physicalDeviceProperties.deviceName);
+    LOGD("Tessellation shader %d", physicalDeviceFeatures2.features.tessellationShader);
+    LOGD("Sampler Anisotropy %d", (int)physicalDeviceFeatures2.features.samplerAnisotropy);
+
+    return Result::Continue;
+}
+
+Result Context::initLogicalDevice()
+{
+    return Result::Continue;
 }
 } // namespace vk

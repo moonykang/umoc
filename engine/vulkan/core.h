@@ -1,11 +1,26 @@
 #pragma once
 
 #include "common/util.h"
-#include "vulkan/vulkan.h"
-#include "vulkan/vulkan_core.h"
+#include "vulkan/debug.h"
+#include "vulkan/wrapper.h"
 
-#define VKCALL(expr)                                                                                                   \
-    if ((expr) != VK_SUCCESS)                                                                                          \
+#define vk_try(expr)                                                                                                   \
     {                                                                                                                  \
-        ASSERT(true)                                                                                                   \
+        VkResult result = (expr);                                                                                      \
+        if (result != VK_SUCCESS)                                                                                      \
+        {                                                                                                              \
+            LOGD("VkResult %s for [" #expr "]", vk::debug::getVkResultString(result).c_str());                         \
+            ASSERT(true);                                                                                              \
+            return Result::Fail;                                                                                       \
+        }                                                                                                              \
+    }
+
+#define vk_call(expr)                                                                                                  \
+    {                                                                                                                  \
+        VkResult result = (expr);                                                                                      \
+        if (result != VK_SUCCESS)                                                                                      \
+        {                                                                                                              \
+            LOGD("VkResult %s for [" #expr "]", vk::debug::getVkResultString(result).c_str());                         \
+            ASSERT(true);                                                                                              \
+        }                                                                                                              \
     }

@@ -27,4 +27,6 @@ ADD_DEPENDENCIES(engine glfw)
 TARGET_LINK_LIBRARIES(
     engine
     glfw
+    ${VULKAN_LIBRARY}
+    ${VULKAN_LAYER}
 )

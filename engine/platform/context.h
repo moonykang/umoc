@@ -14,13 +14,16 @@ class Context
 {
   public:
     Context();
+
     virtual ~Context() = default;
 
-    void init();
+    Result init();
 
-    virtual void initRHI() = 0;
+    virtual Result initRHI() = 0;
 
     void terminate();
+
+    virtual void terminateRHI() = 0;
 
     rhi::Context* getRHI();
 

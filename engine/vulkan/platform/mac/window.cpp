@@ -17,7 +17,7 @@ void Window::initRHI()
 
 void Window::initSurface(VkInstance instance, Surface* surface)
 {
-    VKCALL(glfwCreateWindowSurface(instance, window, nullptr, &surface->getSurface()));
+    vk_call(glfwCreateWindowSurface(instance, window, nullptr, &surface->getSurface()));
 }
 } // namespace mac
 } // namespace vk

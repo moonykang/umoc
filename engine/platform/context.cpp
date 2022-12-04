@@ -7,12 +7,16 @@ Context::Context() : asset(nullptr), window(nullptr)
 {
 }
 
-void Context::init()
+Result Context::init()
 {
+    try(initRHI());
+
+    return Result::Continue;
 }
 
 void Context::terminate()
 {
+    terminateRHI();
 }
 
 rhi::Context* Context::getRHI()
