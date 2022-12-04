@@ -23,7 +23,7 @@ class Context : public rhi::Context
 
     void destroy();
 
-    Result initRHI() override final;
+    Result initRHI(platform::Window* window) override final;
 
     void terminateRHI() override final;
 

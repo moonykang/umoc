@@ -9,7 +9,11 @@ Context::Context() : asset(nullptr), window(nullptr)
 
 Result Context::init()
 {
-    try(initRHI());
+    window = Window::createPlatformWindow();
+
+    window->init();
+
+    try(initRHI(window));
 
     return Result::Continue;
 }
@@ -17,6 +21,8 @@ Result Context::init()
 void Context::terminate()
 {
     terminateRHI();
+
+    DELETE(window);
 }
 
 rhi::Context* Context::getRHI()

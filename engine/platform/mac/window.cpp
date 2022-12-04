@@ -6,6 +6,12 @@
 
 namespace platform
 {
+
+Window* Window::createPlatformWindow()
+{
+    return new mac::Window();
+}
+
 namespace mac
 {
 Window::Window() : window(nullptr)
@@ -16,12 +22,6 @@ void Window::init()
 {
     LOGD("Init Mac platform window");
 
-    initGlfw();
-    initRHI();
-}
-
-void Window::initGlfw()
-{
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -37,5 +37,10 @@ void Window::terminate()
     glfwTerminate();
 }
 
+GLFWwindow* Window::getWindow()
+{
+    ASSERT(window != nullptr);
+    return window;
+}
 } // namespace mac
 } // namespace platform

@@ -15,11 +15,9 @@ class Window : public platform::Window
 
     void terminate() override;
 
-    void initGlfw();
+    GLFWwindow* getWindow();
 
-    virtual void initRHI() = 0;
-
-  protected:
+  private:
     GLFWwindow* window;
 };
 } // namespace mac

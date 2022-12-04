@@ -11,7 +11,7 @@ class Context : public platform::Context
     static Context* createRHIContext(rhi::List rhi);
 
   public:
-    virtual Result initRHI() = 0;
+    virtual Result initRHI(platform::Window* window) = 0;
 
     virtual void terminateRHI() = 0;
 };

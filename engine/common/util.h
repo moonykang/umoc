@@ -14,10 +14,10 @@ class NonCopyable
     void operator=(const NonCopyable&) = delete;
 };
 
-#define DELETE(obj, dependency)                                                                                        \
+#define DELETE(obj, ...)                                                                                               \
     if (obj)                                                                                                           \
     {                                                                                                                  \
-        obj->terminate(dependency);                                                                                    \
+        obj->terminate(__VA_ARGS__);                                                                                   \
         delete obj;                                                                                                    \
         obj = nullptr;                                                                                                 \
     }

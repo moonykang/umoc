@@ -1,7 +1,7 @@
 #include "vulkan/context.h"
 #include "vulkan/debug.h"
 #include "vulkan/extension.h"
-#include "vulkan/platform/window.h"
+#include "vulkan/surface.h"
 
 namespace vk
 {
@@ -9,11 +9,15 @@ Context::Context() : surface(nullptr), enableValidationLayer(true), debugCallbac
 {
 }
 
-Result Context::initRHI()
+Result Context::initRHI(platform::Window* window)
 {
     LOGD("init vulkan RHI");
 
+    surface = Surface::createPlatformSurface();
+
     try(initInstance());
+
+    try(surface->initSurface(window, instance.getHandle()));
 
     if (enableValidationLayer)
     {
@@ -24,9 +28,6 @@ Result Context::initRHI()
 
     try(initPhysicalDevice());
 
-    window = Window::createWindow();
-    window->init();
-
     try(initLogicalDevice());
 
     return Result::Continue;
@@ -34,12 +35,10 @@ Result Context::initRHI()
 
 void Context::terminateRHI()
 {
-    if (surface)
-    {
-    }
+    // Device dependencies
 
-    window->terminate();
-
+        // Instance dependencies
+    DELETE(surface, instance.getHandle());
     DELETE(debugCallback, instance.getHandle());
 
     physicalDevice.release();
@@ -79,6 +78,12 @@ Result Context::initInstance()
     {
         extension->check(supportedExtensions);
         extension->add(requestedExtensions);
+    }
+
+    std::vector<std::string> surfaceExtensions = surface->getSurfaceExtensions();
+    for (auto& extension : surfaceExtensions)
+    {
+        requestedExtensions.push_back(extension.c_str());
     }
 
     if (enableValidationLayer)
@@ -151,7 +156,6 @@ Result Context::initPhysicalDevice()
     vk_try(vkEnumeratePhysicalDevices(instance.getHandle(), &gpuCount, nullptr));
 
     LOGD("Number of GPUs : %u", gpuCount);
-
     if (gpuCount == 0)
     {
         LOGE("No device with Vulkan support found");

@@ -19,7 +19,7 @@ class Context
 
     Result init();
 
-    virtual Result initRHI() = 0;
+    virtual Result initRHI(Window* window) = 0;
 
     void terminate();
 

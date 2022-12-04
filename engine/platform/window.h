@@ -14,11 +14,15 @@ class Window
 {
   public:
     Window();
-    ~Window() = default;
+
+    virtual ~Window() = default;
 
     virtual void init() = 0;
 
     virtual void terminate() = 0;
+
+  public:
+    static Window* createPlatformWindow();
 
   private:
     Input* input;

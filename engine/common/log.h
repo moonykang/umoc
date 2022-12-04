@@ -12,9 +12,10 @@
 #include <cassert>
 void print_trace();
 #define ASSERT(expr)                                                                                                   \
+    if (!(expr))                                                                                                       \
     {                                                                                                                  \
         print_trace();                                                                                                 \
-        assert(expr);                                                                                                  \
+        assert(true);                                                                                                  \
     }
 
 #define UNREACHABLE() ASSERT(true)
