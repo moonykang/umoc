@@ -1,4 +1,5 @@
 #include "vulkan/extension.h"
+#include "vulkan/core.h"
 #include <dlfcn.h>
 
 namespace vk
@@ -55,6 +56,22 @@ void PhysicalDeviceProperties2Extension::fetch(VkInstance instance)
     }
 }
 
+// VK_EXT_debug_utils
+PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT;
+PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT;
+DebugUtils::DebugUtils() : InstanceExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME)
+{
+}
+
+void DebugUtils::fetch(VkInstance instance)
+{
+    if (support)
+    {
+        GET_INSTANCE_PROC(instance, vkCreateDebugUtilsMessengerEXT);
+        GET_INSTANCE_PROC(instance, vkDestroyDebugUtilsMessengerEXT);
+    }
+}
+
 DeviceExtension::DeviceExtension(const char* extensionName) : Extension(extensionName)
 {
 }
@@ -67,6 +84,8 @@ InstanceExtension* ExtensionFactory::createInstanceExtension(ExtensionName exten
         return new PhysicalDeviceProperties2Extension();
     case ExtensionName::PortabilityEnumerationExtension:
         return new PortabilityEnumeration();
+    case ExtensionName::DebugUtilsExtension:
+        return new DebugUtils();
     default:
         UNREACHABLE();
         return nullptr;

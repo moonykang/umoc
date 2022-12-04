@@ -11,6 +11,11 @@ class DeviceExtension;
 class InstanceExtension;
 class Surface;
 
+namespace debug
+{
+class DebugCallback;
+}
+
 class Context : public rhi::Context
 {
   public:
@@ -34,6 +39,7 @@ class Context : public rhi::Context
     handle::Device device;
     handle::PhysicalDevice physicalDevice;
     Surface* surface;
+    debug::DebugCallback* debugCallback;
 
     std::vector<InstanceExtension*> instanceExtensions;
     std::vector<DeviceExtension*> deviceExtensions;
@@ -41,5 +47,8 @@ class Context : public rhi::Context
     VkPhysicalDeviceProperties2 physicalDeviceProperties2;
     VkPhysicalDeviceProperties physicalDeviceProperties;
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2;
+
+  private:
+    bool enableValidationLayer;
 };
 } // namespace vk

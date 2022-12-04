@@ -10,6 +10,11 @@
 #endif
 
 #include <cassert>
-#define ASSERT(expr) assert(expr)
+void print_trace();
+#define ASSERT(expr)                                                                                                   \
+    {                                                                                                                  \
+        print_trace();                                                                                                 \
+        assert(expr);                                                                                                  \
+    }
 
 #define UNREACHABLE() ASSERT(true)

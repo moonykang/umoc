@@ -1,8 +1,7 @@
 #pragma once
 
 #include "common/util.h"
-#include "vulkan/vulkan.h"
-#include "vulkan/vulkan_core.h"
+#include "vulkan/extension.h"
 
 namespace vk
 {
@@ -87,6 +86,16 @@ class Device final : public WrappedObject<Device, VkDevice>
     VkResult init(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo);
 };
 
+// VK_EXT_debug_utils
+class DebugUtilsMessenger final : public WrappedObject<Instance, VkDebugUtilsMessengerEXT>
+{
+  public:
+    DebugUtilsMessenger() = default;
+    void destroy(VkInstance instance);
+
+    VkResult init(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+};
+
 /*
 ====== DEFINITION ======
 */
@@ -125,6 +134,21 @@ inline VkResult Device::init(VkPhysicalDevice device, const VkDeviceCreateInfo& 
 {
     ASSERT(!valid());
     return vkCreateDevice(device, &createInfo, nullptr, &mHandle);
+}
+
+inline void DebugUtilsMessenger::destroy(VkInstance instance)
+{
+    if (valid())
+    {
+        vkDestroyDebugUtilsMessengerEXT(instance, mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
+    }
+}
+
+inline VkResult DebugUtilsMessenger::init(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+    ASSERT(!valid());
+    return vkCreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &mHandle);
 }
 } // namespace handle
 } // namespace vk

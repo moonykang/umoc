@@ -1,10 +1,11 @@
 #include "vulkan/context.h"
+#include "vulkan/debug.h"
 #include "vulkan/extension.h"
 #include "vulkan/platform/window.h"
 
 namespace vk
 {
-Context::Context() : surface(nullptr)
+Context::Context() : surface(nullptr), enableValidationLayer(true), debugCallback(nullptr)
 {
 }
 
@@ -13,6 +14,13 @@ Result Context::initRHI()
     LOGD("init vulkan RHI");
 
     try(initInstance());
+
+    if (enableValidationLayer)
+    {
+        debugCallback = new debug::DebugCallback();
+        debugCallback->init(instance.getHandle(), VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT,
+                            VK_NULL_HANDLE);
+    }
 
     try(initPhysicalDevice());
 
@@ -31,7 +39,12 @@ void Context::terminateRHI()
     }
 
     window->terminate();
+
+    DELETE(debugCallback, instance.getHandle());
+
+    physicalDevice.release();
     instance.destroy();
+    LOGD("End of terminate RHI");
 }
 
 Result Context::initInstance()
@@ -54,6 +67,7 @@ Result Context::initInstance()
         ExtensionFactory::createInstanceExtension(ExtensionName::PhysicalDeviceProperties2Extension));
     instanceExtensions.push_back(
         ExtensionFactory::createInstanceExtension(ExtensionName::PortabilityEnumerationExtension));
+    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::DebugUtilsExtension));
 
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -66,8 +80,6 @@ Result Context::initInstance()
         extension->check(supportedExtensions);
         extension->add(requestedExtensions);
     }
-
-    const bool enableValidationLayer = true;
 
     if (enableValidationLayer)
     {

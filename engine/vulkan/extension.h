@@ -1,6 +1,7 @@
 #pragma once
 
-#include "vulkan/core.h"
+#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 #include <map>
 #include <vector>
 
@@ -10,6 +11,7 @@ enum class ExtensionName
 {
     SwapchainExtension,
     DebugMarkerExtension,
+    DebugUtilsExtension,
     AccelerationStructureExtension,
     RayTracingPipelineExtension,
     DeviceAddressExtension,
@@ -63,7 +65,18 @@ class PhysicalDeviceProperties2Extension : public InstanceExtension
   public:
     PhysicalDeviceProperties2Extension();
 
-    void fetch(VkInstance instance) override;
+    void fetch(VkInstance instance) override final;
+};
+
+// VK_EXT_debug_utils
+extern PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT;
+extern PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT;
+class DebugUtils : public InstanceExtension
+{
+  public:
+    DebugUtils();
+
+    void fetch(VkInstance instance) override final;
 };
 
 class DeviceExtension : public Extension

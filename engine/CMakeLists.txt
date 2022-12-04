@@ -5,6 +5,7 @@ SET(EDITOR_SOURCES ${EDITOR_SOURCES})
 SET(EDITOR_HEADERS ${EDITOR_HEADERS})
 
 SET(SUBDIRECTORIES
+    common
     platform
     rhi
     vulkan

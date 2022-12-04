@@ -1,3 +1,4 @@
+#include "common/util.h"
 #include "platform/application.h"
 #include "platform/context.h"
 #include "rhi/context.h"
@@ -5,8 +6,14 @@
 
 int main()
 {
+    LOGD("Begin");
     platform::Context* context = rhi::Context::createRHIContext(rhi::List::Vulkan);
-    context->init();
+
+    if (context->init() == Result::Fail)
+    {
+        LOGE("Failed to init context");
+        return EXIT_FAILURE;
+    }
 
     platform::Application application;
     application.init(context);
@@ -16,5 +23,7 @@ int main()
     context->terminate();
 
     delete context;
+
+    LOGD("Terminate");
     return EXIT_SUCCESS;
 }
