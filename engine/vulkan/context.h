@@ -35,6 +35,11 @@ class Context : public rhi::Context
     Result initLogicalDevice();
 
   private:
+    VkDeviceQueueCreateInfo getQueueCreateInfo(VkQueueFlags queueFlags, uint32_t* queueIndex, float queuePriority = 0);
+
+    uint32_t getQueueFamilyIndex(VkQueueFlagBits queueFlags) const;
+
+  private:
     handle::Instance instance;
     handle::Device device;
     handle::PhysicalDevice physicalDevice;

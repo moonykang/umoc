@@ -37,10 +37,11 @@ void Context::terminateRHI()
 {
     // Device dependencies
 
-        // Instance dependencies
+    // Instance dependencies
     DELETE(surface, instance.getHandle());
     DELETE(debugCallback, instance.getHandle());
 
+    device.destroy();
     physicalDevice.release();
     instance.destroy();
     LOGD("End of terminate RHI");
@@ -62,11 +63,9 @@ Result Context::initInstance()
     applicationInfo.apiVersion = VK_API_VERSION_1_0;
 #endif
 
-    instanceExtensions.push_back(
-        ExtensionFactory::createInstanceExtension(ExtensionName::PhysicalDeviceProperties2Extension));
-    instanceExtensions.push_back(
-        ExtensionFactory::createInstanceExtension(ExtensionName::PortabilityEnumerationExtension));
-    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::DebugUtilsExtension));
+    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::PhysicalDeviceProperties2));
+    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::PortabilityEnumeration));
+    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::DebugUtils));
 
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -190,8 +189,152 @@ Result Context::initPhysicalDevice()
     return Result::Continue;
 }
 
+uint32_t Context::getQueueFamilyIndex(VkQueueFlagBits queueFlags) const
+{
+    ASSERT(surface->valid());
+    ASSERT(physicalDevice.valid());
+
+    std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+
+    uint32_t queueFamilyCount;
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.getHandle(), &queueFamilyCount, nullptr);
+    assert(queueFamilyCount > 0);
+    queueFamilyProperties.resize(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.getHandle(), &queueFamilyCount,
+                                             queueFamilyProperties.data());
+
+    std::vector<VkBool32> supportsPresent(queueFamilyCount);
+    for (uint32_t i = 0; i < queueFamilyCount; i++)
+    {
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.getHandle(), i, surface->getSurface(), &supportsPresent[i]);
+    }
+
+    // Dedicated queue for compute
+    // Try to find a queue family index that supports compute but not graphics
+    if (queueFlags & VK_QUEUE_COMPUTE_BIT)
+    {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilyProperties.size()); i++)
+        {
+            if ((queueFamilyProperties[i].queueFlags & queueFlags) &&
+                ((queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0))
+            {
+                return i;
+            }
+        }
+    }
+
+    // Dedicated queue for transfer
+    // Try to find a queue family index that supports transfer but not graphics
+    // and compute
+    if (queueFlags & VK_QUEUE_TRANSFER_BIT)
+    {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilyProperties.size()); i++)
+        {
+            if ((queueFamilyProperties[i].queueFlags & queueFlags) &&
+                ((queueFamilyProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) == 0) &&
+                ((queueFamilyProperties[i].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0))
+            {
+                return i;
+            }
+        }
+    }
+
+    // For other queue types or if no separate compute queue is present, return
+    // the first one to support the requested flags
+    for (uint32_t i = 0; i < static_cast<uint32_t>(queueFamilyProperties.size()); i++)
+    {
+        if (queueFamilyProperties[i].queueFlags & queueFlags)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("Could not find a matching queue family index");
+}
+
+VkDeviceQueueCreateInfo Context::getQueueCreateInfo(VkQueueFlags queueFlags, uint32_t* queueIndex, float queuePriority)
+{
+    *queueIndex = getQueueFamilyIndex(VK_QUEUE_GRAPHICS_BIT);
+
+    VkDeviceQueueCreateInfo queueCreateInfo = {};
+    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queueCreateInfo.queueFamilyIndex = *queueIndex;
+    queueCreateInfo.queueCount = 1;
+    queueCreateInfo.pQueuePriorities = &queuePriority;
+
+    return queueCreateInfo;
+}
+
 Result Context::initLogicalDevice()
 {
+    uint32_t graphicsQueueIndex = 0;
+
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos{};
+    queueCreateInfos.push_back(getQueueCreateInfo(VK_QUEUE_GRAPHICS_BIT, &graphicsQueueIndex));
+
+    // Get list of supported extensions
+    uint32_t extensionCount = 0;
+    std::vector<VkExtensionProperties> supportedExtensions;
+    std::vector<const char*> requestedExtensions;
+    vkEnumerateDeviceExtensionProperties(physicalDevice.getHandle(), nullptr, &extensionCount, nullptr);
+    supportedExtensions.resize(extensionCount);
+    vkEnumerateDeviceExtensionProperties(physicalDevice.getHandle(), nullptr, &extensionCount,
+                                         supportedExtensions.data());
+
+    VkDeviceCreateInfo deviceCreateInfo = {};
+    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    deviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
+
+    deviceCreateInfo.pNext = &physicalDeviceFeatures2;
+    physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    void** nextFeatureChain = &physicalDeviceFeatures2.pNext;
+
+    physicalDeviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR;
+    void** nextPropertyChain = &physicalDeviceProperties2.pNext;
+
+    // Device extensions
+    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::Swapchain));
+    // deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DebugMarker));
+    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::AccelerationStructure));
+    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::RayTracingPipeline));
+    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DeviceAddress));
+    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DeferredHostOperations));
+    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::RayQuery));
+    // deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DescriptorIndexing));
+    // deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::Spirv_1_4));
+    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::PortabilitySubset));
+
+    for (auto& deviceExtension : deviceExtensions)
+    {
+        deviceExtension->check(supportedExtensions);
+        deviceExtension->add(requestedExtensions);
+        deviceExtension->feature(nextFeatureChain);
+        // deviceExtension->property(devicePropertyMap, nextPropertyChain);
+    }
+
+    deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
+    deviceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
+
+    vk_try(device.init(physicalDevice.getHandle(), deviceCreateInfo));
+
+    for (auto& deviceExtension : deviceExtensions)
+    {
+        deviceExtension->fetch(device.getHandle());
+    }
+
+    // physicalDevice.getProperties2(&physicalDeviceProperties2);
+
+    // queueFamilyIndex = graphicsQueueIndex;
+    // commandBufferManager->init(device.getHandle(), graphicsQueueIndex);
+    // queue->init(device.getHandle(), graphicsQueueIndex);
+
+    LOGD("Done to create logical device");
+    /*
+        VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+        pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+        VKCALL(pipelineCache.init(device.getHandle(), pipelineCacheCreateInfo));
+    */
     return Result::Continue;
 }
 } // namespace vk

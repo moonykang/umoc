@@ -1,5 +1,6 @@
 #pragma once
 
+#define VK_ENABLE_BETA_EXTENSIONS
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
 #include <map>
@@ -9,15 +10,16 @@ namespace vk
 {
 enum class ExtensionName
 {
-    SwapchainExtension,
-    DebugMarkerExtension,
-    DebugUtilsExtension,
-    AccelerationStructureExtension,
-    RayTracingPipelineExtension,
-    DeviceAddressExtension,
-    DeferredHostOperationsExtension,
-    PhysicalDeviceProperties2Extension,
-    PortabilityEnumerationExtension,
+    Swapchain,
+    DebugMarker,
+    DebugUtils,
+    AccelerationStructure,
+    RayTracingPipeline,
+    DeviceAddress,
+    DeferredHostOperations,
+    PhysicalDeviceProperties2,
+    PortabilityEnumeration,
+    PortabilitySubset,
     RayQuery,
     DescriptorIndexing,
     Spirv_1_4
@@ -225,5 +227,12 @@ class Spirv_1_4_Extension : public DeviceExtension
 {
   public:
     Spirv_1_4_Extension();
+};
+
+// VK_KHR_portability_subset
+class PortabilitySubsetExtension : public DeviceExtension
+{
+  public:
+    PortabilitySubsetExtension();
 };
 } // namespace vk

@@ -80,11 +80,11 @@ InstanceExtension* ExtensionFactory::createInstanceExtension(ExtensionName exten
 {
     switch (extensionName)
     {
-    case ExtensionName::PhysicalDeviceProperties2Extension:
+    case ExtensionName::PhysicalDeviceProperties2:
         return new PhysicalDeviceProperties2Extension();
-    case ExtensionName::PortabilityEnumerationExtension:
+    case ExtensionName::PortabilityEnumeration:
         return new PortabilityEnumeration();
-    case ExtensionName::DebugUtilsExtension:
+    case ExtensionName::DebugUtils:
         return new DebugUtils();
     default:
         UNREACHABLE();
@@ -96,17 +96,17 @@ DeviceExtension* ExtensionFactory::createDeviceExtension(ExtensionName extension
 {
     switch (extensionName)
     {
-    case ExtensionName::SwapchainExtension:
+    case ExtensionName::Swapchain:
         return new SwapchainExtension();
-    case ExtensionName::DebugMarkerExtension:
+    case ExtensionName::DebugMarker:
         return new DebugMarkerExtension();
-    case ExtensionName::AccelerationStructureExtension:
+    case ExtensionName::AccelerationStructure:
         return new AccelerationStructureExtension();
-    case ExtensionName::RayTracingPipelineExtension:
+    case ExtensionName::RayTracingPipeline:
         return new RayTracingPipelineExtension();
-    case ExtensionName::DeviceAddressExtension:
+    case ExtensionName::DeviceAddress:
         return new DeviceAddressExtension();
-    case ExtensionName::DeferredHostOperationsExtension:
+    case ExtensionName::DeferredHostOperations:
         return new DeferredHostOperationsExtension();
     case ExtensionName::RayQuery:
         return new RayQueryExtension();
@@ -114,6 +114,8 @@ DeviceExtension* ExtensionFactory::createDeviceExtension(ExtensionName extension
         return new DescriptorIndexingExtension();
     case ExtensionName::Spirv_1_4:
         return new Spirv_1_4_Extension();
+    case ExtensionName::PortabilitySubset:
+        return new PortabilitySubsetExtension();
     default:
         UNREACHABLE();
         return nullptr;
@@ -349,4 +351,40 @@ void DescriptorIndexingExtension::property(std::map<VkStructureType, void*>& pro
 Spirv_1_4_Extension::Spirv_1_4_Extension() : DeviceExtension(VK_KHR_SPIRV_1_4_EXTENSION_NAME)
 {
 }
+
+/*
+#define VK_KHR_portability_subset 1
+#define VK_KHR_PORTABILITY_SUBSET_SPEC_VERSION 1
+#define VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME "VK_KHR_portability_subset"
+typedef struct VkPhysicalDevicePortabilitySubsetFeaturesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    VkBool32           constantAlphaColorBlendFactors;
+    VkBool32           events;
+    VkBool32           imageViewFormatReinterpretation;
+    VkBool32           imageViewFormatSwizzle;
+    VkBool32           imageView2DOn3DImage;
+    VkBool32           multisampleArrayImage;
+    VkBool32           mutableComparisonSamplers;
+    VkBool32           pointPolygons;
+    VkBool32           samplerMipLodBias;
+    VkBool32           separateStencilMaskRef;
+    VkBool32           shaderSampleRateInterpolationFunctions;
+    VkBool32           tessellationIsolines;
+    VkBool32           tessellationPointMode;
+    VkBool32           triangleFans;
+    VkBool32           vertexAttributeAccessBeyondStride;
+} VkPhysicalDevicePortabilitySubsetFeaturesKHR;
+
+typedef struct VkPhysicalDevicePortabilitySubsetPropertiesKHR {
+    VkStructureType    sType;
+    void*              pNext;
+    uint32_t           minVertexInputBindingStrideAlignment;
+} VkPhysicalDevicePortabilitySubsetPropertiesKHR;
+*/
+// VK_KHR_portability_subset
+PortabilitySubsetExtension::PortabilitySubsetExtension() : DeviceExtension(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME)
+{
+}
+
 } // namespace vk

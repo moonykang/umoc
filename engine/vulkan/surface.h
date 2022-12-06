@@ -28,6 +28,11 @@ class Surface
   public:
     VkSurfaceKHR& getSurface();
 
+    inline bool valid()
+    {
+        return surface != VK_NULL_HANDLE;
+    }
+
   protected:
     VkSurfaceKHR surface;
 };
