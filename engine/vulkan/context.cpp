@@ -63,9 +63,14 @@ Result Context::initInstance()
     applicationInfo.apiVersion = VK_API_VERSION_1_0;
 #endif
 
-    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::PhysicalDeviceProperties2));
-    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::PortabilityEnumeration));
-    instanceExtensions.push_back(ExtensionFactory::createInstanceExtension(ExtensionName::DebugUtils));
+    // Instance extensions
+    auto createInstanceExtension = [this](ExtensionName extensionName) {
+        this->instanceExtensions.try_emplace(extensionName, ExtensionFactory::createInstanceExtension(extensionName));
+    };
+
+    createInstanceExtension(ExtensionName::PhysicalDeviceProperties2);
+    createInstanceExtension(ExtensionName::PortabilityEnumeration);
+    createInstanceExtension(ExtensionName::DebugUtils);
 
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -75,8 +80,8 @@ Result Context::initInstance()
     std::vector<const char*> requestedExtensions;
     for (auto& extension : instanceExtensions)
     {
-        extension->check(supportedExtensions);
-        extension->add(requestedExtensions);
+        extension.second->check(supportedExtensions);
+        extension.second->add(requestedExtensions);
     }
 
     std::vector<std::string> surfaceExtensions = surface->getSurfaceExtensions();
@@ -138,7 +143,7 @@ Result Context::initInstance()
 
     for (auto& extension : instanceExtensions)
     {
-        extension->fetch(instance.getHandle());
+        extension.second->fetch(instance.getHandle());
     }
 
     LOGD("Done to create instance %p", instance.getHandle());
@@ -290,27 +295,32 @@ Result Context::initLogicalDevice()
     physicalDeviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
     void** nextFeatureChain = &physicalDeviceFeatures2.pNext;
 
+    VkPhysicalDeviceProperties2 physicalDeviceProperties2 = {};
     physicalDeviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2_KHR;
     void** nextPropertyChain = &physicalDeviceProperties2.pNext;
 
     // Device extensions
-    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::Swapchain));
-    // deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DebugMarker));
-    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::AccelerationStructure));
-    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::RayTracingPipeline));
-    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DeviceAddress));
-    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DeferredHostOperations));
-    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::RayQuery));
-    // deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::DescriptorIndexing));
-    // deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::Spirv_1_4));
-    deviceExtensions.push_back(ExtensionFactory::createDeviceExtension(ExtensionName::PortabilitySubset));
+    auto createDeviceExtension = [this](ExtensionName extensionName) {
+        this->deviceExtensions.try_emplace(extensionName, ExtensionFactory::createDeviceExtension(extensionName));
+    };
+
+    createDeviceExtension(ExtensionName::Swapchain);
+    createDeviceExtension(ExtensionName::AccelerationStructure);
+    createDeviceExtension(ExtensionName::RayTracingPipeline);
+    createDeviceExtension(ExtensionName::DeviceAddress);
+    createDeviceExtension(ExtensionName::DeferredHostOperations);
+    createDeviceExtension(ExtensionName::RayQuery);
+    createDeviceExtension(ExtensionName::PortabilitySubset);
+    // createDeviceExtension(ExtensionName::DebugMarker);
+    // createDeviceExtension(ExtensionName::DescriptorIndexing);
+    // createDeviceExtension(ExtensionName::Spirv_1_4);
 
     for (auto& deviceExtension : deviceExtensions)
     {
-        deviceExtension->check(supportedExtensions);
-        deviceExtension->add(requestedExtensions);
-        deviceExtension->feature(nextFeatureChain);
-        // deviceExtension->property(devicePropertyMap, nextPropertyChain);
+        deviceExtension.second->check(supportedExtensions);
+        deviceExtension.second->add(requestedExtensions);
+        deviceExtension.second->feature(nextFeatureChain);
+        deviceExtension.second->property(nextPropertyChain);
     }
 
     deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
@@ -320,10 +330,10 @@ Result Context::initLogicalDevice()
 
     for (auto& deviceExtension : deviceExtensions)
     {
-        deviceExtension->fetch(device.getHandle());
+        deviceExtension.second->fetch(device.getHandle());
     }
 
-    // physicalDevice.getProperties2(&physicalDeviceProperties2);
+    physicalDevice.getProperties2(&physicalDeviceProperties2);
 
     // queueFamilyIndex = graphicsQueueIndex;
     // commandBufferManager->init(device.getHandle(), graphicsQueueIndex);

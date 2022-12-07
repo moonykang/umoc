@@ -36,6 +36,10 @@ InstanceExtension::InstanceExtension(const char* extensionName) : Extension(exte
 {
 }
 
+DeviceExtension::DeviceExtension(const char* extensionName) : Extension(extensionName)
+{
+}
+
 // VK_KHR_portability_enumeration
 PortabilityEnumeration::PortabilityEnumeration() : InstanceExtension(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME)
 {
@@ -70,10 +74,6 @@ void DebugUtils::fetch(VkInstance instance)
         GET_INSTANCE_PROC(instance, vkCreateDebugUtilsMessengerEXT);
         GET_INSTANCE_PROC(instance, vkDestroyDebugUtilsMessengerEXT);
     }
-}
-
-DeviceExtension::DeviceExtension(const char* extensionName) : Extension(extensionName)
-{
 }
 
 InstanceExtension* ExtensionFactory::createInstanceExtension(ExtensionName extensionName)
@@ -171,13 +171,10 @@ void AccelerationStructureExtension::fetch(VkDevice device)
     }
 }
 
-void AccelerationStructureExtension::property(std::map<VkStructureType, void*>& propertyMap, void**& chain)
+void AccelerationStructureExtension::property(void**& chain)
 {
     if (support)
     {
-        propertyMap[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR] =
-            &physicalDeviceAccelerationStructureProperties;
-
         physicalDeviceAccelerationStructureProperties = {};
         physicalDeviceAccelerationStructureProperties.sType =
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_PROPERTIES_KHR;
@@ -185,6 +182,11 @@ void AccelerationStructureExtension::property(std::map<VkStructureType, void*>& 
         *chain = &physicalDeviceAccelerationStructureProperties;
         chain = &physicalDeviceAccelerationStructureProperties.pNext;
     }
+}
+
+void* AccelerationStructureExtension::getProperty()
+{
+    return &physicalDeviceAccelerationStructureProperties;
 }
 
 // VK_KHR_ray_tracing_pipeline
@@ -217,18 +219,21 @@ void RayTracingPipelineExtension::fetch(VkDevice device)
     }
 }
 
-void RayTracingPipelineExtension::property(std::map<VkStructureType, void*>& propertyMap, void**& chain)
+void RayTracingPipelineExtension::property(void**& chain)
 {
     if (support)
     {
-        propertyMap[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR] =
-            &physicalDeviceRayTracingPipelineProperties;
         physicalDeviceRayTracingPipelineProperties.sType =
             VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
 
         *chain = &physicalDeviceRayTracingPipelineProperties;
         chain = &physicalDeviceRayTracingPipelineProperties.pNext;
     }
+}
+
+void* RayTracingPipelineExtension::getProperty()
+{
+    return &physicalDeviceRayTracingPipelineProperties;
 }
 
 // VK_KHR_buffer_device_address
@@ -335,17 +340,20 @@ void DescriptorIndexingExtension::feature(void**& chain)
     }
 }
 
-void DescriptorIndexingExtension::property(std::map<VkStructureType, void*>& propertyMap, void**& chain)
+void DescriptorIndexingExtension::property(void**& chain)
 {
     if (support)
     {
-        propertyMap[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT] =
-            &descriptorIndexingProperties;
         descriptorIndexingProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_PROPERTIES_EXT;
 
         *chain = &descriptorIndexingProperties;
         chain = &descriptorIndexingProperties.pNext;
     }
+}
+
+void* DescriptorIndexingExtension::getProperty()
+{
+    return &descriptorIndexingProperties;
 }
 
 Spirv_1_4_Extension::Spirv_1_4_Extension() : DeviceExtension(VK_KHR_SPIRV_1_4_EXTENSION_NAME)

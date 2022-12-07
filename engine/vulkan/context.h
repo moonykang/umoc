@@ -3,7 +3,7 @@
 #include "rhi/context.h"
 #include "vulkan/core.h"
 #include "vulkan/surface.h"
-#include <vector>
+#include <map>
 
 namespace vk
 {
@@ -46,10 +46,9 @@ class Context : public rhi::Context
     Surface* surface;
     debug::DebugCallback* debugCallback;
 
-    std::vector<InstanceExtension*> instanceExtensions;
-    std::vector<DeviceExtension*> deviceExtensions;
+    std::map<ExtensionName, InstanceExtension*> instanceExtensions;
+    std::map<ExtensionName, DeviceExtension*> deviceExtensions;
 
-    VkPhysicalDeviceProperties2 physicalDeviceProperties2;
     VkPhysicalDeviceProperties physicalDeviceProperties;
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2;
 

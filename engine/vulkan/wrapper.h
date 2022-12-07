@@ -116,8 +116,7 @@ inline VkResult Instance::init(const VkInstanceCreateInfo& createInfo)
 
 inline void PhysicalDevice::getProperties2(VkPhysicalDeviceProperties2* properties)
 {
-    ASSERT(!valid());
-
+    ASSERT(valid());
     vkGetPhysicalDeviceProperties2KHR(mHandle, properties);
 }
 

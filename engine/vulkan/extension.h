@@ -36,6 +36,16 @@ class Extension
 
     void add(std::vector<const char*>& requestedExtensions);
 
+    inline bool isSupport()
+    {
+        return support;
+    }
+
+    virtual void* getProperty()
+    {
+        return nullptr;
+    }
+
   private:
     const char* extensionName;
 
@@ -52,6 +62,40 @@ class InstanceExtension : public Extension
     {
     }
 };
+
+class DeviceExtension : public Extension
+{
+  public:
+    DeviceExtension(const char* extensionName);
+
+    virtual void feature(void**& chain)
+    {
+    }
+
+    virtual void fetch(VkDevice device)
+    {
+    }
+
+    virtual void property(void**& chain)
+    {
+    }
+
+    virtual void* getProperty()
+    {
+        return nullptr;
+    }
+};
+
+class ExtensionFactory
+{
+  public:
+    static InstanceExtension* createInstanceExtension(ExtensionName deviceExtensionName);
+    static DeviceExtension* createDeviceExtension(ExtensionName deviceExtensionName);
+};
+
+/*
+List of Instance extensions
+*/
 
 // VK_KHR_portability_enumeration
 class PortabilityEnumeration : public InstanceExtension
@@ -81,30 +125,9 @@ class DebugUtils : public InstanceExtension
     void fetch(VkInstance instance) override final;
 };
 
-class DeviceExtension : public Extension
-{
-  public:
-    DeviceExtension(const char* extensionName);
-
-    virtual void feature(void**& chain)
-    {
-    }
-
-    virtual void fetch(VkDevice device)
-    {
-    }
-
-    virtual void property(std::map<VkStructureType, void*>& propertyMap, void**& chain)
-    {
-    }
-};
-
-class ExtensionFactory
-{
-  public:
-    static InstanceExtension* createInstanceExtension(ExtensionName deviceExtensionName);
-    static DeviceExtension* createDeviceExtension(ExtensionName deviceExtensionName);
-};
+/*
+List of Device extensions
+*/
 
 // VK_KHR_swapchain
 class SwapchainExtension : public DeviceExtension
@@ -138,7 +161,9 @@ class AccelerationStructureExtension : public DeviceExtension
 
     void fetch(VkDevice device) override;
 
-    void property(std::map<VkStructureType, void*>& propertyMap, void**& chain) override;
+    void property(void**& chain) override;
+
+    virtual void* getProperty() override;
 
   private:
     VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures;
@@ -158,7 +183,9 @@ class RayTracingPipelineExtension : public DeviceExtension
 
     void fetch(VkDevice device) override;
 
-    void property(std::map<VkStructureType, void*>& propertyMap, void**& chain) override;
+    void property(void**& chain) override;
+
+    virtual void* getProperty() override;
 
   private:
     VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayTracingFeatures;
@@ -215,7 +242,9 @@ class DescriptorIndexingExtension : public DeviceExtension
 
     void feature(void**& chain) override;
 
-    void property(std::map<VkStructureType, void*>& propertyMap, void**& chain) override;
+    void property(void**& chain) override;
+
+    virtual void* getProperty() override;
 
   private:
     VkPhysicalDeviceDescriptorIndexingFeatures descriptorIndexingFeatures;
