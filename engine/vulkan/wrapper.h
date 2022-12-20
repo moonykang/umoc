@@ -5,8 +5,6 @@
 
 namespace vk
 {
-namespace handle
-{
 template <typename DerivedT, typename HandleT> class WrappedObject : NonCopyable
 {
   public:
@@ -59,35 +57,14 @@ template <typename DerivedT, typename HandleT> class WrappedObject : NonCopyable
     HandleT mHandle;
 };
 
+namespace handle
+{
 /*
 ====== DECLARE ======
 */
-class Instance final : public WrappedObject<Instance, VkInstance>
-{
-  public:
-    Instance() = default;
-    void destroy();
-
-    VkResult init(const VkInstanceCreateInfo& createInfo);
-};
-
-class PhysicalDevice final : public WrappedObject<PhysicalDevice, VkPhysicalDevice>
-{
-  public:
-    void getProperties2(VkPhysicalDeviceProperties2* properties);
-};
-
-class Device final : public WrappedObject<Device, VkDevice>
-{
-  public:
-    Device() = default;
-    void destroy();
-
-    VkResult init(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo);
-};
 
 // VK_EXT_debug_utils
-class DebugUtilsMessenger final : public WrappedObject<Instance, VkDebugUtilsMessengerEXT>
+class DebugUtilsMessenger final : public WrappedObject<DebugUtilsMessenger, VkDebugUtilsMessengerEXT>
 {
   public:
     DebugUtilsMessenger() = default;
@@ -96,44 +73,20 @@ class DebugUtilsMessenger final : public WrappedObject<Instance, VkDebugUtilsMes
     VkResult init(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 };
 
+class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
+{
+  public:
+    CommandBuffer() = default;
+
+    void free(VkDevice device, VkCommandPool commandPool);
+    VkResult allocate(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo);
+    VkResult reset();
+    VkResult begin(const VkCommandBufferBeginInfo& beginInfo);
+    VkResult end();
+};
 /*
 ====== DEFINITION ======
 */
-inline void Instance::destroy()
-{
-    if (valid())
-    {
-        vkDestroyInstance(mHandle, nullptr);
-        mHandle = VK_NULL_HANDLE;
-    }
-}
-
-inline VkResult Instance::init(const VkInstanceCreateInfo& createInfo)
-{
-    ASSERT(!valid());
-    return vkCreateInstance(&createInfo, nullptr, &mHandle);
-}
-
-inline void PhysicalDevice::getProperties2(VkPhysicalDeviceProperties2* properties)
-{
-    ASSERT(valid());
-    vkGetPhysicalDeviceProperties2KHR(mHandle, properties);
-}
-
-inline void Device::destroy()
-{
-    if (valid())
-    {
-        vkDestroyDevice(mHandle, nullptr);
-        mHandle = VK_NULL_HANDLE;
-    }
-}
-
-inline VkResult Device::init(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo)
-{
-    ASSERT(!valid());
-    return vkCreateDevice(device, &createInfo, nullptr, &mHandle);
-}
 
 inline void DebugUtilsMessenger::destroy(VkInstance instance)
 {
@@ -148,6 +101,39 @@ inline VkResult DebugUtilsMessenger::init(VkInstance instance, const VkDebugUtil
 {
     ASSERT(!valid());
     return vkCreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &mHandle);
+}
+
+inline void CommandBuffer::free(VkDevice device, VkCommandPool commandPool)
+{
+    if (valid())
+    {
+        vkFreeCommandBuffers(device, commandPool, 1, &mHandle);
+        mHandle = VK_NULL_HANDLE;
+    }
+}
+
+inline VkResult CommandBuffer::allocate(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo)
+{
+    ASSERT(!valid());
+    return vkAllocateCommandBuffers(device, &allocateInfo, &mHandle);
+}
+
+inline VkResult CommandBuffer::reset()
+{
+    ASSERT(valid());
+    return vkResetCommandBuffer(mHandle, 0);
+}
+
+inline VkResult CommandBuffer::begin(const VkCommandBufferBeginInfo& info)
+{
+    ASSERT(valid());
+    return vkBeginCommandBuffer(mHandle, &info);
+}
+
+inline VkResult CommandBuffer::end()
+{
+    ASSERT(valid());
+    return vkEndCommandBuffer(mHandle);
 }
 } // namespace handle
 } // namespace vk

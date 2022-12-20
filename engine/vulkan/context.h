@@ -2,6 +2,10 @@
 
 #include "rhi/context.h"
 #include "vulkan/core.h"
+#include "vulkan/device.h"
+#include "vulkan/instance.h"
+#include "vulkan/physical_device.h"
+#include "vulkan/queue.h"
 #include "vulkan/surface.h"
 #include <map>
 
@@ -28,22 +32,12 @@ class Context : public rhi::Context
     void terminateRHI() override final;
 
   private:
-    Result initInstance();
-
-    Result initPhysicalDevice();
-
-    Result initLogicalDevice();
-
-  private:
-    VkDeviceQueueCreateInfo getQueueCreateInfo(VkQueueFlags queueFlags, uint32_t* queueIndex, float queuePriority = 0);
-
-    uint32_t getQueueFamilyIndex(VkQueueFlagBits queueFlags) const;
-
-  private:
-    handle::Instance instance;
-    handle::Device device;
-    handle::PhysicalDevice physicalDevice;
+    Instance instance;
     Surface* surface;
+    PhysicalDevice physicalDevice;
+    Device device;
+    QueueMap queueMap;
+
     debug::DebugCallback* debugCallback;
 
     std::map<ExtensionName, InstanceExtension*> instanceExtensions;
