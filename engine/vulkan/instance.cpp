@@ -27,9 +27,9 @@ Result Instance::init(Surface* surface)
 
     VkApplicationInfo applicationInfo = {};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    applicationInfo.pApplicationName = "Yalo";
+    applicationInfo.pApplicationName = "Umoc";
     applicationInfo.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
-    applicationInfo.pEngineName = "Yalo";
+    applicationInfo.pEngineName = "Umoc";
     applicationInfo.engineVersion = VK_MAKE_VERSION(0, 0, 1);
 #if VK_USE_PLATFORM_WIN32_KHR
     applicationInfo.apiVersion = VK_MAKE_API_VERSION(0, 1, 2, 0);
