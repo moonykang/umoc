@@ -17,7 +17,7 @@ class Queue final : public WrappedObject<Queue, VkQueue>
 {
   public:
     Queue() = default;
-    void destroy();
+    void terminate();
 
     void getDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex);
     VkResult submit(const VkSubmitInfo& submitInfo, VkFence fence);

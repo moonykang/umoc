@@ -53,24 +53,29 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
     return VK_FALSE;
 }
 
-Result DebugCallback::init(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportCallbackEXT callBack)
+Result DebugUtilsMessenger::init(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportCallbackEXT callBack)
 {
-    VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCI{};
-    debugUtilsMessengerCI.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugUtilsMessengerCI.messageSeverity =
+    ASSERT(!valid());
+
+    VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo = {};
+    debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    debugUtilsMessengerCreateInfo.messageSeverity =
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugUtilsMessengerCI.messageType =
+    debugUtilsMessengerCreateInfo.messageType =
         VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-    debugUtilsMessengerCI.pfnUserCallback = debugUtilsMessengerCallback;
+    debugUtilsMessengerCreateInfo.pfnUserCallback = debugUtilsMessengerCallback;
 
-    vk_try(debugUtilsMessenger.init(instance, debugUtilsMessengerCI));
-
+    vk_try(vkCreateDebugUtilsMessengerEXT(instance, &debugUtilsMessengerCreateInfo, nullptr, &mHandle));
     return Result::Continue;
 }
 
-void DebugCallback::terminate(VkInstance instance)
+void DebugUtilsMessenger::terminate(VkInstance instance)
 {
-    debugUtilsMessenger.destroy(instance);
+    if (valid())
+    {
+        vkDestroyDebugUtilsMessengerEXT(instance, mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
+    }
 }
 
 std::string getVkResultString(VkResult result)

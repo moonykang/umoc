@@ -25,7 +25,7 @@ class Context : public rhi::Context
   public:
     Context();
 
-    void destroy();
+    void terminate();
 
     Result initRHI(platform::Window* window) override final;
 
@@ -38,7 +38,7 @@ class Context : public rhi::Context
     Device device;
     QueueMap queueMap;
 
-    debug::DebugCallback* debugCallback;
+    debug::DebugUtilsMessenger* debugCallback;
 
     std::map<ExtensionName, InstanceExtension*> instanceExtensions;
     std::map<ExtensionName, DeviceExtension*> deviceExtensions;

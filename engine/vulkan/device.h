@@ -13,11 +13,12 @@ class Device final : public WrappedObject<Device, VkDevice>
   public:
     Device() = default;
 
-    void destroy();
-
-    VkResult create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo);
-
     Result init(PhysicalDevice* physicalDevice, QueueMap* queueMap);
+
+    void terminate();
+
+  private:
+    std::vector<VkExtensionProperties> enumerateDeviceExtensions(VkPhysicalDevice physicalDevice);
 
   private:
     std::map<ExtensionName, DeviceExtension*> deviceExtensions;

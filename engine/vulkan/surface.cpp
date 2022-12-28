@@ -1,21 +1,24 @@
 #include "vulkan/surface.h"
+#include "vulkan/physical_device.h"
 
 namespace vk
 {
-Surface::Surface() : surface(VK_NULL_HANDLE)
+Surface::Surface() : surfaceCapabilities()
 {
-}
-
-VkSurfaceKHR& Surface::getSurface()
-{
-    return surface;
 }
 
 void Surface::terminate(VkInstance instance)
 {
-    if (surface != VK_NULL_HANDLE)
+    if (valid())
     {
-        vkDestroySurfaceKHR(instance, surface, nullptr);
+        vkDestroySurfaceKHR(instance, mHandle, nullptr);
     }
+}
+
+Result Surface::updateSurfaceCapabilities(PhysicalDevice* physicalDevice)
+{
+    vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice->getHandle(), mHandle, &surfaceCapabilities));
+
+    return Result::Continue;
 }
 } // namespace vk

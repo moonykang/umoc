@@ -12,11 +12,9 @@ class Instance final : public WrappedObject<Instance, VkInstance>
   public:
     Instance() = default;
 
-    void destroy();
-
-    VkResult create(const VkInstanceCreateInfo& createInfo);
-
     Result init(Surface* surface);
+
+    void terminate();
 
   private:
     std::map<ExtensionName, InstanceExtension*> instanceExtensions;

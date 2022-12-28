@@ -43,6 +43,14 @@ Result PhysicalDevice::init(VkInstance instance)
     return Result::Continue;
 }
 
+void PhysicalDevice::terminate()
+{
+    if (valid())
+    {
+        mHandle = VK_NULL_HANDLE;
+    }
+}
+
 void PhysicalDevice::getProperties2(VkPhysicalDeviceProperties2* properties)
 {
     ASSERT(valid());

@@ -17,16 +17,18 @@ Result Context::initRHI(platform::Window* window)
 
     try(instance.init(surface));
 
-    try(surface->initSurface(window, instance.getHandle()));
+    try(surface->init(window, instance.getHandle()));
 
     if (enableValidationLayer)
     {
-        debugCallback = new debug::DebugCallback();
+        debugCallback = new debug::DebugUtilsMessenger();
         debugCallback->init(instance.getHandle(), VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT,
                             VK_NULL_HANDLE);
     }
 
     try(physicalDevice.init(instance.getHandle()));
+
+    try(surface->updateSurfaceCapabilities(&physicalDevice));
 
     try(queueMap.createQueueCreateInfos(&physicalDevice, surface));
 
@@ -43,9 +45,9 @@ void Context::terminateRHI()
     DELETE(surface, instance.getHandle());
     DELETE(debugCallback, instance.getHandle());
 
-    device.destroy();
+    device.terminate();
     physicalDevice.release();
-    instance.destroy();
+    instance.terminate();
     LOGD("End of terminate RHI");
 }
 } // namespace vk

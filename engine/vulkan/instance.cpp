@@ -5,22 +5,6 @@
 
 namespace vk
 {
-
-void Instance::destroy()
-{
-    if (valid())
-    {
-        vkDestroyInstance(mHandle, nullptr);
-        mHandle = VK_NULL_HANDLE;
-    }
-}
-
-VkResult Instance::create(const VkInstanceCreateInfo& createInfo)
-{
-    ASSERT(!valid());
-    return vkCreateInstance(&createInfo, nullptr, &mHandle);
-}
-
 Result Instance::init(Surface* surface)
 {
     VkInstanceCreateInfo instanceCreateInfo = {};
@@ -113,7 +97,8 @@ Result Instance::init(Surface* surface)
     instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
     instanceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
 
-    vk_try(create(instanceCreateInfo));
+    ASSERT(!valid());
+    vk_try(vkCreateInstance(&instanceCreateInfo, nullptr, &mHandle));
 
     for (auto& extension : instanceExtensions)
     {
@@ -124,4 +109,14 @@ Result Instance::init(Surface* surface)
 
     return Result::Continue;
 }
+
+void Instance::terminate()
+{
+    if (valid())
+    {
+        vkDestroyInstance(mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
+    }
+}
+
 } // namespace vk

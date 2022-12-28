@@ -62,17 +62,6 @@ namespace handle
 /*
 ====== DECLARE ======
 */
-
-// VK_EXT_debug_utils
-class DebugUtilsMessenger final : public WrappedObject<DebugUtilsMessenger, VkDebugUtilsMessengerEXT>
-{
-  public:
-    DebugUtilsMessenger() = default;
-    void destroy(VkInstance instance);
-
-    VkResult init(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo);
-};
-
 class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
 {
   public:
@@ -87,21 +76,6 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
 /*
 ====== DEFINITION ======
 */
-
-inline void DebugUtilsMessenger::destroy(VkInstance instance)
-{
-    if (valid())
-    {
-        vkDestroyDebugUtilsMessengerEXT(instance, mHandle, nullptr);
-        mHandle = VK_NULL_HANDLE;
-    }
-}
-
-inline VkResult DebugUtilsMessenger::init(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo)
-{
-    ASSERT(!valid());
-    return vkCreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &mHandle);
-}
 
 inline void CommandBuffer::free(VkDevice device, VkCommandPool commandPool)
 {

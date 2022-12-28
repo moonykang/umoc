@@ -50,8 +50,7 @@ Result QueueMap::createQueueCreateInfos(PhysicalDevice* physicalDevice, Surface*
     LOGD("queueFamilyCount %u", queueFamilyCount);
     for (uint32_t i = 0; i < queueFamilyCount; i++)
     {
-        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice->getHandle(), i, surface->getSurface(),
-                                             &supportsPresent[i]);
+        vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice->getHandle(), i, surface->getHandle(), &supportsPresent[i]);
     }
 
     uint32_t allPurposeQueueFlags = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT;

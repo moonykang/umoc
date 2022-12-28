@@ -11,10 +11,10 @@ Surface* Surface::createPlatformSurface()
 
 namespace mac
 {
-Result Surface::initSurface(platform::Window* window, VkInstance instance)
+Result Surface::init(platform::Window* window, VkInstance instance)
 {
     platform::mac::Window* macWindow = reinterpret_cast<platform::mac::Window*>(window);
-    vk_try(glfwCreateWindowSurface(instance, macWindow->getWindow(), nullptr, &surface));
+    vk_try(glfwCreateWindowSurface(instance, macWindow->getWindow(), nullptr, &mHandle));
 
     return Result::Continue;
 }

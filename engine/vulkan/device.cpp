@@ -5,21 +5,6 @@
 
 namespace vk
 {
-void Device::destroy()
-{
-    if (valid())
-    {
-        vkDestroyDevice(mHandle, nullptr);
-        mHandle = VK_NULL_HANDLE;
-    }
-}
-
-VkResult Device::create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo)
-{
-    ASSERT(!valid());
-    return vkCreateDevice(device, &createInfo, nullptr, &mHandle);
-}
-
 Result Device::init(PhysicalDevice* physicalDevice, QueueMap* queueMap)
 {
     uint32_t graphicsQueueIndex = 0;
@@ -28,12 +13,8 @@ Result Device::init(PhysicalDevice* physicalDevice, QueueMap* queueMap)
 
     // Get list of supported extensions
     uint32_t extensionCount = 0;
-    std::vector<VkExtensionProperties> supportedExtensions;
+    std::vector<VkExtensionProperties> supportedExtensions = enumerateDeviceExtensions(physicalDevice->getHandle());
     std::vector<const char*> requestedExtensions;
-    vkEnumerateDeviceExtensionProperties(physicalDevice->getHandle(), nullptr, &extensionCount, nullptr);
-    supportedExtensions.resize(extensionCount);
-    vkEnumerateDeviceExtensionProperties(physicalDevice->getHandle(), nullptr, &extensionCount,
-                                         supportedExtensions.data());
 
     VkDeviceCreateInfo deviceCreateInfo = {};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -70,25 +51,35 @@ Result Device::init(PhysicalDevice* physicalDevice, QueueMap* queueMap)
     deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
 
-    vk_try(create(physicalDevice->getHandle(), deviceCreateInfo));
+    ASSERT(!valid());
+    vk_try(vkCreateDevice(physicalDevice->getHandle(), &deviceCreateInfo, nullptr, &mHandle));
 
     for (auto& deviceExtension : deviceExtensions)
     {
         deviceExtension.second->fetch(getHandle());
     }
 
-    // physicalDevice.getProperties2(&physicalDeviceProperties2);
-
-    // queueFamilyIndex = graphicsQueueIndex;
-    // commandBufferManager->init(device.getHandle(), graphicsQueueIndex);
-    // queue->init(device.getHandle(), graphicsQueueIndex);
-
     LOGD("Done to create logical device");
-    /*
-        VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
-        pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-        VKCALL(pipelineCache.init(device.getHandle(), pipelineCacheCreateInfo));
-    */
     return Result::Continue;
+}
+
+void Device::terminate()
+{
+    if (valid())
+    {
+        vkDestroyDevice(mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
+    }
+}
+
+std::vector<VkExtensionProperties> Device::enumerateDeviceExtensions(VkPhysicalDevice physicalDevice)
+{
+    uint32_t extensionCount = 0;
+    std::vector<VkExtensionProperties> extensionProperties;
+    vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+    extensionProperties.resize(extensionCount);
+    vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, extensionProperties.data());
+
+    return extensionProperties;
 }
 } // namespace vk

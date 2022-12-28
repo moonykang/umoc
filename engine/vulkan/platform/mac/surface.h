@@ -14,7 +14,7 @@ namespace mac
 class Surface : public vk::Surface
 {
   public:
-    Result initSurface(platform::Window* window, VkInstance instance) override final;
+    Result init(platform::Window* window, VkInstance instance) override final;
 
     std::vector<std::string> getSurfaceExtensions() override final;
 };

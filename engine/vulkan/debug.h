@@ -13,15 +13,12 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
                                                            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                            void* pUserData);
 
-class DebugCallback
+class DebugUtilsMessenger final : public WrappedObject<DebugUtilsMessenger, VkDebugUtilsMessengerEXT>
 {
   public:
     Result init(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportCallbackEXT callBack);
 
     void terminate(VkInstance instance);
-
-  private:
-    handle::DebugUtilsMessenger debugUtilsMessenger;
 };
 
 std::string getVkResultString(VkResult result);

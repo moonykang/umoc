@@ -11,6 +11,8 @@ class PhysicalDevice final : public WrappedObject<PhysicalDevice, VkPhysicalDevi
 
     Result init(VkInstance instance);
 
+    void terminate();
+
     void getProperties2(VkPhysicalDeviceProperties2* properties);
 
     VkPhysicalDeviceFeatures2* getPhysicalDeviceFeatures2()
