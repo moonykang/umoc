@@ -80,6 +80,6 @@ std::vector<VkExtensionProperties> Device::enumerateDeviceExtensions(VkPhysicalD
     extensionProperties.resize(extensionCount);
     vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, extensionProperties.data());
 
-    return extensionProperties;
+    return std::move(extensionProperties);
 }
 } // namespace vk
