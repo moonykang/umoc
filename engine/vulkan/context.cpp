@@ -21,27 +21,26 @@ Result Context::initRHI(platform::Window* window)
 
     surface = Surface::createPlatformSurface();
     instance = new Instance();
-    try(instance->init(surface));
+    try(instance->init(this));
 
-    try(surface->init(window, instance->getHandle()));
+    try(surface->init(window, this));
 
     if (enableValidationLayer)
     {
-        debugCallback = new debug::DebugUtilsMessenger();
-        debugCallback->init(instance->getHandle(), VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT,
-                            VK_NULL_HANDLE);
+        debugCallback = new DebugUtilsMessenger();
+        debugCallback->init(this, VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT, VK_NULL_HANDLE);
     }
 
     physicalDevice = new PhysicalDevice();
-    try(physicalDevice->init(instance->getHandle()));
+    try(physicalDevice->init(this));
 
     try(queueMap.createQueueCreateInfos(physicalDevice, surface));
 
     device = new Device();
-    try(device->init(physicalDevice, &queueMap));
+    try(device->init(this, &queueMap));
 
     swapchain = new Swapchain();
-    try(swapchain->init(surface, physicalDevice, device));
+    try(swapchain->init(this));
 
     return Result::Continue;
 }
@@ -59,5 +58,35 @@ void Context::terminateRHI()
     DELETE(physicalDevice);
     DELETE(instance);
     LOGD("End of terminate RHI");
+}
+
+Instance* Context::getInstance() const
+{
+    ASSERT(instance);
+    return instance;
+}
+
+PhysicalDevice* Context::getPhysicalDevice() const
+{
+    ASSERT(physicalDevice);
+    return physicalDevice;
+}
+
+Device* Context::getDevice() const
+{
+    ASSERT(device);
+    return device;
+}
+
+Surface* Context::getSurface() const
+{
+    ASSERT(surface);
+    return surface;
+}
+
+Swapchain* Context::getSwapchain() const
+{
+    ASSERT(swapchain);
+    return swapchain;
 }
 } // namespace vk

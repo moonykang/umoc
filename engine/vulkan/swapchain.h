@@ -4,14 +4,12 @@
 
 namespace vk
 {
-class Surface;
-class Device;
-class PhysicalDevice;
+class Context;
 
 class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 {
   public:
-    Result init(Surface* surface, PhysicalDevice* physicalDevice, Device* device);
+    Result init(Context* context);
 
     void terminate(VkDevice device);
 

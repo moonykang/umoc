@@ -1,4 +1,5 @@
 #include "vulkan/swapchain.h"
+#include "vulkan/context.h"
 #include "vulkan/device.h"
 #include "vulkan/physical_device.h"
 #include "vulkan/surface.h"
@@ -6,8 +7,12 @@
 
 namespace vk
 {
-Result Swapchain::init(Surface* surface, PhysicalDevice* physicalDevice, Device* device)
+Result Swapchain::init(Context* context)
 {
+    Surface* surface = context->getSurface();
+    PhysicalDevice* physicalDevice = context->getPhysicalDevice();
+    Device* device = context->getDevice();
+
     VkSwapchainKHR oldSwapchain = std::move(mHandle);
 
     VkSurfaceCapabilitiesKHR surfaceCapabilities = surface->getSurfaceCapabilities(physicalDevice->getHandle());

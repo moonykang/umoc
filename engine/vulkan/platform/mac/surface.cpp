@@ -1,6 +1,8 @@
 #include "vulkan/platform/mac/surface.h"
 #include "platform/mac/window.h"
+#include "vulkan/context.h"
 #include "vulkan/core.h"
+#include "vulkan/instance.h"
 
 namespace vk
 {
@@ -11,10 +13,11 @@ Surface* Surface::createPlatformSurface()
 
 namespace mac
 {
-Result Surface::init(platform::Window* window, VkInstance instance)
+Result Surface::init(platform::Window* window, Context* context)
 {
+    Instance* instance = context->getInstance();
     platform::mac::Window* macWindow = reinterpret_cast<platform::mac::Window*>(window);
-    vk_try(glfwCreateWindowSurface(instance, macWindow->getWindow(), nullptr, &mHandle));
+    vk_try(glfwCreateWindowSurface(instance->getHandle(), macWindow->getWindow(), nullptr, &mHandle));
 
     return Result::Continue;
 }

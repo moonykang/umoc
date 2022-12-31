@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vulkan/core.h"
-#include "vulkan/swapchain.h"
 
 namespace platform
 {
@@ -10,7 +9,7 @@ class Window;
 
 namespace vk
 {
-class PhysicalDevice;
+class Context;
 
 class Surface : public WrappedObject<Surface, VkSurfaceKHR>
 {
@@ -22,7 +21,7 @@ class Surface : public WrappedObject<Surface, VkSurfaceKHR>
     virtual ~Surface() = default;
 
   public:
-    virtual Result init(platform::Window* window, VkInstance instance) = 0;
+    virtual Result init(platform::Window* window, Context* context) = 0;
 
     void terminate(VkInstance instance);
 

@@ -4,12 +4,14 @@
 
 namespace vk
 {
+class Context;
+
 class PhysicalDevice final : public WrappedObject<PhysicalDevice, VkPhysicalDevice>
 {
   public:
     PhysicalDevice();
 
-    Result init(VkInstance instance);
+    Result init(Context* context);
 
     void terminate();
 

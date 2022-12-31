@@ -1,12 +1,15 @@
 #include "vulkan/device.h"
+#include "vulkan/context.h"
 #include "vulkan/extension.h"
 #include "vulkan/physical_device.h"
 #include "vulkan/queue.h"
 
 namespace vk
 {
-Result Device::init(PhysicalDevice* physicalDevice, QueueMap* queueMap)
+Result Device::init(Context* context, QueueMap* queueMap)
 {
+    PhysicalDevice* physicalDevice = context->getPhysicalDevice();
+
     uint32_t graphicsQueueIndex = 0;
 
     const std::vector<VkDeviceQueueCreateInfo>& queueCreateInfos = queueMap->getQueueCreateInfo();

@@ -1,4 +1,6 @@
 #include "vulkan/physical_device.h"
+#include "vulkan/context.h"
+#include "vulkan/instance.h"
 
 namespace vk
 {
@@ -6,13 +8,16 @@ PhysicalDevice::PhysicalDevice() : physicalDeviceFeatures2(), physicalDeviceProp
 {
 }
 
-Result PhysicalDevice::init(VkInstance instance)
+Result PhysicalDevice::init(Context* context)
 {
     LOGD("Init physical device");
+
+    Instance* instance = context->getInstance();
+
     // Physical device
     uint32_t gpuCount = 0;
     // Get number of available physical devices
-    vk_try(vkEnumeratePhysicalDevices(instance, &gpuCount, nullptr));
+    vk_try(vkEnumeratePhysicalDevices(instance->getHandle(), &gpuCount, nullptr));
 
     LOGD("Number of GPUs : %u", gpuCount);
     if (gpuCount == 0)
@@ -23,7 +28,7 @@ Result PhysicalDevice::init(VkInstance instance)
 
     // Enumerate devices
     std::vector<VkPhysicalDevice> physicalDevices(gpuCount);
-    vk_try(vkEnumeratePhysicalDevices(instance, &gpuCount, physicalDevices.data()));
+    vk_try(vkEnumeratePhysicalDevices(instance->getHandle(), &gpuCount, physicalDevices.data()));
 
     uint32_t selectedDevice = 0;
 

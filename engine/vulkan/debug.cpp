@@ -1,5 +1,7 @@
 #include "vulkan/debug.h"
+#include "vulkan/context.h"
 #include "vulkan/core.h"
+#include "vulkan/instance.h"
 #include <sstream>
 
 namespace vk
@@ -51,31 +53,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
     // aborted or not We return VK_FALSE as we DON'T want Vulkan calls that cause a validation message to abort If you
     // instead want to have calls abort, pass in VK_TRUE and the function will return VK_ERROR_VALIDATION_FAILED_EXT
     return VK_FALSE;
-}
-
-Result DebugUtilsMessenger::init(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportCallbackEXT callBack)
-{
-    ASSERT(!valid());
-
-    VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo = {};
-    debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    debugUtilsMessengerCreateInfo.messageSeverity =
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    debugUtilsMessengerCreateInfo.messageType =
-        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
-    debugUtilsMessengerCreateInfo.pfnUserCallback = debugUtilsMessengerCallback;
-
-    vk_try(vkCreateDebugUtilsMessengerEXT(instance, &debugUtilsMessengerCreateInfo, nullptr, &mHandle));
-    return Result::Continue;
-}
-
-void DebugUtilsMessenger::terminate(VkInstance instance)
-{
-    if (valid())
-    {
-        vkDestroyDebugUtilsMessengerEXT(instance, mHandle, nullptr);
-        mHandle = VK_NULL_HANDLE;
-    }
 }
 
 std::string getVkResultString(VkResult result)
@@ -149,4 +126,36 @@ std::string getVkResultString(VkResult result)
     }
 }
 } // namespace debug
+
+Result DebugUtilsMessenger::init(vk::Context* context, VkDebugReportFlagsEXT flags, VkDebugReportCallbackEXT callBack)
+{
+    Instance* instance = context->getInstance();
+
+    VkDebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfo = {};
+    debugUtilsMessengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    debugUtilsMessengerCreateInfo.messageSeverity =
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    debugUtilsMessengerCreateInfo.messageType =
+        VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT;
+    debugUtilsMessengerCreateInfo.pfnUserCallback = debug::debugUtilsMessengerCallback;
+
+    vk_try(create(instance->getHandle(), debugUtilsMessengerCreateInfo));
+
+    return Result::Continue;
+}
+
+void DebugUtilsMessenger::terminate(VkInstance instance)
+{
+    if (valid())
+    {
+        vkDestroyDebugUtilsMessengerEXT(instance, mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
+    }
+}
+
+VkResult DebugUtilsMessenger::create(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+    ASSERT(!valid());
+    return vkCreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &mHandle);
+}
 } // namespace vk

@@ -1,12 +1,15 @@
 #include "vulkan/instance.h"
+#include "vulkan/context.h"
 #include "vulkan/debug.h"
 #include "vulkan/extension.h"
 #include "vulkan/surface.h"
 
 namespace vk
 {
-Result Instance::init(Surface* surface)
+Result Instance::init(Context* context)
 {
+    Surface* surface = context->getSurface();
+
     VkInstanceCreateInfo instanceCreateInfo = {};
 
     VkApplicationInfo applicationInfo = {};

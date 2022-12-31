@@ -4,8 +4,8 @@
 
 namespace vk
 {
+class Context;
 class DeviceExtension;
-class PhysicalDevice;
 class QueueMap;
 
 class Device final : public WrappedObject<Device, VkDevice>
@@ -13,7 +13,7 @@ class Device final : public WrappedObject<Device, VkDevice>
   public:
     Device() = default;
 
-    Result init(PhysicalDevice* physicalDevice, QueueMap* queueMap);
+    Result init(Context* context, QueueMap* queueMap);
 
     void terminate();
 

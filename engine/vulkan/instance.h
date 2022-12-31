@@ -5,14 +5,14 @@
 namespace vk
 {
 class InstanceExtension;
-class Surface;
+class Context;
 
 class Instance final : public WrappedObject<Instance, VkInstance>
 {
   public:
     Instance() = default;
 
-    Result init(Surface* surface);
+    Result init(Context* context);
 
     void terminate();
 

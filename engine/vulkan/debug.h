@@ -5,6 +5,19 @@
 
 namespace vk
 {
+class Context;
+
+class DebugUtilsMessenger final : public WrappedObject<DebugUtilsMessenger, VkDebugUtilsMessengerEXT>
+{
+  public:
+    Result init(Context* context, VkDebugReportFlagsEXT flags, VkDebugReportCallbackEXT callBack);
+
+    void terminate(VkInstance instance);
+
+  private:
+    VkResult create(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+};
+
 namespace debug
 {
 
@@ -12,14 +25,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSe
                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                            void* pUserData);
-
-class DebugUtilsMessenger final : public WrappedObject<DebugUtilsMessenger, VkDebugUtilsMessengerEXT>
-{
-  public:
-    Result init(VkInstance instance, VkDebugReportFlagsEXT flags, VkDebugReportCallbackEXT callBack);
-
-    void terminate(VkInstance instance);
-};
 
 std::string getVkResultString(VkResult result);
 

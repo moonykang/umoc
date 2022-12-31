@@ -31,6 +31,17 @@ class Context : public rhi::Context
 
     void terminateRHI() override final;
 
+  public:
+    Instance* getInstance() const;
+
+    PhysicalDevice* getPhysicalDevice() const;
+
+    Device* getDevice() const;
+
+    Surface* getSurface() const;
+
+    Swapchain* getSwapchain() const;
+
   private:
     Instance* instance;
     Surface* surface;
@@ -39,7 +50,7 @@ class Context : public rhi::Context
     Swapchain* swapchain;
     QueueMap queueMap;
 
-    debug::DebugUtilsMessenger* debugCallback;
+    DebugUtilsMessenger* debugCallback;
 
     std::map<ExtensionName, InstanceExtension*> instanceExtensions;
     std::map<ExtensionName, DeviceExtension*> deviceExtensions;
