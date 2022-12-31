@@ -17,7 +17,7 @@ class Image final : public WrappedObject<Image, VkImage>
     Result init(Context* context, VkFormat format, uint32_t mipLevels, uint32_t layers, uint32_t samples,
                 VkExtent3D extent, VkImageUsageFlags imageUsage, VkMemoryPropertyFlags memoryProperty);
 
-    Result init(Context* context, VkImage image, VkFormat format, uint32_t mipLevels, uint32_t layers, uint32_t samples,
+    Result init(VkImage image, VkFormat format, uint32_t mipLevels, uint32_t layers, uint32_t samples,
                 VkExtent3D extent, VkImageUsageFlags imageUsage);
 
     void terminate(VkDevice device);

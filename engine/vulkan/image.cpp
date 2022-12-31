@@ -33,8 +33,8 @@ Result Image::init(Context* context, VkFormat format, uint32_t mipLevels, uint32
     return Result::Continue;
 };
 
-Result Image::init(Context* context, VkImage image, VkFormat format, uint32_t mipLevels, uint32_t layers,
-                   uint32_t samples, VkExtent3D extent, VkImageUsageFlags imageUsage)
+Result Image::init(VkImage image, VkFormat format, uint32_t mipLevels, uint32_t layers, uint32_t samples,
+                   VkExtent3D extent, VkImageUsageFlags imageUsage)
 {
     ASSERT(image != VK_NULL_HANDLE);
 

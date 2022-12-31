@@ -1,6 +1,7 @@
 #include "vulkan/swapchain.h"
 #include "vulkan/context.h"
 #include "vulkan/device.h"
+#include "vulkan/image.h"
 #include "vulkan/physical_device.h"
 #include "vulkan/surface.h"
 #include <vector>
@@ -88,22 +89,19 @@ Result Swapchain::init(Context* context)
     // This also cleans up all the presentable images
     if (oldSwapchain != VK_NULL_HANDLE)
     {
-        /*
-        // TODO:
-        for (auto& swapchainImage : swapchainImages)
-        {
-            swapchainImage->destroy(device);
-        }
-        swapchainImages.clear();
-        */
+        releaseSwapchainImages(device->getHandle());
         vkDestroySwapchainKHR(device->getHandle(), oldSwapchain, nullptr);
     }
+
+    setupSwapchainImages(device->getHandle(), surfaceFormat.format, swapchainExtent);
 
     return Result::Continue;
 }
 
 void Swapchain::terminate(VkDevice device)
 {
+    releaseSwapchainImages(device);
+
     if (valid())
     {
         vkDestroySwapchainKHR(device, mHandle, nullptr);
@@ -115,5 +113,36 @@ VkResult Swapchain::create(VkDevice device, const VkSwapchainCreateInfoKHR& crea
 {
     ASSERT(!valid());
     return vkCreateSwapchainKHR(device, &createInfo, nullptr, &mHandle);
+}
+
+Result Swapchain::setupSwapchainImages(VkDevice device, VkFormat format, VkExtent2D extent)
+{
+    std::vector<VkImage> images;
+    uint32_t imageCount;
+    vk_try(vkGetSwapchainImagesKHR(device, mHandle, &imageCount, nullptr));
+
+    // Get the swap chain images
+    images.resize(imageCount);
+    vk_try(vkGetSwapchainImagesKHR(device, mHandle, &imageCount, images.data()));
+
+    for (auto& image : images)
+    {
+        Image* swapchainImage = new Image();
+        swapchainImage->init(image, format, 1, 1, 1, {extent.width, extent.height, 1},
+                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+
+        swapchainImages.push_back(swapchainImage);
+    }
+
+    return Result::Continue;
+}
+
+void Swapchain::releaseSwapchainImages(VkDevice device)
+{
+    for (auto& swapchainImage : swapchainImages)
+    {
+        DELETE(swapchainImage, device);
+    }
+    swapchainImages.clear();
 }
 } // namespace vk
