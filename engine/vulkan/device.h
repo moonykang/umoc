@@ -18,6 +18,8 @@ class Device final : public WrappedObject<Device, VkDevice>
     void terminate();
 
   private:
+    VkResult create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo);
+
     std::vector<VkExtensionProperties> enumerateDeviceExtensions(VkPhysicalDevice physicalDevice);
 
   private:

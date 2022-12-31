@@ -2,6 +2,7 @@
 #include "vulkan/debug.h"
 #include "vulkan/extension.h"
 #include "vulkan/surface.h"
+#include "vulkan/swapchain.h"
 
 namespace vk
 {
@@ -14,7 +15,6 @@ Result Context::initRHI(platform::Window* window)
     LOGD("init vulkan RHI");
 
     surface = Surface::createPlatformSurface();
-
     try(instance.init(surface));
 
     try(surface->init(window, instance.getHandle()));
@@ -28,11 +28,12 @@ Result Context::initRHI(platform::Window* window)
 
     try(physicalDevice.init(instance.getHandle()));
 
-    try(surface->updateSurfaceCapabilities(&physicalDevice));
-
     try(queueMap.createQueueCreateInfos(&physicalDevice, surface));
 
     try(device.init(&physicalDevice, &queueMap));
+
+    swapchain = new Swapchain();
+    try(swapchain->init(surface, &physicalDevice, &device));
 
     return Result::Continue;
 }
@@ -40,12 +41,13 @@ Result Context::initRHI(platform::Window* window)
 void Context::terminateRHI()
 {
     // Device dependencies
+    DELETE(swapchain, device.getHandle());
+    device.terminate();
 
     // Instance dependencies
     DELETE(surface, instance.getHandle());
     DELETE(debugCallback, instance.getHandle());
 
-    device.terminate();
     physicalDevice.release();
     instance.terminate();
     LOGD("End of terminate RHI");

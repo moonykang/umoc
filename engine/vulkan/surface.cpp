@@ -3,7 +3,7 @@
 
 namespace vk
 {
-Surface::Surface() : surfaceCapabilities()
+Surface::Surface()
 {
 }
 
@@ -13,13 +13,6 @@ void Surface::terminate(VkInstance instance)
     {
         vkDestroySurfaceKHR(instance, mHandle, nullptr);
     }
-}
-
-Result Surface::updateSurfaceCapabilities(PhysicalDevice* physicalDevice)
-{
-    vk_try(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice->getHandle(), mHandle, &surfaceCapabilities));
-
-    return Result::Continue;
 }
 
 VkSurfaceCapabilitiesKHR Surface::getSurfaceCapabilities(VkPhysicalDevice physicalDevice)
@@ -44,8 +37,9 @@ std::vector<VkPresentModeKHR> Surface::getSurfacePresentModes(VkPhysicalDevice p
     return std::move(presentModes);
 }
 
-std::vector<VkSurfaceFormatKHR> Surface::getSurfaceFormats(VkPhysicalDevice physicalDevice)
+VkSurfaceFormatKHR Surface::getSurfaceFormat(VkPhysicalDevice physicalDevice)
 {
+    VkSurfaceFormatKHR surfaceFormat;
     // Get list of supported surface formats
     uint32_t formatCount;
     vk_call(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, mHandle, &formatCount, NULL));
@@ -54,6 +48,36 @@ std::vector<VkSurfaceFormatKHR> Surface::getSurfaceFormats(VkPhysicalDevice phys
     std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
     vk_call(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, mHandle, &formatCount, surfaceFormats.data()));
 
-    return std::move(surfaceFormats);
+    // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
+    // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
+    if ((formatCount == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED))
+    {
+        surfaceFormat.format = VK_FORMAT_B8G8R8A8_UNORM;
+        surfaceFormat.colorSpace = surfaceFormats[0].colorSpace;
+    }
+    else
+    {
+        // iterate over the list of available surface format and
+        // check for the presence of VK_FORMAT_B8G8R8A8_UNORM
+        bool found_rgba8 = false;
+        for (auto&& surfaceformat : surfaceFormats)
+        {
+            if (surfaceformat.format == VK_FORMAT_B8G8R8A8_UNORM)
+            {
+                surfaceFormat = surfaceformat;
+                found_rgba8 = true;
+                break;
+            }
+        }
+
+        // in case VK_FORMAT_B8G8R8A8_UNORM is not available
+        // select the first available color format
+        if (!found_rgba8)
+        {
+            surfaceFormat = surfaceFormats[0];
+        }
+    }
+
+    return std::move(surfaceFormat);
 }
 } // namespace vk

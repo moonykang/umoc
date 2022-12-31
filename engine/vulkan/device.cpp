@@ -52,7 +52,7 @@ Result Device::init(PhysicalDevice* physicalDevice, QueueMap* queueMap)
     deviceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
 
     ASSERT(!valid());
-    vk_try(vkCreateDevice(physicalDevice->getHandle(), &deviceCreateInfo, nullptr, &mHandle));
+    vk_try(create(physicalDevice->getHandle(), deviceCreateInfo));
 
     for (auto& deviceExtension : deviceExtensions)
     {
@@ -70,6 +70,12 @@ void Device::terminate()
         vkDestroyDevice(mHandle, nullptr);
         mHandle = VK_NULL_HANDLE;
     }
+}
+
+VkResult Device::create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo)
+{
+    ASSERT(!valid());
+    return vkCreateDevice(device, &createInfo, nullptr, &mHandle);
 }
 
 std::vector<VkExtensionProperties> Device::enumerateDeviceExtensions(VkPhysicalDevice physicalDevice)

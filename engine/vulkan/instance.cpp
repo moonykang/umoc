@@ -97,8 +97,7 @@ Result Instance::init(Surface* surface)
     instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
     instanceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
 
-    ASSERT(!valid());
-    vk_try(vkCreateInstance(&instanceCreateInfo, nullptr, &mHandle));
+    vk_try(create(instanceCreateInfo));
 
     for (auto& extension : instanceExtensions)
     {
@@ -119,4 +118,9 @@ void Instance::terminate()
     }
 }
 
+VkResult Instance::create(const VkInstanceCreateInfo& createInfo)
+{
+    ASSERT(!valid());
+    return vkCreateInstance(&createInfo, nullptr, &mHandle);
+}
 } // namespace vk

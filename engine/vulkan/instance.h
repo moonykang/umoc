@@ -17,6 +17,9 @@ class Instance final : public WrappedObject<Instance, VkInstance>
     void terminate();
 
   private:
+    VkResult create(const VkInstanceCreateInfo& createInfo);
+
+  private:
     std::map<ExtensionName, InstanceExtension*> instanceExtensions;
 };
 } // namespace vk

@@ -28,17 +28,10 @@ class Surface : public WrappedObject<Surface, VkSurfaceKHR>
 
     virtual std::vector<std::string> getSurfaceExtensions() = 0;
 
-    Result updateSurfaceCapabilities(PhysicalDevice* physicalDevice);
-
     VkSurfaceCapabilitiesKHR getSurfaceCapabilities(VkPhysicalDevice physicalDevice);
 
     std::vector<VkPresentModeKHR> getSurfacePresentModes(VkPhysicalDevice physicalDevice);
 
-    std::vector<VkSurfaceFormatKHR> getSurfaceFormats(VkPhysicalDevice physicalDevice);
-
-  private:
-    VkSurfaceCapabilitiesKHR surfaceCapabilities;
-    std::vector<VkPresentModeKHR> presentModes;
-    std::vector<VkSurfaceFormatKHR> surfaceFormats;
+    VkSurfaceFormatKHR getSurfaceFormat(VkPhysicalDevice physicalDevice);
 };
 } // namespace vk

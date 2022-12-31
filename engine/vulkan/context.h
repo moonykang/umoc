@@ -14,6 +14,7 @@ namespace vk
 class DeviceExtension;
 class InstanceExtension;
 class Surface;
+class Swapchain;
 
 namespace debug
 {
@@ -36,6 +37,7 @@ class Context : public rhi::Context
     Surface* surface;
     PhysicalDevice physicalDevice;
     Device device;
+    Swapchain* swapchain;
     QueueMap queueMap;
 
     debug::DebugUtilsMessenger* debugCallback;
