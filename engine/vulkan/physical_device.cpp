@@ -58,4 +58,23 @@ void PhysicalDevice::getProperties2(VkPhysicalDeviceProperties2* properties)
     ASSERT(valid());
     vkGetPhysicalDeviceProperties2KHR(mHandle, properties);
 }
+
+uint32_t PhysicalDevice::getPhysicalDeviceMemoryTypeIndex(const uint32_t memoryTypeBits,
+                                                          const VkMemoryPropertyFlags memoryProperty)
+{
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(mHandle, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if ((memoryTypeBits & (1 << i)) &&
+            (memProperties.memoryTypes[i].propertyFlags & memoryProperty) == memoryProperty)
+        {
+            return i;
+        }
+    }
+
+    UNREACHABLE();
+    return 0;
+}
 } // namespace vk

@@ -37,6 +37,9 @@ class PhysicalDevice final : public WrappedObject<PhysicalDevice, VkPhysicalDevi
         return &physicalDeviceProperties2.pNext;
     }
 
+    uint32_t getPhysicalDeviceMemoryTypeIndex(const uint32_t memoryTypeBits,
+                                              const VkMemoryPropertyFlags memoryProperty);
+
   private:
     VkPhysicalDeviceProperties physicalDeviceProperties;
     VkPhysicalDeviceProperties2 physicalDeviceProperties2;
