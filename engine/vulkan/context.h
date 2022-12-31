@@ -2,17 +2,16 @@
 
 #include "rhi/context.h"
 #include "vulkan/core.h"
-#include "vulkan/device.h"
-#include "vulkan/instance.h"
-#include "vulkan/physical_device.h"
 #include "vulkan/queue.h"
-#include "vulkan/surface.h"
 #include <map>
 
 namespace vk
 {
+class Device;
 class DeviceExtension;
 class InstanceExtension;
+class Instance;
+class PhysicalDevice;
 class Surface;
 class Swapchain;
 
@@ -33,10 +32,10 @@ class Context : public rhi::Context
     void terminateRHI() override final;
 
   private:
-    Instance instance;
+    Instance* instance;
     Surface* surface;
-    PhysicalDevice physicalDevice;
-    Device device;
+    PhysicalDevice* physicalDevice;
+    Device* device;
     Swapchain* swapchain;
     QueueMap queueMap;
 

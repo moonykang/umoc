@@ -45,10 +45,7 @@ Result PhysicalDevice::init(VkInstance instance)
 
 void PhysicalDevice::terminate()
 {
-    if (valid())
-    {
-        mHandle = VK_NULL_HANDLE;
-    }
+    release();
 }
 
 void PhysicalDevice::getProperties2(VkPhysicalDeviceProperties2* properties)
