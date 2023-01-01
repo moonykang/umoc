@@ -14,11 +14,7 @@ class Instance;
 class PhysicalDevice;
 class Surface;
 class Swapchain;
-
-namespace debug
-{
-class DebugCallback;
-}
+class DebugUtilsMessenger;
 
 class Context : public rhi::Context
 {

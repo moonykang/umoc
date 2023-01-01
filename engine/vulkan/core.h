@@ -2,8 +2,10 @@
 
 #include "common/util.h"
 #include "vulkan/debug.h"
-#include "vulkan/wrapper.h"
+#include "vulkan/extension.h"
 
+namespace vk
+{
 #define vk_try(expr)                                                                                                   \
     {                                                                                                                  \
         VkResult result = (expr);                                                                                      \
@@ -15,7 +17,7 @@
         }                                                                                                              \
     }
 
-#define vk_call(expr)                                                                                                  \
+#define call(expr)                                                                                                     \
     {                                                                                                                  \
         VkResult result = (expr);                                                                                      \
         if (result != VK_SUCCESS)                                                                                      \
@@ -24,3 +26,5 @@
             ASSERT(true);                                                                                              \
         }                                                                                                              \
     }
+
+} // namespace vk

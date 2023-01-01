@@ -1,6 +1,7 @@
 #pragma once
 
-#include "vulkan/wrapper.h"
+#include "common/util.h"
+#include "vulkan/extension.h"
 #include <string>
 
 namespace vk

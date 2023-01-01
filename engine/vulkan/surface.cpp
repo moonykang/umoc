@@ -13,6 +13,7 @@ void Surface::terminate(VkInstance instance)
     if (valid())
     {
         vkDestroySurfaceKHR(instance, mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
     }
 }
 
@@ -20,7 +21,7 @@ VkSurfaceCapabilitiesKHR Surface::getSurfaceCapabilities(VkPhysicalDevice physic
 {
     VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
 
-    vk_call(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, mHandle, &surfaceCapabilities));
+    call(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, mHandle, &surfaceCapabilities));
 
     return std::move(surfaceCapabilities);
 }
@@ -29,11 +30,11 @@ std::vector<VkPresentModeKHR> Surface::getSurfacePresentModes(VkPhysicalDevice p
 {
     // Get available present modes
     uint32_t presentModeCount;
-    vk_call(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, mHandle, &presentModeCount, NULL));
+    call(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, mHandle, &presentModeCount, NULL));
     assert(presentModeCount > 0);
 
     std::vector<VkPresentModeKHR> presentModes(presentModeCount);
-    vk_call(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, mHandle, &presentModeCount, presentModes.data()));
+    call(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, mHandle, &presentModeCount, presentModes.data()));
 
     return std::move(presentModes);
 }
@@ -43,11 +44,11 @@ VkSurfaceFormatKHR Surface::getSurfaceFormat(VkPhysicalDevice physicalDevice)
     VkSurfaceFormatKHR surfaceFormat;
     // Get list of supported surface formats
     uint32_t formatCount;
-    vk_call(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, mHandle, &formatCount, NULL));
+    call(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, mHandle, &formatCount, NULL));
     assert(formatCount > 0);
 
     std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
-    vk_call(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, mHandle, &formatCount, surfaceFormats.data()));
+    call(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, mHandle, &formatCount, surfaceFormats.data()));
 
     // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
     // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
