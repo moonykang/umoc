@@ -2,7 +2,7 @@
 #include "vulkan/device.h"
 #include "vulkan/extension.h"
 #include "vulkan/instance.h"
-#include "vulkan/physical_device.h"
+#include "vulkan/physicalDevice.h"
 #include "vulkan/surface.h"
 #include "vulkan/swapchain.h"
 

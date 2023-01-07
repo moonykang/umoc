@@ -1,7 +1,7 @@
 #include "vulkan/memory.h"
 #include "vulkan/context.h"
 #include "vulkan/device.h"
-#include "vulkan/physical_device.h"
+#include "vulkan/physicalDevice.h"
 
 namespace vk
 {
