@@ -93,7 +93,7 @@ Result Swapchain::init(Context* context)
         vkDestroySwapchainKHR(device->getHandle(), oldSwapchain, nullptr);
     }
 
-    setupSwapchainImages(device->getHandle(), surfaceFormat.format, swapchainExtent);
+    setupSwapchainImages(context, {surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT}, swapchainExtent);
 
     return Result::Continue;
 }
@@ -115,20 +115,22 @@ VkResult Swapchain::create(VkDevice device, const VkSwapchainCreateInfoKHR& crea
     return vkCreateSwapchainKHR(device, &createInfo, nullptr, &mHandle);
 }
 
-Result Swapchain::setupSwapchainImages(VkDevice device, VkFormat format, VkExtent2D extent)
+Result Swapchain::setupSwapchainImages(Context* context, Format format, VkExtent2D extent)
 {
+    Device* device = context->getDevice();
+
     std::vector<VkImage> images;
     uint32_t imageCount;
-    vk_try(vkGetSwapchainImagesKHR(device, mHandle, &imageCount, nullptr));
+    vk_try(vkGetSwapchainImagesKHR(device->getHandle(), mHandle, &imageCount, nullptr));
 
     // Get the swap chain images
     images.resize(imageCount);
-    vk_try(vkGetSwapchainImagesKHR(device, mHandle, &imageCount, images.data()));
+    vk_try(vkGetSwapchainImagesKHR(device->getHandle(), mHandle, &imageCount, images.data()));
 
     for (auto& image : images)
     {
         Image* swapchainImage = new Image();
-        swapchainImage->init(image, format, 1, 1, 1, {extent.width, extent.height, 1},
+        swapchainImage->init(context, image, format, VK_IMAGE_TYPE_2D, 1, 1, 1, {extent.width, extent.height, 1},
                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
         swapchainImages.push_back(swapchainImage);

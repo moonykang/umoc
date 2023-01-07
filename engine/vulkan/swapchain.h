@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vulkan/core.h"
+#include "vulkan/resources.h"
 #include <vector>
 
 namespace vk
@@ -18,7 +19,7 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
   private:
     VkResult create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
 
-    Result setupSwapchainImages(VkDevice device, VkFormat format, VkExtent2D extent);
+    Result setupSwapchainImages(Context* context, Format format, VkExtent2D extent);
 
     void releaseSwapchainImages(VkDevice device);
 

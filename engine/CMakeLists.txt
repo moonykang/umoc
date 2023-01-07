@@ -8,6 +8,7 @@ SET(SUBDIRECTORIES
     common
     platform
     rhi
+    renderer
     vulkan
 )
 

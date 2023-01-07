@@ -2,6 +2,7 @@
 
 #include "external.h"
 #include "log.h"
+#include <vector>
 
 class NonCopyable
 {
@@ -64,6 +65,49 @@ template <typename DerivedT, typename HandleT> class WrappedObject : NonCopyable
     }
 
     HandleT mHandle;
+};
+
+template <typename DerivedT, typename HandleT> class WrappedObjectList : NonCopyable
+{
+  public:
+    bool valid() const
+    {
+        return !mList.empty();
+    }
+
+    const size_t size()
+    {
+        return mList.size();
+    }
+
+    const HandleT* data() const
+    {
+        return mList.data();
+    }
+
+    void put(HandleT handle)
+    {
+        mList.push_back(handle);
+    }
+
+  protected:
+    WrappedObjectList() = default;
+
+    ~WrappedObjectList() = default;
+
+    WrappedObjectList(WrappedObjectList&& other)
+    {
+        mList = std::move(other.mList);
+    }
+
+    WrappedObjectList& operator=(WrappedObjectList&& other)
+    {
+        ASSERT(!valid());
+        mList = std::move(other.mList);
+        return *this;
+    }
+
+    std::vector<HandleT> mList;
 };
 
 #define DELETE(obj, ...)                                                                                               \
