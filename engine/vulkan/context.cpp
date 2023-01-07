@@ -3,6 +3,7 @@
 #include "vulkan/extension.h"
 #include "vulkan/instance.h"
 #include "vulkan/physicalDevice.h"
+#include "vulkan/queue.h"
 #include "vulkan/surface.h"
 #include "vulkan/swapchain.h"
 
@@ -33,10 +34,12 @@ Result Context::initRHI(platform::Window* window)
     physicalDevice = new PhysicalDevice();
     try(physicalDevice->init(this));
 
-    try(queueMap.createQueueCreateInfos(physicalDevice, surface));
+    queueMap = new QueueMap();
+    try(queueMap->createQueueCreateInfos(physicalDevice, surface));
 
     device = new Device();
-    try(device->init(this, &queueMap));
+    try(device->init(this, queueMap));
+    try(queueMap->initQueues(this));
 
     swapchain = new Swapchain();
     try(swapchain->init(this));
@@ -46,8 +49,10 @@ Result Context::initRHI(platform::Window* window)
 
 void Context::terminateRHI()
 {
+    LOGD("Begin of terminate Vulkan RHI");
     // Device dependencies
     DELETE(swapchain, device->getHandle());
+    DELETE(queueMap, device->getHandle())
     DELETE(device);
 
     // Instance dependencies
@@ -56,7 +61,19 @@ void Context::terminateRHI()
 
     DELETE(physicalDevice);
     DELETE(instance);
-    LOGD("End of terminate RHI");
+    LOGD("End of terminate Vulkan RHI");
+}
+
+Result Context::flush()
+{
+    Queue* queue = queueMap->getQueue();
+
+    return Result::Continue;
+}
+
+Result Context::present()
+{
+    return Result::Continue;
 }
 
 Instance* Context::getInstance() const

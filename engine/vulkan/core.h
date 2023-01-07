@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/serial.h"
 #include "common/util.h"
 #include "vulkan/debug.h"
 #include "vulkan/extension.h"

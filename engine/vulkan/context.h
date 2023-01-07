@@ -2,7 +2,6 @@
 
 #include "rhi/context.h"
 #include "vulkan/core.h"
-#include "vulkan/queue.h"
 #include <map>
 
 namespace vk
@@ -15,6 +14,7 @@ class PhysicalDevice;
 class Surface;
 class Swapchain;
 class DebugUtilsMessenger;
+class QueueMap;
 
 class Context : public rhi::Context
 {
@@ -26,6 +26,10 @@ class Context : public rhi::Context
     Result initRHI(platform::Window* window) override final;
 
     void terminateRHI() override final;
+
+    Result flush();
+
+    Result present();
 
   public:
     Instance* getInstance() const;
@@ -44,7 +48,7 @@ class Context : public rhi::Context
     PhysicalDevice* physicalDevice;
     Device* device;
     Swapchain* swapchain;
-    QueueMap queueMap;
+    QueueMap* queueMap;
 
     DebugUtilsMessenger* debugCallback;
 
