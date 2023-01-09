@@ -189,4 +189,10 @@ Result Image::initView(Context* context, VkComponentMapping components, VkImageS
 
     return view.init(context, mHandle, format, components, subresourceRange, viewType);
 }
+
+VkFormat Image::getFormat()
+{
+    ASSERT(valid());
+    return format.format;
+}
 } // namespace vk

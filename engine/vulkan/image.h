@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rhi/image.h"
 #include "vulkan/core.h"
 #include "vulkan/resources.h"
 
@@ -18,7 +19,7 @@ class ImageView final : public WrappedObject<ImageView, VkImageView>
     VkResult create(VkDevice device, const VkImageViewCreateInfo& createInfo);
 };
 
-class Image final : public WrappedObject<Image, VkImage>
+class Image final : public WrappedObject<Image, VkImage>, public rhi::Image
 {
   public:
     Image();
@@ -45,6 +46,9 @@ class Image final : public WrappedObject<Image, VkImage>
     VkResult create(VkDevice device, const VkImageCreateInfo& createInfo);
 
     const VkMemoryRequirements getMemoryRequirements(VkDevice device);
+
+  public:
+    VkFormat getFormat();
 
   private:
     DeviceMemory* deviceMemory;
