@@ -50,6 +50,10 @@ class Image final : public WrappedObject<Image, VkImage>, public rhi::Image
   public:
     VkFormat getFormat();
 
+    VkImageView getView();
+
+    uint32_t getSamples();
+
   private:
     DeviceMemory* deviceMemory;
     Format format;

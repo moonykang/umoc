@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstdlib>
+
 namespace rhi
 {
-enum class ImageLayout
+enum class ImageLayout : uint8_t
 {
     Undefined = 0,
     // Framebuffer attachment layouts are placed first, so they can fit in fewer bits in

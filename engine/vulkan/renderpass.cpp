@@ -4,11 +4,12 @@
 #include "vulkan/image.h"
 #include "vulkan/resource/image.h"
 #include "vulkan/resource/renderpassInfo.h"
+#include <functional>
 #include <vector>
 
 namespace vk
 {
-Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo)
+Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo, size_t hash)
 {
     std::vector<VkAttachmentDescription> AttachmentDescriptions;
 
@@ -95,19 +96,7 @@ Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo)
     std::vector<VkSubpassDependency> subpassDependency;
     {
     }
-    /*
-    typedef struct VkRenderPassCreateInfo {
-        VkStructureType                   sType;
-        const void*                       pNext;
-        VkRenderPassCreateFlags           flags;
-        uint32_t                          attachmentCount;
-        const VkAttachmentDescription*    pAttachments;
-        uint32_t                          subpassCount;
-        const VkSubpassDescription*       pSubpasses;
-        uint32_t                          dependencyCount;
-        const VkSubpassDependency*        pDependencies;
-    } VkRenderPassCreateInfo;
-    */
+
     VkRenderPassCreateInfo renderpassCreateInfo = {};
     renderpassCreateInfo.attachmentCount = static_cast<uint32_t>(AttachmentDescriptions.size());
     renderpassCreateInfo.pAttachments = AttachmentDescriptions.data();
@@ -118,6 +107,8 @@ Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo)
 
     Device* device = context->getDevice();
     vk_try(create(device->getHandle(), renderpassCreateInfo));
+
+    compatibleHash = hash;
 
     return Result::Continue;
 }

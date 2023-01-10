@@ -11,6 +11,12 @@ class Image;
 
 using AttachmentId = uint8_t;
 
+enum
+{
+    MaxSimultaneousRenderTargets = 8,
+    MaxSimultaneousRenderTargets_NumBits = 3,
+};
+
 enum class AttachmentLoadOp : uint8_t
 {
     Discard,

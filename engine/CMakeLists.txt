@@ -28,6 +28,7 @@ ADD_DEPENDENCIES(engine glfw)
 
 TARGET_LINK_LIBRARIES(
     engine
+    xxHash::xxhash
     glfw
     ${VULKAN_LIBRARY}
     ${VULKAN_LAYER}

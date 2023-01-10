@@ -195,4 +195,16 @@ VkFormat Image::getFormat()
     ASSERT(valid());
     return format.format;
 }
+
+VkImageView Image::getView()
+{
+    ASSERT(valid() && view.valid());
+    return view.getHandle();
+}
+
+uint32_t Image::getSamples()
+{
+    ASSERT(valid());
+    return samples;
+}
 } // namespace vk
