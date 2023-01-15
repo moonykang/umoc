@@ -1,5 +1,3 @@
-
-
 ### Begin of third party libraries
 # GLFW
 SET(GLFW_PATH external/glfw)
@@ -32,6 +30,15 @@ SET(XXHASH_BUILD_ENABLE_INLINE_API OFF) #optional
 SET(XXHASH_BUILD_XXHSUM OFF) #optional
 ADD_SUBDIRECTORY(${XXHASH_PATH}/cmake_unofficial/ ${XXHASH_PATH}/build/ EXCLUDE_FROM_ALL)
 SET(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} xxHash::xxhash)
+
+# Google test
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG 58d77fa8070e8cec2dc1ed015d66b454c8d78850 # v1.21
+)
+FetchContent_MakeAvailable(googletest)
 ### End of third party libraries
 
 # Engine
@@ -40,3 +47,6 @@ SET(DIRECTORIES_TO_INCLUDE ${DIRECTORIES_TO_INCLUDE} ${CMAKE_CURRENT_SOURCE_DIR}
 ADD_SUBDIRECTORY(src)
 
 SET(DIRECTORIES_TO_INCLUDE ${DIRECTORIES_TO_INCLUDE} PARENT_SCOPE)
+
+# Test
+ADD_SUBDIRECTORY(test)

@@ -8,7 +8,7 @@ ADD_EXECUTABLE(
 
 TARGET_LINK_LIBRARIES(
     editor
-    engine
+    umoc
     glfw
     imgui
     ${VULKAN_LIBRARY}
