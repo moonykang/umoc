@@ -99,7 +99,7 @@ size_t RenderTargetManager::generateRenderpassHash(rhi::RenderPassInfo& renderpa
         attachmentIndex++;
     }
 
-    return util::ComputeGenericHash(&renderpassHashStruct, sizeof(RenderpassHashStruct));
+    return util::computeGenericHash(&renderpassHashStruct, sizeof(RenderpassHashStruct));
 }
 
 struct RenderpassCompatibleHashStruct
@@ -146,7 +146,7 @@ size_t RenderTargetManager::generateRenderpassCompatibleHash(rhi::RenderPassInfo
 
     renderpassCompatibleHashStruct.numAttachments = attachmentIndex + 1;
 
-    return util::ComputeGenericHash(&renderpassCompatibleHashStruct, sizeof(RenderpassCompatibleHashStruct));
+    return util::computeGenericHash(&renderpassCompatibleHashStruct, sizeof(RenderpassCompatibleHashStruct));
 }
 
 struct FramebufferHashStruct
@@ -188,6 +188,6 @@ size_t RenderTargetManager::generateFramebufferHash(rhi::RenderPassInfo& renderp
         attachmentIndex++;
     }
 
-    return util::ComputeGenericHash(&framebufferHashStruct, sizeof(FramebufferHashStruct));
+    return util::computeGenericHash(&framebufferHashStruct, sizeof(FramebufferHashStruct));
 }
 } // namespace vk
