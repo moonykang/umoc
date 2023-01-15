@@ -1,9 +1,9 @@
-[submodule "external/glfw"]
-	path = external/glfw
+[submodule "engine/external/glfw"]
+	path = engine/external/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "external/imgui"]
-	path = external/imgui
+[submodule "engine/external/imgui"]
+	path = engine/external/imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "external/xxHash"]
-	path = external/xxHash
+[submodule "engine/external/xxHash"]
+	path = engine/external/xxHash
 	url = git@github.com:Cyan4973/xxHash.git
