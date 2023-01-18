@@ -1,5 +1,5 @@
 #pragma once
-#include "rhi/resource/format.h"
+#include "rhi/resources.h"
 #include "vulkan/core.h"
 #include <map>
 

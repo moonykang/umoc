@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource/renderpassInfo.h"
+#include "resources.h"
 #include <array>
 #include <cstdlib>
 #include <limits>

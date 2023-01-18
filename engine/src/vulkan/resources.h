@@ -1,4 +1,4 @@
 #pragma once
 
 #include "resource/format.h"
-#include "rhi/resource/renderpassInfo.h"
+#include "resource/renderpassInfo.h"

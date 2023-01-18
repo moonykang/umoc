@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rhi/resource/renderpassInfo.h"
+#include "rhi/resources.h"
 #include "vulkan/core.h"
 
 namespace vk
@@ -29,7 +29,7 @@ inline VkAttachmentStoreOp convertAttachmentStoreOp(rhi::AttachmentStoreOp loadO
         return VK_ATTACHMENT_STORE_OP_DONT_CARE;
     case rhi::AttachmentStoreOp::Store:
         return VK_ATTACHMENT_STORE_OP_STORE;
-        default:
+    default:
         UNREACHABLE();
         return VK_ATTACHMENT_STORE_OP_NONE;
     }

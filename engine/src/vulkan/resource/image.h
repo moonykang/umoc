@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rhi/resources.h"
 #include "vulkan/core.h"
 
 namespace vk
