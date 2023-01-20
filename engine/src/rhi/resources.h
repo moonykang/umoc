@@ -497,19 +497,70 @@ struct SubpassDescription
 };
 
 // Pipeline
-class AssemblyState
+
+enum class PrimitiveTopology : uint8_t
 {
+    PRIMITIVE_TOPOLOGY_POINT_LIST = 0,
+    PRIMITIVE_TOPOLOGY_LINE_LIST = 1,
+    PRIMITIVE_TOPOLOGY_LINE_STRIP = 2,
+    PRIMITIVE_TOPOLOGY_TRIANGLE_LIST = 3,
+    PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP = 4,
+    PRIMITIVE_TOPOLOGY_TRIANGLE_FAN = 5,
+    PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY = 6,
+    PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY = 7,
+    PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY = 8,
+    PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY = 9,
+    PRIMITIVE_TOPOLOGY_PATCH_LIST = 10
 };
 
-class ViewportState
+class AssemblyState
 {
+  public:
+    PrimitiveTopology PrimitiveTopology;
+};
+
+enum class PolygonMode : uint8_t
+{
+    POLYGON_MODE_FILL = 0,
+    POLYGON_MODE_LINE = 1,
+    POLYGON_MODE_POINT = 2
+};
+
+enum class CullMode : uint8_t
+{
+    CULL_MODE_NONE = 0,
+    CULL_MODE_FRONT_BIT = 1,
+    CULL_MODE_BACK_BIT = 2,
+    CULL_MODE_FRONT_AND_BACK = 3,
+};
+
+enum class FrontFace : bool
+{
+    VK_FRONT_FACE_COUNTER_CLOCKWISE = 0,
+    VK_FRONT_FACE_CLOCKWISE = 1,
 };
 
 class RasterizationState
 {
   public:
+    RasterizationState()
+        : depthBiasConstantFactor(0.f), depthBiasClamp(0.f), depthBiasSlopeFactor(0.f), lineWidth(0.f),
+          polygonMode(PolygonMode::POLYGON_MODE_FILL), cullMode(CullMode::CULL_MODE_BACK_BIT), depthClampEnable(false),
+          rasterizerDiscardEnable(false), depthBiasEnable(false), frontFace(FrontFace::VK_FRONT_FACE_COUNTER_CLOCKWISE)
+    {
+    }
+
+  public:
+    float depthBiasConstantFactor;
+    float depthBiasClamp;
+    float depthBiasSlopeFactor;
+    float lineWidth;
+    PolygonMode polygonMode;
+    CullMode cullMode;
     bool depthClampEnable;
     bool rasterizerDiscardEnable;
+    bool depthBiasEnable;
+    FrontFace frontFace;
 };
 
 class GraphicsPipelineState
@@ -520,6 +571,7 @@ class GraphicsPipelineState
     }
 
   private:
+    AssemblyState assemblyState;
     /*
     - shader
     - vertex input
@@ -530,7 +582,7 @@ class GraphicsPipelineState
     - tesellation state
     uint32_t                                  patchControlPoints;
 
-    - viewport state (viewport , scissor)
+    - viewport state (viewport , scissor) > dynamic!!
         uint32_t                              viewportCount;
       const VkViewport*                     pViewports;
       uint32_t                              scissorCount;
