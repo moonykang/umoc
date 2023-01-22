@@ -101,28 +101,6 @@ TEST(PipelineStateFixture, StencilOpStateTest)
     EXPECT_NE(hash1, hash2);
 }
 
-/*
-class DepthStencilState
-{
-  public:
-    DepthStencilState()
-        : front(), back(), minDepthBounds(0.f), maxDepthBounds(0.f), depthCompareOp(CompareOp::LESS_OR_EQUAL),
-          depthTestEnable(false), depthWriteEnable(false), depthBoundsTestEnable(false), stencilTestEnable(false)
-    {
-    }
-
-  public:
-    StencilOpState front;
-    StencilOpState back;
-    float minDepthBounds;
-    float maxDepthBounds;
-    CompareOp depthCompareOp;
-    bool depthTestEnable;
-    bool depthWriteEnable;
-    bool depthBoundsTestEnable;
-    bool stencilTestEnable;
-};
-*/
 TEST(PipelineStateFixture, DepthStencilStateTest)
 {
     DepthStencilState depthStencilState;
@@ -152,6 +130,37 @@ TEST(PipelineStateFixture, DepthStencilStateTest)
 
     size_t hash1 = util::computeGenericHash(&depthStencilState, sizeof(DepthStencilState));
     size_t hash2 = util::computeGenericHash(&depthStencilState2, sizeof(DepthStencilState));
+
+    EXPECT_NE(hash1, hash2);
+}
+
+TEST(PipelineStateFixture, ColorBlendStateTest)
+{
+
+    size_t offset = 0;
+    EXPECT_EQ(offsetof(ColorBlendState, srcColorBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendState, dstColorBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendState, srcAlphaBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendState, dstAlphaBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendState, colorBlendOp), offset);
+    offset += sizeof(BlendOp);
+    EXPECT_EQ(offsetof(ColorBlendState, alphaBlendOp), offset);
+    offset += sizeof(BlendOp);
+    EXPECT_EQ(offsetof(ColorBlendState, colorWriteMask), offset);
+    offset += sizeof(ColorComponentFlags);
+    EXPECT_EQ(offsetof(ColorBlendState, blendEnable), offset);
+    offset += sizeof(bool);
+
+    ColorBlendState colorBlendState;
+    ColorBlendState colorBlendState2;
+    colorBlendState2.blendEnable = true;
+
+    size_t hash1 = util::computeGenericHash(&colorBlendState, sizeof(ColorBlendState));
+    size_t hash2 = util::computeGenericHash(&colorBlendState2, sizeof(ColorBlendState));
 
     EXPECT_NE(hash1, hash2);
 }

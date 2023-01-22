@@ -673,6 +673,88 @@ class DepthStencilState
     bool stencilTestEnable;
 };
 
+enum class BlendOp : uint8_t
+{
+    ADD = 0,
+    SUBTRACT = 1,
+    REVERSE_SUBTRACT = 2,
+    MIN = 3,
+    MAX = 4,
+};
+
+enum class BlendFactor : uint8_t
+{
+    ZERO = 0,
+    ONE = 1,
+    SRC_COLOR = 2,
+    ONE_MINUS_SRC_COLOR = 3,
+    DST_COLOR = 4,
+    ONE_MINUS_DST_COLOR = 5,
+    SRC_ALPHA = 6,
+    ONE_MINUS_SRC_ALPHA = 7,
+    DST_ALPHA = 8,
+    ONE_MINUS_DST_ALPHA = 9,
+    CONSTANT_COLOR = 10,
+    ONE_MINUS_CONSTANT_COLOR = 11,
+    CONSTANT_ALPHA = 12,
+    ONE_MINUS_CONSTANT_ALPHA = 13,
+    SRC_ALPHA_SATURATE = 14,
+    SRC1_COLOR = 15,
+    ONE_MINUS_SRC1_COLOR = 16,
+    SRC1_ALPHA = 17,
+    ONE_MINUS_SRC1_ALPHA = 18
+};
+
+class ColorComponent
+{
+  public:
+    enum Value : uint8_t
+    {
+        R = 0x00000001,
+        G = 0x00000002,
+        B = 0x00000004,
+        A = 0x00000008
+    };
+
+    ColorComponent() = default;
+
+    constexpr ColorComponent(Value value) : value(value)
+    {
+    }
+
+    constexpr uint8_t operator|(ColorComponent& colorComponent) const
+    {
+        return value | colorComponent.value;
+    }
+
+  private:
+    Value value;
+};
+using ColorComponentFlags = uint8_t;
+
+class ColorBlendState
+{
+  public:
+    ColorBlendState()
+        : srcColorBlendFactor(BlendFactor::ZERO), dstColorBlendFactor(BlendFactor::ZERO),
+          srcAlphaBlendFactor(BlendFactor::ZERO), dstAlphaBlendFactor(BlendFactor::ZERO), colorBlendOp(BlendOp::ADD),
+          alphaBlendOp(BlendOp::ADD),
+          colorWriteMask(ColorComponent::A | ColorComponent::B | ColorComponent::G | ColorComponent::R),
+          blendEnable(false)
+    {
+    }
+
+  public:
+    BlendFactor srcColorBlendFactor;
+    BlendFactor dstColorBlendFactor;
+    BlendFactor srcAlphaBlendFactor;
+    BlendFactor dstAlphaBlendFactor;
+    BlendOp colorBlendOp;
+    BlendOp alphaBlendOp;
+    ColorComponentFlags colorWriteMask;
+    bool blendEnable;
+};
+
 class GraphicsPipelineState
 {
   public:
