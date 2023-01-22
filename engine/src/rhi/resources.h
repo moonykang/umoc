@@ -732,10 +732,10 @@ class ColorComponent
 };
 using ColorComponentFlags = uint8_t;
 
-class ColorBlendState
+class ColorBlendAttachmentState
 {
   public:
-    ColorBlendState()
+    ColorBlendAttachmentState()
         : srcColorBlendFactor(BlendFactor::ZERO), dstColorBlendFactor(BlendFactor::ZERO),
           srcAlphaBlendFactor(BlendFactor::ZERO), dstAlphaBlendFactor(BlendFactor::ZERO), colorBlendOp(BlendOp::ADD),
           alphaBlendOp(BlendOp::ADD),
@@ -755,6 +755,41 @@ class ColorBlendState
     bool blendEnable;
 };
 
+enum class LogicOp : uint8_t
+{
+    CLEAR = 0,
+    AND = 1,
+    REVERSE = 2,
+    COPY = 3,
+    AND_INVERTED = 4,
+    NO_OP = 5,
+    XOR = 6,
+    OR = 7,
+    NOR = 8,
+    EQUIVALENT = 9,
+    INVERT = 10,
+    OR_REVERSE = 11,
+    COPY_INVERTED = 12,
+    OR_INVERTED = 13,
+    NAND = 14,
+    SET = 15
+};
+
+class ColorBlendState
+{
+  public:
+    ColorBlendState()
+    {
+    }
+
+  public:
+    ColorBlendAttachmentState colorBlendAttachmentStates[MaxSimultaneousRenderTargets];
+    uint32_t attachmentCount;
+    float blendConstants[4];
+    LogicOp logicOp;
+    bool logicOpEnable;
+};
+
 class GraphicsPipelineState
 {
   public:
@@ -768,26 +803,10 @@ class GraphicsPipelineState
     TessellationState tessellationState;
     MultisampleState multisampleState;
     DepthStencilState depthStencilState;
+    ColorBlendState colorBlendState;
     /*
     - shader
     - vertex input
-
-    - color blend (needs rt infos)
-        VkBool32                 blendEnable;
-      VkBlendFactor            srcColorBlendFactor;
-      VkBlendFactor            dstColorBlendFactor;
-      VkBlendOp                colorBlendOp;
-      VkBlendFactor            srcAlphaBlendFactor;
-      VkBlendFactor            dstAlphaBlendFactor;
-      VkBlendOp                alphaBlendOp;
-      VkColorComponentFlags    colorWriteMask;
-      X
-      kBool32                                      logicOpEnable;
-      VkLogicOp                                     logicOp;
-      uint32_t                                      attachmentCount;
-      const VkPipelineColorBlendAttachmentState*    pAttachments;
-      float                                         blendConstants[4];
-
     * pipeline layout (push constants) <> descriptorset layout
     */
 };

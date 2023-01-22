@@ -134,30 +134,72 @@ TEST(PipelineStateFixture, DepthStencilStateTest)
     EXPECT_NE(hash1, hash2);
 }
 
+TEST(PipelineStateFixture, ColorBlendAttachmentStateTest)
+{
+
+    size_t offset = 0;
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, srcColorBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, dstColorBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, srcAlphaBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, dstAlphaBlendFactor), offset);
+    offset += sizeof(BlendFactor);
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, colorBlendOp), offset);
+    offset += sizeof(BlendOp);
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, alphaBlendOp), offset);
+    offset += sizeof(BlendOp);
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, colorWriteMask), offset);
+    offset += sizeof(ColorComponentFlags);
+    EXPECT_EQ(offsetof(ColorBlendAttachmentState, blendEnable), offset);
+    offset += sizeof(bool);
+
+    ColorBlendAttachmentState colorBlendState;
+    ColorBlendAttachmentState colorBlendState2;
+    colorBlendState2.blendEnable = true;
+
+    size_t hash1 = util::computeGenericHash(&colorBlendState, sizeof(ColorBlendAttachmentState));
+    size_t hash2 = util::computeGenericHash(&colorBlendState2, sizeof(ColorBlendAttachmentState));
+
+    EXPECT_NE(hash1, hash2);
+}
+
+/*
+class ColorBlendState
+{
+  public:
+    ColorBlendState()
+    {
+    }
+
+  public:
+    ColorBlendAttachmentState colorBlendAttachmentStates[MaxSimultaneousRenderTargets];
+    uint32_t attachmentCount;
+    float blendConstants[4];
+    LogicOp logicOp;
+    bool logicOpEnable;
+};
+
+*/
 TEST(PipelineStateFixture, ColorBlendStateTest)
 {
 
     size_t offset = 0;
-    EXPECT_EQ(offsetof(ColorBlendState, srcColorBlendFactor), offset);
-    offset += sizeof(BlendFactor);
-    EXPECT_EQ(offsetof(ColorBlendState, dstColorBlendFactor), offset);
-    offset += sizeof(BlendFactor);
-    EXPECT_EQ(offsetof(ColorBlendState, srcAlphaBlendFactor), offset);
-    offset += sizeof(BlendFactor);
-    EXPECT_EQ(offsetof(ColorBlendState, dstAlphaBlendFactor), offset);
-    offset += sizeof(BlendFactor);
-    EXPECT_EQ(offsetof(ColorBlendState, colorBlendOp), offset);
-    offset += sizeof(BlendOp);
-    EXPECT_EQ(offsetof(ColorBlendState, alphaBlendOp), offset);
-    offset += sizeof(BlendOp);
-    EXPECT_EQ(offsetof(ColorBlendState, colorWriteMask), offset);
-    offset += sizeof(ColorComponentFlags);
-    EXPECT_EQ(offsetof(ColorBlendState, blendEnable), offset);
+    EXPECT_EQ(offsetof(ColorBlendState, colorBlendAttachmentStates), offset);
+    offset += sizeof(ColorBlendAttachmentState) * MaxSimultaneousRenderTargets;
+    EXPECT_EQ(offsetof(ColorBlendState, attachmentCount), offset);
+    offset += sizeof(uint32_t);
+    EXPECT_EQ(offsetof(ColorBlendState, blendConstants), offset);
+    offset += sizeof(float) * 4;
+    EXPECT_EQ(offsetof(ColorBlendState, logicOp), offset);
+    offset += sizeof(LogicOp);
+    EXPECT_EQ(offsetof(ColorBlendState, logicOpEnable), offset);
     offset += sizeof(bool);
 
     ColorBlendState colorBlendState;
     ColorBlendState colorBlendState2;
-    colorBlendState2.blendEnable = true;
+    colorBlendState2.logicOpEnable = true;
 
     size_t hash1 = util::computeGenericHash(&colorBlendState, sizeof(ColorBlendState));
     size_t hash2 = util::computeGenericHash(&colorBlendState2, sizeof(ColorBlendState));
