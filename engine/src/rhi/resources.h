@@ -516,7 +516,14 @@ enum class PrimitiveTopology : uint8_t
 class AssemblyState
 {
   public:
-    PrimitiveTopology PrimitiveTopology;
+    AssemblyState()
+        : primitiveTopology(PrimitiveTopology::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST), primitiveRestartEnable(false)
+    {
+    }
+
+  public:
+    PrimitiveTopology primitiveTopology;
+    bool primitiveRestartEnable;
 };
 
 enum class PolygonMode : uint8_t
@@ -563,6 +570,109 @@ class RasterizationState
     FrontFace frontFace;
 };
 
+class TessellationState
+{
+  public:
+    TessellationState() : patchControlPoints(0)
+    {
+    }
+
+  public:
+    uint32_t patchControlPoints;
+};
+
+enum class SampleCount : uint8_t
+{
+    SAMPLE_COUNT_1_BIT = 0x00000001,
+    SAMPLE_COUNT_2_BIT = 0x00000002,
+    SAMPLE_COUNT_4_BIT = 0x00000004,
+    SAMPLE_COUNT_8_BIT = 0x00000008,
+    SAMPLE_COUNT_16_BIT = 0x00000010,
+    SAMPLE_COUNT_32_BIT = 0x00000020,
+    SAMPLE_COUNT_64_BIT = 0x00000040,
+};
+
+class MultisampleState
+{
+  public:
+    MultisampleState()
+        : minSampleShading(0.f), sampleCount(SampleCount::SAMPLE_COUNT_1_BIT), sampleShadingEnable(false),
+          alphaToCoverageEnable(false), alphaToOneEnable(false)
+    {
+    }
+
+  public:
+    float minSampleShading;
+    SampleCount sampleCount;
+    bool sampleShadingEnable;
+    bool alphaToCoverageEnable;
+    bool alphaToOneEnable;
+};
+
+enum class StencilOp : uint8_t
+{
+    KEEP = 0,
+    ZERO = 1,
+    REPLACE = 2,
+    INCREMENT_AND_CLAMP = 3,
+    DECREMENT_AND_CLAMP = 4,
+    INVERT = 5,
+    INCREMENT_AND_WRAP = 6,
+    DECREMENT_AND_WRAP = 7
+};
+
+enum class CompareOp : uint8_t
+{
+    NEVER = 0,
+    LESS = 1,
+    EQUAL = 2,
+    LESS_OR_EQUAL = 3,
+    GREATER = 4,
+    NOT_EQUAL = 5,
+    GREATER_OR_EQUAL = 6,
+    ALWAYS = 7
+};
+
+class StencilOpState
+{
+  public:
+    StencilOpState()
+        : failOp(StencilOp::ZERO), passOp(StencilOp::ZERO), depthFailOp(StencilOp::ZERO), compareOp(CompareOp::NEVER),
+          compareMask(0), writeMask(0), reference(0)
+    {
+    }
+
+  public:
+    StencilOp failOp;
+    StencilOp passOp;
+    StencilOp depthFailOp;
+    CompareOp compareOp;
+    uint32_t compareMask;
+    uint32_t writeMask;
+    uint32_t reference;
+};
+
+class DepthStencilState
+{
+  public:
+    DepthStencilState()
+        : front(), back(), minDepthBounds(0.f), maxDepthBounds(0.f), depthCompareOp(CompareOp::LESS_OR_EQUAL),
+          depthTestEnable(false), depthWriteEnable(false), depthBoundsTestEnable(false), stencilTestEnable(false)
+    {
+    }
+
+  public:
+    StencilOpState front;
+    StencilOpState back;
+    float minDepthBounds;
+    float maxDepthBounds;
+    CompareOp depthCompareOp;
+    bool depthTestEnable;
+    bool depthWriteEnable;
+    bool depthBoundsTestEnable;
+    bool stencilTestEnable;
+};
+
 class GraphicsPipelineState
 {
   public:
@@ -572,61 +682,13 @@ class GraphicsPipelineState
 
   private:
     AssemblyState assemblyState;
+    RasterizationState rasterizationState;
+    TessellationState tessellationState;
+    MultisampleState multisampleState;
+    DepthStencilState depthStencilState;
     /*
     - shader
     - vertex input
-    - input assembly (topology, ...)
-        VkPrimitiveTopology                        topology;
-      VkBool32                                   primitiveRestartEnable;
-
-    - tesellation state
-    uint32_t                                  patchControlPoints;
-
-    - viewport state (viewport , scissor) > dynamic!!
-        uint32_t                              viewportCount;
-      const VkViewport*                     pViewports;
-      uint32_t                              scissorCount;
-      const VkRect2D*                       pScissors;
-
-    - rasterization (polygon mode, line width, cull, frontface, ...)
-        VkBool32                                   depthClampEnable;
-      VkBool32                                   rasterizerDiscardEnable;
-      VkPolygonMode                              polygonMode;
-      VkCullModeFlags                            cullMode;
-      VkFrontFace                                frontFace;
-      VkBool32                                   depthBiasEnable;
-      float                                      depthBiasConstantFactor;
-      float                                      depthBiasClamp;
-      float                                      depthBiasSlopeFactor;
-      float                                      lineWidth;
-
-    - multisample state
-        VkSampleCountFlagBits                    rasterizationSamples;
-      VkBool32                                 sampleShadingEnable;
-      float                                    minSampleShading;
-      const VkSampleMask*                      pSampleMask;
-      VkBool32                                 alphaToCoverageEnable;
-      VkBool32                                 alphaToOneEnable;
-
-      - depth state
-      VkBool32                                  depthTestEnable;
-      VkBool32                                  depthWriteEnable;
-      VkCompareOp                               depthCompareOp;
-      VkBool32                                  depthBoundsTestEnable;
-      VkBool32                                  stencilTestEnable;
-      VkStencilOpState                          front;
-      VkStencilOpState                          back;
-      float                                     minDepthBounds;
-      float                                     maxDepthBounds;
-
-      - stencil state
-          VkStencilOp    failOp;
-      VkStencilOp    passOp;
-      VkStencilOp    depthFailOp;
-      VkCompareOp    compareOp;
-      uint32_t       compareMask;
-      uint32_t       writeMask;
-      uint32_t       reference;
 
     - color blend (needs rt infos)
         VkBool32                 blendEnable;

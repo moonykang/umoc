@@ -46,3 +46,112 @@ TEST(PipelineStateFixture, RasterizationStateTest)
 
     EXPECT_NE(hash1, hash2);
 }
+
+TEST(PipelineStateFixture, MultisampleStateTest)
+{
+    MultisampleState multisampleState;
+
+    size_t offset = 0;
+    EXPECT_EQ(offsetof(MultisampleState, minSampleShading), offset);
+    offset += sizeof(float);
+    EXPECT_EQ(offsetof(MultisampleState, sampleCount), offset);
+    offset += sizeof(SampleCount);
+    EXPECT_EQ(offsetof(MultisampleState, sampleShadingEnable), offset);
+    offset += sizeof(bool);
+    EXPECT_EQ(offsetof(MultisampleState, alphaToCoverageEnable), offset);
+    offset += sizeof(bool);
+    EXPECT_EQ(offsetof(MultisampleState, alphaToOneEnable), offset);
+    offset += sizeof(bool);
+
+    MultisampleState multisampleState2;
+    multisampleState2.minSampleShading = 1.f;
+
+    size_t hash1 = util::computeGenericHash(&multisampleState, sizeof(MultisampleState));
+    size_t hash2 = util::computeGenericHash(&multisampleState2, sizeof(MultisampleState));
+
+    EXPECT_NE(hash1, hash2);
+}
+
+TEST(PipelineStateFixture, StencilOpStateTest)
+{
+    StencilOpState stencilOpState;
+
+    size_t offset = 0;
+    EXPECT_EQ(offsetof(StencilOpState, failOp), offset);
+    offset += sizeof(StencilOp);
+    EXPECT_EQ(offsetof(StencilOpState, passOp), offset);
+    offset += sizeof(StencilOp);
+    EXPECT_EQ(offsetof(StencilOpState, depthFailOp), offset);
+    offset += sizeof(StencilOp);
+    EXPECT_EQ(offsetof(StencilOpState, compareOp), offset);
+    offset += sizeof(CompareOp);
+    EXPECT_EQ(offsetof(StencilOpState, compareMask), offset);
+    offset += sizeof(uint32_t);
+    EXPECT_EQ(offsetof(StencilOpState, writeMask), offset);
+    offset += sizeof(uint32_t);
+    EXPECT_EQ(offsetof(StencilOpState, reference), offset);
+    offset += sizeof(uint32_t);
+
+    StencilOpState stencilOpState2;
+    stencilOpState2.failOp = StencilOp::INVERT;
+
+    size_t hash1 = util::computeGenericHash(&stencilOpState, sizeof(StencilOpState));
+    size_t hash2 = util::computeGenericHash(&stencilOpState2, sizeof(StencilOpState));
+
+    EXPECT_NE(hash1, hash2);
+}
+
+/*
+class DepthStencilState
+{
+  public:
+    DepthStencilState()
+        : front(), back(), minDepthBounds(0.f), maxDepthBounds(0.f), depthCompareOp(CompareOp::LESS_OR_EQUAL),
+          depthTestEnable(false), depthWriteEnable(false), depthBoundsTestEnable(false), stencilTestEnable(false)
+    {
+    }
+
+  public:
+    StencilOpState front;
+    StencilOpState back;
+    float minDepthBounds;
+    float maxDepthBounds;
+    CompareOp depthCompareOp;
+    bool depthTestEnable;
+    bool depthWriteEnable;
+    bool depthBoundsTestEnable;
+    bool stencilTestEnable;
+};
+*/
+TEST(PipelineStateFixture, DepthStencilStateTest)
+{
+    DepthStencilState depthStencilState;
+
+    size_t offset = 0;
+    EXPECT_EQ(offsetof(DepthStencilState, front), offset);
+    offset += sizeof(StencilOpState);
+    EXPECT_EQ(offsetof(DepthStencilState, back), offset);
+    offset += sizeof(StencilOpState);
+    EXPECT_EQ(offsetof(DepthStencilState, minDepthBounds), offset);
+    offset += sizeof(float);
+    EXPECT_EQ(offsetof(DepthStencilState, maxDepthBounds), offset);
+    offset += sizeof(float);
+    EXPECT_EQ(offsetof(DepthStencilState, depthCompareOp), offset);
+    offset += sizeof(CompareOp);
+    EXPECT_EQ(offsetof(DepthStencilState, depthTestEnable), offset);
+    offset += sizeof(bool);
+    EXPECT_EQ(offsetof(DepthStencilState, depthWriteEnable), offset);
+    offset += sizeof(bool);
+    EXPECT_EQ(offsetof(DepthStencilState, depthBoundsTestEnable), offset);
+    offset += sizeof(bool);
+    EXPECT_EQ(offsetof(DepthStencilState, stencilTestEnable), offset);
+    offset += sizeof(bool);
+
+    DepthStencilState depthStencilState2;
+    depthStencilState2.minDepthBounds = 1.f;
+
+    size_t hash1 = util::computeGenericHash(&depthStencilState, sizeof(DepthStencilState));
+    size_t hash2 = util::computeGenericHash(&depthStencilState2, sizeof(DepthStencilState));
+
+    EXPECT_NE(hash1, hash2);
+}
