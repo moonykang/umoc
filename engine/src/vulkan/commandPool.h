@@ -5,6 +5,7 @@
 
 namespace vk
 {
+class Context;
 class CommandBuffer;
 class Queue;
 
@@ -25,9 +26,9 @@ class CommandPool final : public WrappedObject<CommandPool, VkCommandPool>
 
     void prepareUploadCommandBuffer(VkDevice device);
 
-    CommandBuffer* getActiveCommandBuffer(VkDevice device);
+    CommandBuffer* getActiveCommandBuffer(Context* context);
 
-    CommandBuffer* getUploadCommandBuffer(VkDevice device);
+    CommandBuffer* getUploadCommandBuffer(Context* context);
 
     std::vector<VkCommandBuffer> prepareSubmit();
 

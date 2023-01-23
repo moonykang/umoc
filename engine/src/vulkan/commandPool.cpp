@@ -1,4 +1,6 @@
 #include "vulkan/commandPool.h"
+#include "context.h"
+#include "device.h"
 #include "vulkan/commandBuffer.h"
 #include "vulkan/queue.h"
 #include <vector>
@@ -90,23 +92,23 @@ void CommandPool::prepareUploadCommandBuffer(VkDevice device)
     }
 }
 
-CommandBuffer* CommandPool::getActiveCommandBuffer(VkDevice device)
+CommandBuffer* CommandPool::getActiveCommandBuffer(Context* context)
 {
     ASSERT(valid());
     if (activeCommandBuffer == nullptr)
     {
-        prepareActiveCommandBuffer(device);
+        prepareActiveCommandBuffer(context->getDevice()->getHandle());
         activeCommandBuffer->begin();
     }
     return activeCommandBuffer;
 }
 
-CommandBuffer* CommandPool::getUploadCommandBuffer(VkDevice device)
+CommandBuffer* CommandPool::getUploadCommandBuffer(Context* context)
 {
     ASSERT(valid());
     if (uploadCommandBuffer == nullptr)
     {
-        prepareUploadCommandBuffer(device);
+        prepareUploadCommandBuffer(context->getDevice()->getHandle());
         uploadCommandBuffer->begin();
     }
     return uploadCommandBuffer;

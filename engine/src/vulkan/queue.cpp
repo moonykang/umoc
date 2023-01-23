@@ -212,9 +212,29 @@ const std::vector<VkDeviceQueueCreateInfo>& QueueMap::getQueueCreateInfo() const
     return queueCreateInfos;
 }
 
-Queue* QueueMap::getQueue()
+Queue* QueueMap::getQueue(QueueType type)
 {
-    ASSERT(graphicsQueue);
-    return graphicsQueue;
+    switch (type)
+    {
+    case QueueType::GraphicPresent:
+        ASSERT(graphicsQueue);
+        return graphicsQueue;
+    case QueueType::ComputeTransfer:
+        ASSERT(computeQueue);
+        return computeQueue;
+    default:
+        UNREACHABLE();
+        return nullptr;
+    }
+}
+
+CommandBuffer* QueueMap::getActiveCommandBuffer(Context* context, QueueType type)
+{
+    return getQueue(type)->getCommandPool()->getActiveCommandBuffer(context);
+}
+
+CommandBuffer* QueueMap::getUploadCommandBuffer(Context* context, QueueType type)
+{
+    return getQueue(type)->getCommandPool()->getUploadCommandBuffer(context);
 }
 } // namespace vk

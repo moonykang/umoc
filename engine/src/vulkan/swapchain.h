@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sync.h"
 #include "vulkan/core.h"
 #include "vulkan/resources.h"
 #include <vector>
@@ -8,13 +9,31 @@ namespace vk
 {
 class Context;
 class Image;
+class Queue;
+
+class SwapchainSemaphore
+{
+  public:
+    Result init(VkDevice device);
+
+    void terminate(VkDevice device);
+
+    Semaphore acquireSemaphore;
+    Semaphore presentSemaphore;
+};
 
 class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 {
   public:
+    Swapchain();
+
     Result init(Context* context);
 
     void terminate(VkDevice device);
+
+    Result acquireNextImage(Context* context);
+
+    Result present(Context* context, Queue* queue);
 
   private:
     VkResult create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
@@ -23,7 +42,13 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 
     void releaseSwapchainImages(VkDevice device);
 
+    Result setupSwapchainSemaphores(Context* context, uint32_t imageCount);
+
+    void releaseSwapchainSemaphores(VkDevice device);
+
   private:
     std::vector<Image*> swapchainImages;
+    std::vector<SwapchainSemaphore> semaphores;
+    uint32_t currentIndex;
 };
 } // namespace vk

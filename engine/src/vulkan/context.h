@@ -4,6 +4,11 @@
 #include "vulkan/core.h"
 #include <map>
 
+namespace rhi
+{
+class Image;
+}
+
 namespace vk
 {
 class Device;
@@ -27,9 +32,11 @@ class Context : public rhi::Context
 
     void terminateRHI() override final;
 
-    Result flush();
+    rhi::Image* getCurrentSurfaceImage() override;
 
-    Result present();
+    Result flush() override;
+
+    Result present() override;
 
   public:
     Instance* getInstance() const;

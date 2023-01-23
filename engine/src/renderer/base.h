@@ -2,11 +2,18 @@
 
 #include "common/util.h"
 
+namespace platform
+{
+class Context;
+}
+
 namespace renderer
 {
 class Base
 {
   public:
-    virtual Result render() = 0;
+    Result init(platform::Context* context);
+
+    Result render(platform::Context* context);
 };
 } // namespace renderer

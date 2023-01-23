@@ -1,6 +1,7 @@
 #include "vulkan/context.h"
 #include "vulkan/device.h"
 #include "vulkan/extension.h"
+#include "vulkan/image.h"
 #include "vulkan/instance.h"
 #include "vulkan/physicalDevice.h"
 #include "vulkan/queue.h"
@@ -66,7 +67,7 @@ void Context::terminateRHI()
 
 Result Context::flush()
 {
-    Queue* queue = queueMap->getQueue();
+    // Queue* queue = queueMap->getQueue();
 
     return Result::Continue;
 }
@@ -74,6 +75,11 @@ Result Context::flush()
 Result Context::present()
 {
     return Result::Continue;
+}
+
+rhi::Image* Context::getCurrentSurfaceImage()
+{
+    return nullptr;
 }
 
 Instance* Context::getInstance() const

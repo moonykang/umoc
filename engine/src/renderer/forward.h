@@ -1,10 +1,10 @@
 #pragma once
 
-#include "renderer/base.h"
+#include "renderer/renderer.h"
 
 namespace renderer
 {
-class Forward : public Base
+class Forward : public Renderer
 {
 };
 } // namespace renderer

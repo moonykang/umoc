@@ -33,14 +33,20 @@ class Queue final : public WrappedObject<Queue, VkQueue>
     Result submit(CommandBuffer* commandBuffer, std::vector<VkSemaphore>* waitSemaphores = nullptr,
                   std::vector<VkSemaphore>* signalSemaphores = nullptr);
 
+    inline CommandPool* getCommandPool()
+    {
+        ASSERT(commandPool);
+        return commandPool;
+    }
+
+    VkResult present(const VkPresentInfoKHR& presentInfo);
+
   private:
     void getDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t queueIndex);
 
     VkResult submit(const VkSubmitInfo& submitInfo, VkFence fence);
 
     VkResult waitIdle();
-
-    VkResult present(const VkPresentInfoKHR& presentInfo);
 
   private:
     CommandPool* commandPool;
@@ -60,7 +66,12 @@ class QueueMap
 
     const std::vector<VkDeviceQueueCreateInfo>& getQueueCreateInfo() const;
 
-    Queue* getQueue();
+  public:
+    Queue* getQueue(QueueType type);
+
+    CommandBuffer* getActiveCommandBuffer(Context* context, QueueType type);
+
+    CommandBuffer* getUploadCommandBuffer(Context* context, QueueType type);
 
   private:
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;

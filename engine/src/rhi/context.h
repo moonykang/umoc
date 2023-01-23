@@ -5,6 +5,8 @@
 
 namespace rhi
 {
+class Image;
+
 class Context : public platform::Context
 {
   public:
@@ -15,6 +17,10 @@ class Context : public platform::Context
 
     virtual void terminateRHI() = 0;
 
-  public:
+    virtual Result flush() = 0;
+
+    virtual Result present() = 0;
+
+    virtual Image* getCurrentSurfaceImage() = 0;
 };
 } // namespace rhi

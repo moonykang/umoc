@@ -34,4 +34,30 @@ VkResult Fence::wait(VkDevice device, uint64_t timeout) const
     ASSERT(valid());
     return vkWaitForFences(device, 1, &mHandle, true, timeout);
 }
+
+void Semaphore::terminate(VkDevice device)
+{
+    if (valid())
+    {
+        vkDestroySemaphore(device, mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
+    }
+}
+
+VkResult Semaphore::init(VkDevice device)
+{
+    ASSERT(!valid());
+
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semaphoreInfo.flags = 0;
+
+    return vkCreateSemaphore(device, &semaphoreInfo, nullptr, &mHandle);
+}
+
+VkResult Semaphore::init(VkDevice device, const VkSemaphoreCreateInfo& createInfo)
+{
+    ASSERT(valid());
+    return vkCreateSemaphore(device, &createInfo, nullptr, &mHandle);
+}
 } // namespace vk

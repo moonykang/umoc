@@ -1,4 +1,7 @@
 #include "vulkan/swapchain.h"
+#include "commandBuffer.h"
+#include "commandPool.h"
+#include "queue.h"
 #include "vulkan/context.h"
 #include "vulkan/device.h"
 #include "vulkan/image.h"
@@ -8,6 +11,25 @@
 
 namespace vk
 {
+
+Result SwapchainSemaphore::init(VkDevice device)
+{
+    vk_try(acquireSemaphore.init(device));
+    vk_try(presentSemaphore.init(device));
+
+    return Result::Continue;
+}
+
+void SwapchainSemaphore::terminate(VkDevice device)
+{
+    acquireSemaphore.terminate(device);
+    presentSemaphore.terminate(device);
+}
+
+Swapchain::Swapchain() : currentIndex(0)
+{
+}
+
 Result Swapchain::init(Context* context)
 {
     Surface* surface = context->getSurface();
@@ -101,12 +123,46 @@ Result Swapchain::init(Context* context)
 void Swapchain::terminate(VkDevice device)
 {
     releaseSwapchainImages(device);
+    releaseSwapchainSemaphores(device);
 
     if (valid())
     {
         vkDestroySwapchainKHR(device, mHandle, nullptr);
         mHandle = VK_NULL_HANDLE;
     }
+}
+
+Result Swapchain::acquireNextImage(Context* context)
+{
+    VkSemaphore semaphore = semaphores[currentIndex].acquireSemaphore.getHandle();
+
+    vk_try(vkAcquireNextImageKHR(context->getDevice()->getHandle(), mHandle, UINT64_MAX, semaphore, VK_NULL_HANDLE,
+                                 &currentIndex));
+    return Result::Continue;
+}
+
+Result Swapchain::present(Context* context, Queue* queue)
+{
+    CommandBuffer* commandBuffer = queue->getCommandPool()->getActiveCommandBuffer(context);
+
+    std::vector<VkSemaphore> waitSemaphores = {semaphores[currentIndex].acquireSemaphore.getHandle()};
+    std::vector<VkSemaphore> signalSemaphores = {semaphores[currentIndex].presentSemaphore.getHandle()};
+
+    queue->submitActive(context, &waitSemaphores, &signalSemaphores);
+
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.pNext = nullptr;
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &mHandle;
+    presentInfo.pImageIndices = &currentIndex;
+    presentInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+    presentInfo.pWaitSemaphores = waitSemaphores.data();
+
+    vk_try(queue->present(presentInfo));
+
+    currentIndex++;
+    return Result::Continue;
 }
 
 VkResult Swapchain::create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo)
@@ -146,5 +202,26 @@ void Swapchain::releaseSwapchainImages(VkDevice device)
         DELETE(swapchainImage, device);
     }
     swapchainImages.clear();
+}
+
+Result Swapchain::setupSwapchainSemaphores(Context* context, uint32_t imageCount)
+{
+    ASSERT(semaphores.empty());
+    semaphores.resize(imageCount);
+
+    for (auto& semaphore : semaphores)
+    {
+        semaphore.init(context->getDevice()->getHandle());
+    }
+    return Result::Continue;
+}
+
+void Swapchain::releaseSwapchainSemaphores(VkDevice device)
+{
+    for (auto& semaphore : semaphores)
+    {
+        semaphore.terminate(device);
+    }
+    semaphores.clear();
 }
 } // namespace vk
