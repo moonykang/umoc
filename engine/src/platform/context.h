@@ -23,6 +23,8 @@ class Context
 
     void terminate();
 
+    Result loop();
+
     virtual void terminateRHI() = 0;
 
     rhi::Context* getRHI();

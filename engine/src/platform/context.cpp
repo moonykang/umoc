@@ -25,6 +25,13 @@ void Context::terminate()
     DELETE(window);
 }
 
+Result Context::loop()
+{
+    ASSERT(window);
+
+    return window->valid() ? Result::Continue : Result::Fail;
+}
+
 rhi::Context* Context::getRHI()
 {
     return reinterpret_cast<rhi::Context*>(this);

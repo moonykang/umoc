@@ -15,6 +15,8 @@ class Window : public platform::Window
 
     void terminate() override;
 
+    bool valid() override;
+
     GLFWwindow* getWindow();
 
   private:

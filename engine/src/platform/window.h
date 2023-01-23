@@ -21,6 +21,8 @@ class Window
 
     virtual void terminate() = 0;
 
+    virtual bool valid() = 0;
+
   public:
     static Window* createPlatformWindow();
 

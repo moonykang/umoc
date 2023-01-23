@@ -37,6 +37,15 @@ void Window::terminate()
     glfwTerminate();
 }
 
+bool Window::valid()
+{
+    ASSERT(window);
+
+    glfwPollEvents();
+
+    return !glfwWindowShouldClose(window);
+}
+
 GLFWwindow* Window::getWindow()
 {
     ASSERT(window != nullptr);

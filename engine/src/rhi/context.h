@@ -14,5 +14,7 @@ class Context : public platform::Context
     virtual Result initRHI(platform::Window* window) = 0;
 
     virtual void terminateRHI() = 0;
+
+  public:
 };
 } // namespace rhi
