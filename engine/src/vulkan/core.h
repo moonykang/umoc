@@ -12,8 +12,8 @@ namespace vk
         VkResult result = (expr);                                                                                      \
         if (result != VK_SUCCESS)                                                                                      \
         {                                                                                                              \
-            LOGD("VkResult %s for [" #expr "]", vk::debug::getVkResultString(result).c_str());                         \
-            ASSERT(true);                                                                                              \
+            LOGE("VkResult %s for [" #expr "]", vk::debug::getVkResultString(result).c_str());                         \
+            print_trace();                                                                                             \
             return Result::Fail;                                                                                       \
         }                                                                                                              \
     }
@@ -23,8 +23,8 @@ namespace vk
         VkResult result = (expr);                                                                                      \
         if (result != VK_SUCCESS)                                                                                      \
         {                                                                                                              \
-            LOGD("VkResult %s for [" #expr "]", vk::debug::getVkResultString(result).c_str());                         \
-            ASSERT(true);                                                                                              \
+            LOGE("VkResult %s for [" #expr "]", vk::debug::getVkResultString(result).c_str());                         \
+            print_trace();                                                                                             \
         }                                                                                                              \
     }
 

@@ -42,13 +42,14 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 
     void releaseSwapchainImages(VkDevice device);
 
-    Result setupSwapchainSemaphores(Context* context, uint32_t imageCount);
+    Result setupSwapchainSemaphores(Context* context);
 
     void releaseSwapchainSemaphores(VkDevice device);
 
   private:
     std::vector<Image*> swapchainImages;
     std::vector<SwapchainSemaphore> semaphores;
-    uint32_t currentIndex;
+    uint32_t imageCount;
+    uint32_t currentImageIndex;
 };
 } // namespace vk

@@ -51,6 +51,8 @@ Result Context::initRHI(platform::Window* window)
 void Context::terminateRHI()
 {
     LOGD("Begin of terminate Vulkan RHI");
+    queueMap->waitAll();
+
     // Device dependencies
     DELETE(swapchain, device->getHandle());
     DELETE(queueMap, device->getHandle())
@@ -74,6 +76,15 @@ Result Context::flush()
 
 Result Context::present()
 {
+    // TODO
+    try(swapchain->acquireNextImage(this));
+
+    Queue* presentQueue = queueMap->getQueue(QueueType::GraphicPresent);
+
+    try(swapchain->present(this, presentQueue));
+
+    vk_try(presentQueue->waitIdle());
+
     return Result::Continue;
 }
 

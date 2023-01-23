@@ -1,9 +1,10 @@
-#include "vulkan/commandBuffer.h"
-#include "vulkan/sync.h"
+#include "commandBuffer.h"
+#include "sync.h"
+#include "transition.h"
 
 namespace vk
 {
-CommandBuffer::CommandBuffer() : fence(nullptr)
+CommandBuffer::CommandBuffer() : fence(nullptr), transition(nullptr)
 {
 }
 
@@ -52,8 +53,9 @@ Result CommandBuffer::reset(VkDevice device, const bool bWait)
         reset();
         fence->reset(device);
 
-        // delete transition;
-        // transition = nullptr;
+        delete transition;
+        transition = nullptr;
+
         return Result::Continue;
     }
     else if (bWait)
@@ -81,7 +83,7 @@ VkResult CommandBuffer::end()
 {
     ASSERT(valid());
 
-    // flushTransitions();
+    flushTransitions();
     return vkEndCommandBuffer(mHandle);
 }
 
@@ -89,6 +91,45 @@ VkFence CommandBuffer::getFence()
 {
     ASSERT(fence && fence->valid());
     return fence->getHandle();
+}
+
+void CommandBuffer::addTransition(Transition* newTransition)
+{
+    if (newTransition == nullptr)
+    {
+        return;
+    }
+
+    if (transition == nullptr)
+    {
+        transition = newTransition;
+    }
+    else
+    {
+        transition->merge(newTransition);
+    }
+}
+
+void CommandBuffer::flushTransitions()
+{
+    if (transition == nullptr)
+    {
+        return;
+    }
+
+    if (transition->build())
+    {
+        auto memoryBarriers = transition->getMemoryBarriers();
+        auto imageMemoryBarriers = transition->getImageMemoryBarriers();
+        auto bufferMemoryBarriers = transition->getBufferMemoryBarriers();
+
+        pipelineBarrier(transition->getSrcStageMask(), transition->getDstStageMask(), 0,
+                        static_cast<uint32_t>(memoryBarriers->size()), memoryBarriers->data(),
+                        static_cast<uint32_t>(bufferMemoryBarriers->size()), bufferMemoryBarriers->data(),
+                        static_cast<uint32_t>(imageMemoryBarriers->size()), imageMemoryBarriers->data());
+    }
+
+    transition->reset();
 }
 
 VkResult CommandBuffer::reset()

@@ -1,19 +1,22 @@
 #pragma once
 
+#include "core.h"
+#include "resources.h"
 #include "rhi/image.h"
-#include "vulkan/core.h"
-#include "vulkan/resources.h"
 
 namespace vk
 {
 class Context;
 class DeviceMemory;
+class Transition;
 
 class ImageView final : public WrappedObject<ImageView, VkImageView>
 {
   public:
     Result init(Context* context, VkImage image, Format format, VkComponentMapping components,
                 VkImageSubresourceRange subresourceRange, VkImageViewType viewType);
+
+    void terminate(VkDevice device);
 
   private:
     VkResult create(VkDevice device, const VkImageViewCreateInfo& createInfo);
@@ -40,6 +43,12 @@ class Image final : public WrappedObject<Image, VkImage>, public rhi::Image
 
     void terminate(VkDevice device);
 
+    void release(VkDevice device); // Only for swapchain images
+
+    Transition* updateImageLayoutAndBarrier(rhi::ImageLayout newLayout);
+
+    VkImageSubresourceRange getWholeImageSubresourceRange();
+
   private:
     Result initImage(Context* context);
 
@@ -63,7 +72,8 @@ class Image final : public WrappedObject<Image, VkImage>, public rhi::Image
     uint32_t samples;
     VkExtent3D extent;
     VkImageUsageFlags imageUsage;
-    ImageView view;
+    ImageView* view;
+    rhi::ImageLayout imageLayout;
 };
 
 } // namespace vk

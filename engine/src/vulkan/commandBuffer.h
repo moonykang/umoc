@@ -5,6 +5,7 @@
 namespace vk
 {
 class Fence;
+class Transition;
 
 class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
 {
@@ -25,6 +26,28 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
 
     VkFence getFence();
 
+    void addTransition(Transition* newTransition);
+
+    void flushTransitions();
+
+    /*
+    Begin of command functions
+    */
+  public:
+    inline void pipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
+                                VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount,
+                                const VkMemoryBarrier* memoryBarriers, uint32_t bufferMemoryBarrierCount,
+                                const VkBufferMemoryBarrier* bufferMemoryBarriers, uint32_t imageMemoryBarrierCount,
+                                const VkImageMemoryBarrier* imageMemoryBarriers)
+    {
+        ASSERT(valid());
+        vkCmdPipelineBarrier(mHandle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers,
+                             bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount,
+                             imageMemoryBarriers);
+    }
+    /*
+    End of command functions
+    */
   private:
     VkResult allocate(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo);
 
@@ -32,5 +55,6 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
 
   private:
     Fence* fence;
+    Transition* transition;
 };
 } // namespace vk

@@ -1,6 +1,7 @@
 #include "application.h"
 #include "context.h"
 #include "renderer/base.h"
+#include <exception>
 
 namespace platform
 {
@@ -20,9 +21,17 @@ void Application::loop(Context* context)
 {
     ASSERT(context);
 
-    while (context->loop() == Result::Continue)
+    try
     {
-        baseRenderer->render(context);
+        while (context->loop() == Result::Continue)
+        {
+            baseRenderer->render(context);
+        }
+    }
+    catch (std::exception& e)
+    {
+        LOGE("Exception %s", e.what());
+        return;
     }
 }
 

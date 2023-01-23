@@ -237,4 +237,10 @@ CommandBuffer* QueueMap::getUploadCommandBuffer(Context* context, QueueType type
 {
     return getQueue(type)->getCommandPool()->getUploadCommandBuffer(context);
 }
+
+void QueueMap::waitAll()
+{
+    graphicsQueue->waitIdle();
+    computeQueue->waitIdle();
+}
 } // namespace vk

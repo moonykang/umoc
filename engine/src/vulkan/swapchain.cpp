@@ -26,7 +26,7 @@ void SwapchainSemaphore::terminate(VkDevice device)
     presentSemaphore.terminate(device);
 }
 
-Swapchain::Swapchain() : currentIndex(0)
+Swapchain::Swapchain() : imageCount(0), currentImageIndex(0)
 {
 }
 
@@ -116,6 +116,7 @@ Result Swapchain::init(Context* context)
     }
 
     setupSwapchainImages(context, {surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT}, swapchainExtent);
+    setupSwapchainSemaphores(context);
 
     return Result::Continue;
 }
@@ -134,19 +135,22 @@ void Swapchain::terminate(VkDevice device)
 
 Result Swapchain::acquireNextImage(Context* context)
 {
-    VkSemaphore semaphore = semaphores[currentIndex].acquireSemaphore.getHandle();
+    VkSemaphore semaphore = semaphores[currentImageIndex].acquireSemaphore.getHandle();
 
     vk_try(vkAcquireNextImageKHR(context->getDevice()->getHandle(), mHandle, UINT64_MAX, semaphore, VK_NULL_HANDLE,
-                                 &currentIndex));
+                                 &currentImageIndex));
     return Result::Continue;
 }
 
 Result Swapchain::present(Context* context, Queue* queue)
 {
-    CommandBuffer* commandBuffer = queue->getCommandPool()->getActiveCommandBuffer(context);
+    auto image = swapchainImages[currentImageIndex];
 
-    std::vector<VkSemaphore> waitSemaphores = {semaphores[currentIndex].acquireSemaphore.getHandle()};
-    std::vector<VkSemaphore> signalSemaphores = {semaphores[currentIndex].presentSemaphore.getHandle()};
+    CommandBuffer* commandBuffer = queue->getCommandPool()->getActiveCommandBuffer(context);
+    commandBuffer->addTransition(image->updateImageLayoutAndBarrier(rhi::ImageLayout::Present));
+
+    std::vector<VkSemaphore> waitSemaphores = {semaphores[currentImageIndex].acquireSemaphore.getHandle()};
+    std::vector<VkSemaphore> signalSemaphores = {semaphores[currentImageIndex].presentSemaphore.getHandle()};
 
     queue->submitActive(context, &waitSemaphores, &signalSemaphores);
 
@@ -155,13 +159,14 @@ Result Swapchain::present(Context* context, Queue* queue)
     presentInfo.pNext = nullptr;
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = &mHandle;
-    presentInfo.pImageIndices = &currentIndex;
-    presentInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
-    presentInfo.pWaitSemaphores = waitSemaphores.data();
+    presentInfo.pImageIndices = &currentImageIndex;
+    presentInfo.waitSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+    presentInfo.pWaitSemaphores = signalSemaphores.data();
 
     vk_try(queue->present(presentInfo));
 
-    currentIndex++;
+    currentImageIndex = (currentImageIndex + 1) % imageCount;
+
     return Result::Continue;
 }
 
@@ -173,10 +178,11 @@ VkResult Swapchain::create(VkDevice device, const VkSwapchainCreateInfoKHR& crea
 
 Result Swapchain::setupSwapchainImages(Context* context, Format format, VkExtent2D extent)
 {
+    ASSERT(imageCount == 0);
+
     Device* device = context->getDevice();
 
     std::vector<VkImage> images;
-    uint32_t imageCount;
     vk_try(vkGetSwapchainImagesKHR(device->getHandle(), mHandle, &imageCount, nullptr));
 
     // Get the swap chain images
@@ -199,12 +205,15 @@ void Swapchain::releaseSwapchainImages(VkDevice device)
 {
     for (auto& swapchainImage : swapchainImages)
     {
-        DELETE(swapchainImage, device);
+        swapchainImage->release(device);
+        delete swapchainImage;
+        swapchainImage = nullptr;
     }
     swapchainImages.clear();
+    imageCount = 0;
 }
 
-Result Swapchain::setupSwapchainSemaphores(Context* context, uint32_t imageCount)
+Result Swapchain::setupSwapchainSemaphores(Context* context)
 {
     ASSERT(semaphores.empty());
     semaphores.resize(imageCount);

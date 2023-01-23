@@ -1,8 +1,9 @@
-#include "vulkan/image.h"
-#include "vulkan/context.h"
-#include "vulkan/device.h"
-#include "vulkan/memory.h"
-#include "vulkan/physicalDevice.h"
+#include "image.h"
+#include "context.h"
+#include "device.h"
+#include "memory.h"
+#include "physicalDevice.h"
+#include "transition.h"
 
 namespace vk
 {
@@ -27,6 +28,14 @@ Result ImageView::init(Context* context, VkImage image, Format format, VkCompone
     return Result::Continue;
 }
 
+void ImageView::terminate(VkDevice device)
+{
+    if (valid())
+    {
+        vkDestroyImageView(device, mHandle, nullptr);
+    }
+}
+
 VkResult ImageView::create(VkDevice device, const VkImageViewCreateInfo& createInfo)
 {
     ASSERT(!valid());
@@ -35,10 +44,20 @@ VkResult ImageView::create(VkDevice device, const VkImageViewCreateInfo& createI
 
 Image::Image()
     : deviceMemory(nullptr), format({VK_FORMAT_UNDEFINED, VK_IMAGE_ASPECT_NONE}), imageType(VK_IMAGE_TYPE_2D),
-      mipLevels(0), layers(0), samples(1), extent(), imageUsage()
+      mipLevels(0), layers(0), samples(1), extent(), imageUsage(), view(nullptr),
+      imageLayout(rhi::ImageLayout::Undefined)
 {
 }
 
+/*
+typedef struct VkImageSubresourceRange {
+    VkImageAspectFlags    aspectMask;
+    uint32_t              baseMipLevel;
+    uint32_t              levelCount;
+    uint32_t              baseArrayLayer;
+    uint32_t              layerCount;
+} VkImageSubresourceRange;
+*/
 Result Image::init(Context* context, Format format, VkImageType imageType, uint32_t mipLevels, uint32_t layers,
                    uint32_t samples, VkExtent3D extent, VkImageUsageFlags imageUsage,
                    VkMemoryPropertyFlags memoryProperty)
@@ -73,7 +92,7 @@ Result Image::init(Context* context, Format format, VkImageType imageType, uint3
     VkComponentMapping components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
                                      VK_COMPONENT_SWIZZLE_A};
 
-    VkImageSubresourceRange subresourceRange = {format.aspects, 0, 1, 0, 1};
+    VkImageSubresourceRange subresourceRange = {format.aspects, 0, mipLevels, 0, layers};
 
     return Result::Continue;
 };
@@ -81,7 +100,7 @@ Result Image::init(Context* context, Format format, VkImageType imageType, uint3
 Result Image::init(Context* context, VkImage image, Format format, VkImageType imageType, uint32_t mipLevels,
                    uint32_t layers, uint32_t samples, VkExtent3D extent, VkImageUsageFlags imageUsage)
 {
-    ASSERT(image != VK_NULL_HANDLE);
+    ASSERT(image != VK_NULL_HANDLE && this->mHandle == VK_NULL_HANDLE);
 
     this->format = format;
     this->imageType = imageType;
@@ -90,6 +109,7 @@ Result Image::init(Context* context, VkImage image, Format format, VkImageType i
     this->samples = samples;
     this->extent = std::move(extent);
     this->imageUsage = imageUsage;
+    this->mHandle = image;
 
     VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
     if (extent.depth > 1)
@@ -104,7 +124,7 @@ Result Image::init(Context* context, VkImage image, Format format, VkImageType i
     VkComponentMapping components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
                                      VK_COMPONENT_SWIZZLE_A};
 
-    VkImageSubresourceRange subresourceRange = {format.aspects, 0, 1, 0, 1};
+    VkImageSubresourceRange subresourceRange = {format.aspects, 0, mipLevels, 0, layers};
 
     return Result::Continue;
 }
@@ -116,7 +136,35 @@ void Image::terminate(VkDevice device)
         vkDestroyImage(device, mHandle, nullptr);
     }
 
+    DELETE(view, device);
     DELETE(deviceMemory, device);
+}
+
+void Image::release(VkDevice device)
+{
+    DELETE(view, device);
+    DELETE(deviceMemory, device);
+    mHandle = VK_NULL_HANDLE;
+}
+
+Transition* Image::updateImageLayoutAndBarrier(rhi::ImageLayout newLayout)
+{
+    if (newLayout == imageLayout)
+    {
+        return nullptr;
+    }
+
+    rhi::ImageLayout oldLayout = imageLayout;
+    imageLayout = newLayout;
+
+    return new Transition(oldLayout, newLayout, mHandle, getWholeImageSubresourceRange());
+}
+
+VkImageSubresourceRange Image::getWholeImageSubresourceRange()
+{
+    VkImageSubresourceRange wholeImageSubresourceRange = {format.aspects, 0, mipLevels, 0, layers};
+
+    return wholeImageSubresourceRange;
 }
 
 Result Image::initImage(Context* context)
@@ -187,7 +235,7 @@ Result Image::initView(Context* context, VkComponentMapping components, VkImageS
         UNREACHABLE();
     }
 
-    return view.init(context, mHandle, format, components, subresourceRange, viewType);
+    return view->init(context, mHandle, format, components, subresourceRange, viewType);
 }
 
 VkFormat Image::getFormat()
@@ -198,8 +246,8 @@ VkFormat Image::getFormat()
 
 VkImageView Image::getView()
 {
-    ASSERT(valid() && view.valid());
-    return view.getHandle();
+    ASSERT(valid() && view->valid());
+    return view->getHandle();
 }
 
 uint32_t Image::getSamples()

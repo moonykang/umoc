@@ -142,6 +142,7 @@ Result CommandPool::submitActiveCommandBuffer(VkDevice device, Queue* queue, std
         try(submitUploadCommandBuffer(device, queue));
     }
     activeCommandBuffer->end();
+
     try(queue->submit(activeCommandBuffer, waitSemaphores, signalSemaphores));
 
     resetCommandBuffers(device);
