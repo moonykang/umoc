@@ -1,4 +1,5 @@
 #include "vulkan/renderpass.h"
+#include "rhi/context.h"
 #include "vulkan/context.h"
 #include "vulkan/device.h"
 #include "vulkan/image.h"
@@ -75,17 +76,17 @@ Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo, s
             AttachmentReference.push_back(
                 {static_cast<uint32_t>(colorReference.id), convertImageLayout(colorReference.imageLayout)});
         }
-        VkSubpassDescription subpassDescriptions = {};
-        subpassDescriptions.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpassDescriptions.colorAttachmentCount = static_cast<uint32_t>(AttachmentReference.size());
-        subpassDescriptions.pColorAttachments = AttachmentReference.data();
+        VkSubpassDescription subpassDescription = {};
+        subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpassDescription.colorAttachmentCount = static_cast<uint32_t>(AttachmentReference.size());
+        subpassDescription.pColorAttachments = AttachmentReference.data();
 
         if (subpass.resolveAttachmentReference.has_value())
         {
             auto& resolveAttachment = subpass.resolveAttachmentReference.value();
             AttachmentReference.push_back(
                 {static_cast<uint32_t>(resolveAttachment.id), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-            subpassDescriptions.pResolveAttachments = &AttachmentReference.back();
+            subpassDescription.pResolveAttachments = &AttachmentReference.back();
         }
 
         if (subpass.depthAttachmentReference.has_value())
@@ -93,8 +94,9 @@ Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo, s
             auto& depthStencilAttachment = subpass.depthAttachmentReference.value();
             AttachmentReference.push_back(
                 {static_cast<uint32_t>(depthStencilAttachment.id), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
-            subpassDescriptions.pDepthStencilAttachment = &AttachmentReference.back();
+            subpassDescription.pDepthStencilAttachment = &AttachmentReference.back();
         }
+        subpassDescriptions.push_back(subpassDescription);
     }
     // TODO: only 1 subpass for now
     std::vector<VkSubpassDependency> subpassDependency;
@@ -102,6 +104,7 @@ Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo, s
     }
 
     VkRenderPassCreateInfo renderpassCreateInfo = {};
+    renderpassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderpassCreateInfo.attachmentCount = static_cast<uint32_t>(AttachmentDescriptions.size());
     renderpassCreateInfo.pAttachments = AttachmentDescriptions.data();
     renderpassCreateInfo.subpassCount = static_cast<uint32_t>(subpassDescriptions.size());

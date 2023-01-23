@@ -1,4 +1,5 @@
 #include "vulkan/context.h"
+#include "rendertarget.h"
 #include "vulkan/device.h"
 #include "vulkan/extension.h"
 #include "vulkan/image.h"
@@ -45,6 +46,8 @@ Result Context::initRHI(platform::Window* window)
     swapchain = new Swapchain();
     try(swapchain->init(this));
 
+    renderTargetManager = new RenderTargetManager();
+
     return Result::Continue;
 }
 
@@ -54,8 +57,9 @@ void Context::terminateRHI()
     queueMap->waitAll();
 
     // Device dependencies
+    DELETE(renderTargetManager, device->getHandle());
     DELETE(swapchain, device->getHandle());
-    DELETE(queueMap, device->getHandle())
+    DELETE(queueMap, device->getHandle());
     DELETE(device);
 
     // Instance dependencies
@@ -90,7 +94,7 @@ Result Context::present()
 
 rhi::Image* Context::getCurrentSurfaceImage()
 {
-    return nullptr;
+    return swapchain->getCurrentSurfaceImage();
 }
 
 Instance* Context::getInstance() const

@@ -7,7 +7,8 @@
 namespace rhi
 {
 class Image;
-}
+class Renderpass;
+} // namespace rhi
 
 namespace vk
 {
@@ -20,6 +21,7 @@ class Surface;
 class Swapchain;
 class DebugUtilsMessenger;
 class QueueMap;
+class RenderTargetManager;
 
 class Context : public rhi::Context
 {
@@ -37,6 +39,10 @@ class Context : public rhi::Context
     Result flush() override;
 
     Result present() override;
+
+    Result beginRenderpass(rhi::RenderPassInfo& renderpassInfo) override final;
+
+    Result endRenderpass() override final;
 
   public:
     Instance* getInstance() const;
@@ -58,6 +64,7 @@ class Context : public rhi::Context
     QueueMap* queueMap;
 
     DebugUtilsMessenger* debugCallback;
+    RenderTargetManager* renderTargetManager;
 
     std::map<ExtensionName, InstanceExtension*> instanceExtensions;
     std::map<ExtensionName, DeviceExtension*> deviceExtensions;

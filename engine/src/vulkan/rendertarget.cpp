@@ -1,5 +1,7 @@
 #include "vulkan/rendertarget.h"
 #include "common/hash.h"
+#include "context.h"
+#include "rhi/rendertarget.h"
 #include "vulkan/framebuffer.h"
 #include "vulkan/image.h"
 #include "vulkan/renderpass.h"
@@ -7,6 +9,42 @@
 
 namespace vk
 {
+
+Result Context::beginRenderpass(rhi::RenderPassInfo& renderpassInfo)
+{
+    ASSERT(renderTargetManager);
+
+    try(renderTargetManager->begin(this, renderpassInfo));
+
+    return Result::Continue;
+}
+
+Result Context::endRenderpass()
+{
+    return Result::Continue;
+}
+
+RenderTargetManager::RenderTargetManager() : currentRenderpass(0)
+{
+}
+
+void RenderTargetManager::terminate(VkDevice device)
+{
+    for (auto& framebuffers : framebufferMap)
+    {
+        for (auto& framebuffer : framebuffers.second)
+        {
+            DELETE(framebuffer, device);
+        }
+    }
+    framebufferMap.clear();
+
+    for (auto& renderpass : renderpassMap)
+    {
+        DELETE(renderpass.second, device);
+    }
+    renderpassMap.clear();
+}
 
 Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderpassInfo)
 {
@@ -23,15 +61,15 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
         {
             renderpass = search->second;
         }
-
-        if (!renderpass)
+        else
         {
             renderpass = new Renderpass();
             renderpass->init(context, renderpassInfo, renderPassCompatibleHash);
             renderpassMap.insert({renderPassHash, renderpass});
         }
     }
-    ASSERT(renderpass->valid());
+
+    ASSERT(renderpass && renderpass->valid());
 
     // get framebuffer
     Framebuffer* framebuffer = nullptr;
@@ -47,15 +85,23 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
                     framebuffer = candidFramebuffer;
                 }
             }
-        }
 
-        if (!framebuffer)
+            if (!framebuffer)
+            {
+                framebuffer = new Framebuffer();
+                framebuffer->init(context, renderpassInfo, renderpass, framebufferHash);
+                framebufferList.push_back(framebuffer);
+            }
+        }
+        else
         {
+            auto& framebufferList = framebufferMap.insert({renderPassHash, {}}).first->second;
             framebuffer = new Framebuffer();
             framebuffer->init(context, renderpassInfo, renderpass, framebufferHash);
+            framebufferList.push_back(framebuffer);
         }
     }
-    ASSERT(framebuffer->valid());
+    ASSERT(framebuffer && framebuffer->valid());
 
     return Result::Continue;
 }

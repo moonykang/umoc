@@ -63,6 +63,11 @@ class Image final : public WrappedObject<Image, VkImage>, public rhi::Image
 
     uint32_t getSamples();
 
+    inline VkExtent3D getExtent()
+    {
+      return extent;
+    }
+
   private:
     DeviceMemory* deviceMemory;
     Format format;

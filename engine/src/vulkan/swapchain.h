@@ -35,6 +35,8 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 
     Result present(Context* context, Queue* queue);
 
+    Image* getCurrentSurfaceImage();
+
   private:
     VkResult create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
 

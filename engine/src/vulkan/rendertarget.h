@@ -14,6 +14,12 @@ class Framebuffer;
 class RenderTargetManager
 {
   public:
+    RenderTargetManager();
+
+    ~RenderTargetManager() = default;
+
+    void terminate(VkDevice device);
+
     Result begin(Context* context, rhi::RenderPassInfo& renderpassInfo);
 
   private:
@@ -27,5 +33,6 @@ class RenderTargetManager
     std::unordered_map<size_t, Renderpass*> renderpassMap;
     std::unordered_map<size_t, std::vector<Framebuffer*>> framebufferMap;
     std::mutex hashMutex;
+    size_t currentRenderpass;
 };
 } // namespace vk

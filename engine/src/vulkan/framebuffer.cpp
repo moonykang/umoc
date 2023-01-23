@@ -1,8 +1,10 @@
-#include "vulkan/framebuffer.h"
+#include "framebuffer.h"
 #include "common/hash.h"
-#include "vulkan/image.h"
-#include "vulkan/renderpass.h"
-#include "vulkan/resource/renderpassInfo.h"
+#include "context.h"
+#include "device.h"
+#include "image.h"
+#include "renderpass.h"
+#include "resource/renderpassInfo.h"
 #include <vector>
 
 namespace vk
@@ -19,6 +21,7 @@ Result Framebuffer::init(Context* context, rhi::RenderPassInfo& renderpassInfo, 
     for (auto& colorAttachment : renderpassInfo.ColorAttachmentDescriptions)
     {
         Image* image = reinterpret_cast<Image*>(colorAttachment.image);
+        extent = image->getExtent();
         views.push_back(image->getView());
     }
 
@@ -45,6 +48,8 @@ Result Framebuffer::init(Context* context, rhi::RenderPassInfo& renderpassInfo, 
     frameBufferCreateInfo.width = extent.width;
     frameBufferCreateInfo.height = extent.height;
     frameBufferCreateInfo.layers = 1;
+
+    vk_try(create(context->getDevice()->getHandle(), frameBufferCreateInfo));
 
     framebufferHash = hash;
 

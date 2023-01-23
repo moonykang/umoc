@@ -1,11 +1,13 @@
 #pragma once
 
+#include "defines.h"
 #include "platform/context.h"
-#include "rhi/defines.h"
+#include "resources.h"
 
 namespace rhi
 {
 class Image;
+class Renderpass;
 
 class Context : public platform::Context
 {
@@ -22,5 +24,9 @@ class Context : public platform::Context
     virtual Result present() = 0;
 
     virtual Image* getCurrentSurfaceImage() = 0;
+
+    virtual Result beginRenderpass(RenderPassInfo& renderpassInfo) = 0;
+
+    virtual Result endRenderpass() = 0;
 };
 } // namespace rhi

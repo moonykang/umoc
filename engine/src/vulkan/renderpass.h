@@ -5,6 +5,11 @@
 #include "vulkan/resources.h"
 #include <cstdlib>
 
+namespace rhi
+{
+class Context;
+}
+
 namespace vk
 {
 class Conetxt;

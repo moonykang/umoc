@@ -170,6 +170,14 @@ Result Swapchain::present(Context* context, Queue* queue)
     return Result::Continue;
 }
 
+Image* Swapchain::getCurrentSurfaceImage()
+{
+    Image* currentSwapchainImage = swapchainImages[currentImageIndex];
+    ASSERT(currentSwapchainImage->valid());
+
+    return currentSwapchainImage;
+}
+
 VkResult Swapchain::create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo)
 {
     ASSERT(!valid());
@@ -194,7 +202,7 @@ Result Swapchain::setupSwapchainImages(Context* context, Format format, VkExtent
         Image* swapchainImage = new Image();
         swapchainImage->init(context, image, format, VK_IMAGE_TYPE_2D, 1, 1, 1, {extent.width, extent.height, 1},
                              VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-
+        swapchainImage->initView(context);
         swapchainImages.push_back(swapchainImage);
     }
 

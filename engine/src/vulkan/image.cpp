@@ -33,6 +33,7 @@ void ImageView::terminate(VkDevice device)
     if (valid())
     {
         vkDestroyImageView(device, mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
     }
 }
 
@@ -134,6 +135,7 @@ void Image::terminate(VkDevice device)
     if (valid())
     {
         vkDestroyImage(device, mHandle, nullptr);
+        mHandle = VK_NULL_HANDLE;
     }
 
     DELETE(view, device);
@@ -206,11 +208,14 @@ const VkMemoryRequirements Image::getMemoryRequirements(VkDevice device)
 
 Result Image::initView(Context* context)
 {
+    ASSERT(valid());
+
     VkComponentMapping components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
                                      VK_COMPONENT_SWIZZLE_A};
 
     VkImageSubresourceRange subresourceRange = {format.aspects, 0, mipLevels, 0, layers};
 
+    view = new ImageView();
     return initView(context, components, subresourceRange);
 }
 
@@ -235,6 +240,7 @@ Result Image::initView(Context* context, VkComponentMapping components, VkImageS
         UNREACHABLE();
     }
 
+    view = new ImageView();
     return view->init(context, mHandle, format, components, subresourceRange, viewType);
 }
 

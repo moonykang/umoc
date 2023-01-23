@@ -21,9 +21,10 @@ void Application::loop(Context* context)
 {
     ASSERT(context);
 
+    size_t debug_loop_count = 0;
     try
     {
-        while (context->loop() == Result::Continue)
+        while (context->loop() == Result::Continue && debug_loop_count++ < 6)
         {
             baseRenderer->render(context);
         }
