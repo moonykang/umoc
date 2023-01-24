@@ -26,9 +26,9 @@ class CommandPool final : public WrappedObject<CommandPool, VkCommandPool>
 
     void prepareUploadCommandBuffer(VkDevice device);
 
-    CommandBuffer* getActiveCommandBuffer(Context* context);
+    CommandBuffer* getActiveCommandBuffer(const Context* context);
 
-    CommandBuffer* getUploadCommandBuffer(Context* context);
+    CommandBuffer* getUploadCommandBuffer(const Context* context);
 
     std::vector<VkCommandBuffer> prepareSubmit();
 

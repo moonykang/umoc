@@ -34,6 +34,19 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
     Begin of command functions
     */
   public:
+    inline void beginRenderPass(const VkRenderPassBeginInfo& beginInfo, VkSubpassContents subpassContents)
+    {
+        ASSERT(valid());
+        flushTransitions();
+        vkCmdBeginRenderPass(mHandle, &beginInfo, subpassContents);
+    }
+
+    inline void endRenderPass()
+    {
+        ASSERT(valid());
+        vkCmdEndRenderPass(mHandle);
+    }
+
     inline void pipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask,
                                 VkDependencyFlags dependencyFlags, uint32_t memoryBarrierCount,
                                 const VkMemoryBarrier* memoryBarriers, uint32_t bufferMemoryBarrierCount,

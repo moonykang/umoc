@@ -22,6 +22,7 @@ class Swapchain;
 class DebugUtilsMessenger;
 class QueueMap;
 class RenderTargetManager;
+class CommandBuffer;
 
 class Context : public rhi::Context
 {
@@ -54,6 +55,10 @@ class Context : public rhi::Context
     Surface* getSurface() const;
 
     Swapchain* getSwapchain() const;
+
+    CommandBuffer* getActiveCommandBuffer() const;
+
+    CommandBuffer* getUploadCommandBuffer() const;
 
   private:
     Instance* instance;

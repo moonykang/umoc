@@ -29,12 +29,13 @@ Result Base::render(platform::Context* platformContext)
     rhi::RenderPassInfo renderpassInfo;
     rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
         {context->getCurrentSurfaceImage(), rhi::AttachmentLoadOp::Clear, rhi::AttachmentStoreOp::Store, 1,
-         rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::Present});
+         rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
 
     auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
 
     try(context->beginRenderpass(renderpassInfo));
+    try(context->endRenderpass());
 
     try(context->present());
 

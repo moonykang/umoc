@@ -1,6 +1,8 @@
 #include "vulkan/rendertarget.h"
+#include "commandBuffer.h"
 #include "common/hash.h"
 #include "context.h"
+#include "queue.h"
 #include "rhi/rendertarget.h"
 #include "vulkan/framebuffer.h"
 #include "vulkan/image.h"
@@ -21,10 +23,12 @@ Result Context::beginRenderpass(rhi::RenderPassInfo& renderpassInfo)
 
 Result Context::endRenderpass()
 {
+    getActiveCommandBuffer()->endRenderPass();
+
     return Result::Continue;
 }
 
-RenderTargetManager::RenderTargetManager() : currentRenderpass(0)
+RenderTargetManager::RenderTargetManager()
 {
 }
 
@@ -102,6 +106,31 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
         }
     }
     ASSERT(framebuffer && framebuffer->valid());
+
+    CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
+    // Image layout
+
+    std::vector<VkClearValue> clearValues;
+    for (auto& colorAttachment : renderpassInfo.ColorAttachmentDescriptions)
+    {
+        Image* image = reinterpret_cast<Image*>(colorAttachment.image);
+        commandBuffer->addTransition(image->updateImageLayoutAndBarrier(rhi::ImageLayout::ColorAttachment));
+
+        VkClearValue clearValue = {};
+        clearValue.color = {1.0f, 1.0f, 1.0f, 0.0f};
+        clearValues.push_back(clearValue);
+    }
+
+    VkRenderPassBeginInfo renderpassBeginInfo = {};
+    renderpassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderpassBeginInfo.pNext = nullptr;
+    renderpassBeginInfo.renderPass = renderpass->getHandle();
+    renderpassBeginInfo.framebuffer = framebuffer->getHandle();
+    renderpassBeginInfo.renderArea = {0, 0, framebuffer->getExtent().width, framebuffer->getExtent().height};
+    renderpassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderpassBeginInfo.pClearValues = clearValues.data();
+
+    commandBuffer->beginRenderPass(renderpassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     return Result::Continue;
 }

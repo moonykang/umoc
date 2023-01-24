@@ -69,9 +69,9 @@ class QueueMap
   public:
     Queue* getQueue(QueueType type);
 
-    CommandBuffer* getActiveCommandBuffer(Context* context, QueueType type);
+    CommandBuffer* getActiveCommandBuffer(const Context* context, QueueType type);
 
-    CommandBuffer* getUploadCommandBuffer(Context* context, QueueType type);
+    CommandBuffer* getUploadCommandBuffer(const Context* context, QueueType type);
 
     void waitAll();
 

@@ -21,10 +21,16 @@ class Framebuffer final : public WrappedObject<Framebuffer, VkFramebuffer>
 
     bool match(size_t hash);
 
+    inline VkExtent3D getExtent() 
+    {
+        return extent;
+    }
+
   private:
     VkResult create(VkDevice device, const VkFramebufferCreateInfo& createInfo);
 
   private:
     size_t framebufferHash;
+    VkExtent3D extent;
 };
 } // namespace vk

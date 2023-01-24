@@ -92,7 +92,7 @@ void CommandPool::prepareUploadCommandBuffer(VkDevice device)
     }
 }
 
-CommandBuffer* CommandPool::getActiveCommandBuffer(Context* context)
+CommandBuffer* CommandPool::getActiveCommandBuffer(const Context* context)
 {
     ASSERT(valid());
     if (activeCommandBuffer == nullptr)
@@ -103,7 +103,7 @@ CommandBuffer* CommandPool::getActiveCommandBuffer(Context* context)
     return activeCommandBuffer;
 }
 
-CommandBuffer* CommandPool::getUploadCommandBuffer(Context* context)
+CommandBuffer* CommandPool::getUploadCommandBuffer(const Context* context)
 {
     ASSERT(valid());
     if (uploadCommandBuffer == nullptr)

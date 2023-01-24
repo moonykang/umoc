@@ -33,6 +33,5 @@ class RenderTargetManager
     std::unordered_map<size_t, Renderpass*> renderpassMap;
     std::unordered_map<size_t, std::vector<Framebuffer*>> framebufferMap;
     std::mutex hashMutex;
-    size_t currentRenderpass;
 };
 } // namespace vk

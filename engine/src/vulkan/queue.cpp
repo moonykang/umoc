@@ -8,6 +8,18 @@
 
 namespace vk
 {
+CommandBuffer* Context::getActiveCommandBuffer() const
+{
+    ASSERT(queueMap);
+    return queueMap->getActiveCommandBuffer(this, QueueType::GraphicPresent);
+}
+
+CommandBuffer* Context::getUploadCommandBuffer() const
+{
+    ASSERT(queueMap);
+    return queueMap->getUploadCommandBuffer(this, QueueType::GraphicPresent);
+}
+
 Queue::Queue(uint32_t queueFamilyIndex) : commandPool(nullptr), queueFamilyIndex(queueFamilyIndex)
 {
 }
@@ -228,12 +240,12 @@ Queue* QueueMap::getQueue(QueueType type)
     }
 }
 
-CommandBuffer* QueueMap::getActiveCommandBuffer(Context* context, QueueType type)
+CommandBuffer* QueueMap::getActiveCommandBuffer(const Context* context, QueueType type)
 {
     return getQueue(type)->getCommandPool()->getActiveCommandBuffer(context);
 }
 
-CommandBuffer* QueueMap::getUploadCommandBuffer(Context* context, QueueType type)
+CommandBuffer* QueueMap::getUploadCommandBuffer(const Context* context, QueueType type)
 {
     return getQueue(type)->getCommandPool()->getUploadCommandBuffer(context);
 }

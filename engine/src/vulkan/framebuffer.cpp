@@ -9,14 +9,13 @@
 
 namespace vk
 {
-Framebuffer::Framebuffer() : framebufferHash(0)
+Framebuffer::Framebuffer() : framebufferHash(0), extent()
 {
 }
 
 Result Framebuffer::init(Context* context, rhi::RenderPassInfo& renderpassInfo, Renderpass* renderpass, size_t hash)
 {
     std::vector<VkImageView> views;
-    VkExtent3D extent;
 
     for (auto& colorAttachment : renderpassInfo.ColorAttachmentDescriptions)
     {
