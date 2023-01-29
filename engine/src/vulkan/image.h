@@ -22,7 +22,7 @@ class ImageView final : public WrappedObject<ImageView, VkImageView>
     VkResult create(VkDevice device, const VkImageViewCreateInfo& createInfo);
 };
 
-class Image final : public WrappedObject<Image, VkImage>, public rhi::Image
+class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
 {
   public:
     Image();

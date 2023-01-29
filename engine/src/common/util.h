@@ -3,6 +3,7 @@
 #include "external.h"
 #include "log.h"
 #include <vector>
+#include <stdint.h>
 
 class NonCopyable
 {
@@ -110,7 +111,7 @@ template <typename DerivedT, typename HandleT> class WrappedObjectList : NonCopy
     std::vector<HandleT> mList;
 };
 
-#define DELETE(obj, ...)                                                                                               \
+#define TERMINATE(obj, ...)                                                                                               \
     if (obj)                                                                                                           \
     {                                                                                                                  \
         obj->terminate(__VA_ARGS__);                                                                                   \

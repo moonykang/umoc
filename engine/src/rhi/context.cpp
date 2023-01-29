@@ -10,7 +10,8 @@ Context* Context::createRHIContext(rhi::List rhi)
     case rhi::List::Vulkan:
         return new vk::Context();
     default:
-        break;
+        UNREACHABLE();
+        return nullptr;
     }
 }
 } // namespace rhi

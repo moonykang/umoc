@@ -9,7 +9,7 @@ class Window;
 
 namespace vk
 {
-namespace mac
+namespace glfw
 {
 class Surface : public vk::Surface
 {

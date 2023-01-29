@@ -48,7 +48,7 @@ void Buffer::terminate(VkDevice device)
 
     if (deviceMemory)
     {
-        DELETE(deviceMemory, device);
+        TERMINATE(deviceMemory, device);
     }
 }
 
@@ -87,7 +87,7 @@ Result BufferManager::init(Context* context)
 
 void BufferManager::terminate(VkDevice device)
 {
-    DELETE(vertexScratchBuffer, device);
+    TERMINATE(vertexScratchBuffer, device);
 }
 
 rhi::Buffer* BufferManager::createBuffer(Context* context)

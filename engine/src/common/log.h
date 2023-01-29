@@ -1,6 +1,6 @@
 #pragma once
 
-#if PLATFORM_MAC
+#if PLATFORM_MAC | PLATFORM_WINDOW
 #include <cstdio>
 #define LOGD(msg, ...) printf("[%s:%u] " msg "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__)
 #define LOGE(msg, ...) fprintf(stderr, "[%s:%u] " msg "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__)

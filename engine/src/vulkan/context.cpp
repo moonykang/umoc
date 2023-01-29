@@ -61,18 +61,18 @@ void Context::terminateRHI()
     queueMap->waitAll();
 
     // Device dependencies
-    DELETE(bufferManager, device->getHandle());
-    DELETE(renderTargetManager, device->getHandle());
-    DELETE(swapchain, device->getHandle());
-    DELETE(queueMap, device->getHandle());
-    DELETE(device);
+    TERMINATE(bufferManager, device->getHandle());
+    TERMINATE(renderTargetManager, device->getHandle());
+    TERMINATE(swapchain, device->getHandle());
+    TERMINATE(queueMap, device->getHandle());
+    TERMINATE(device);
 
     // Instance dependencies
-    DELETE(surface, instance->getHandle());
-    DELETE(debugCallback, instance->getHandle());
+    TERMINATE(surface, instance->getHandle());
+    TERMINATE(debugCallback, instance->getHandle());
 
-    DELETE(physicalDevice);
-    DELETE(instance);
+    TERMINATE(physicalDevice);
+    TERMINATE(instance);
     LOGD("End of terminate Vulkan RHI");
 }
 

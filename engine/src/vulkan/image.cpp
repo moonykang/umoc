@@ -138,14 +138,14 @@ void Image::terminate(VkDevice device)
         mHandle = VK_NULL_HANDLE;
     }
 
-    DELETE(view, device);
-    DELETE(deviceMemory, device);
+    TERMINATE(view, device);
+    TERMINATE(deviceMemory, device);
 }
 
 void Image::release(VkDevice device)
 {
-    DELETE(view, device);
-    DELETE(deviceMemory, device);
+    TERMINATE(view, device);
+    TERMINATE(deviceMemory, device);
     mHandle = VK_NULL_HANDLE;
 }
 

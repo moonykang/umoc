@@ -38,14 +38,14 @@ void RenderTargetManager::terminate(VkDevice device)
     {
         for (auto& framebuffer : framebuffers.second)
         {
-            DELETE(framebuffer, device);
+            TERMINATE(framebuffer, device);
         }
     }
     framebufferMap.clear();
 
     for (auto& renderpass : renderpassMap)
     {
-        DELETE(renderpass.second, device);
+        TERMINATE(renderpass.second, device);
     }
     renderpassMap.clear();
 }
@@ -184,8 +184,8 @@ struct RenderpassCompatibleHashStruct
         memset(this, 0, sizeof(RenderpassCompatibleHashStruct));
     }
 
-    uint8 numAttachments;
-    uint8 numSamples;
+    uint8_t numAttachments;
+    uint8_t numSamples;
 
     VkFormat formats[rhi::MaxSimultaneousRenderTargets];
 };

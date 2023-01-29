@@ -1,4 +1,4 @@
-#include "platform/mac/window.h"
+#include "platform/glfw/window.h"
 
 // TODO
 #define WIDTH 1024
@@ -9,10 +9,10 @@ namespace platform
 
 Window* Window::createPlatformWindow()
 {
-    return new mac::Window();
+    return new glfw::Window();
 }
 
-namespace mac
+namespace glfw
 {
 Window::Window() : window(nullptr)
 {

@@ -1,6 +1,9 @@
 #include "vulkan/extension.h"
 #include "vulkan/core.h"
+
+#if PLATFORM_MAC
 #include <dlfcn.h>
+#endif
 
 namespace vk
 {

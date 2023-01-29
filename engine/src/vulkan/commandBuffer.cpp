@@ -37,7 +37,7 @@ void CommandBuffer::terminate(VkDevice device, VkCommandPool commandPool)
         mHandle = VK_NULL_HANDLE;
     }
 
-    DELETE(fence, device);
+    TERMINATE(fence, device);
 }
 
 VkResult CommandBuffer::allocate(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo)

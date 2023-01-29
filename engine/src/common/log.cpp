@@ -1,12 +1,15 @@
 #include "log.h"
 
+#if PLATFORM_MAC
 #include <execinfo.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 
 /* Obtain a backtrace and print it to stdout. */
 void print_trace()
 {
+#if PLATFORM_MAC
     void* array[10];
     size_t size;
     char** strings;
@@ -21,4 +24,5 @@ void print_trace()
         printf("%s\n", strings[i]);
 
     free(strings);
+#endif
 }

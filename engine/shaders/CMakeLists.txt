@@ -9,12 +9,16 @@ FIND_PROGRAM(GLSLC
     glslc
     HINTS ${ANDROID_NDK}/shader-tools/*/ ${CMAKE_ANDROID_NDK}/shader-tools/*/)
 
+SET(COMPILER_PARAMETER "")
+
 IF(GLSLC)
-	SET(SHADER_COMPILER ${GLSLC} --target-spv=spv1.4)
+	SET(SHADER_COMPILER ${GLSLC})
+	SET(COMPILER_PARAMETER "--target-spv=spv1.4")
 ENDIF()
 
 IF(GLSLANG_VALIDATOR)
-	SET(SHADER_COMPILER "${GLSLANG_VALIDATOR} --target-env vulkan1.2 -V")
+	SET(SHADER_COMPILER ${GLSLANG_VALIDATOR})
+	SET(COMPILER_PARAMETER "--target-env vulkan1.2 -V")
 ENDIF()
 
 IF(NOT GLSLANG_VALIDATOR AND NOT GLSLC)
@@ -32,10 +36,10 @@ FOREACH(shader ${shader_files})
 	SET(compiled_shaders ${compiled_shaders} ${output_file})
 	SET(compiled_shaders ${compiled_shaders} PARENT_SCOPE)
 
-	MESSAGE("${SHADER_COMPILER} ${full_path} -o ${output_file}")
+	MESSAGE("${SHADER_COMPILER} ${COMPILER_PARAMETER} ${full_path} -o ${output_file}")
 	ADD_CUSTOM_COMMAND(
 		OUTPUT ${output_file}
-		COMMAND ${SHADER_COMPILER} ${full_path} -o ${output_file}
+		COMMAND "${SHADER_COMPILER} ${COMPILER_PARAMETER} ${full_path} -o ${output_file}"
 		DEPENDS ${full_path}
 	)
 ENDFOREACH()

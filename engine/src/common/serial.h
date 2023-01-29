@@ -3,6 +3,8 @@
 #include "common/util.h"
 #include <cstdlib>
 #include <limits>
+#include <cstdint>
+#include <atomic>
 
 class ResourceSerial
 {
@@ -119,15 +121,17 @@ class Serial final
 class AtomicQueueSerial final
 {
   public:
-    constexpr AtomicQueueSerial() : mValue(kInvalid)
+    AtomicQueueSerial() : mValue(kInvalid)
     {
         ASSERT(mValue.is_lock_free());
     }
+
     AtomicQueueSerial& operator=(const Serial& other)
     {
         mValue.store(other.mValue, std::memory_order_release);
         return *this;
     }
+
     Serial getSerial() const
     {
         return Serial(mValue.load(std::memory_order_consume));

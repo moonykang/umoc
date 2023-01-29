@@ -4,7 +4,7 @@
 
 namespace platform
 {
-namespace mac
+namespace glfw
 {
 class Window : public platform::Window
 {

@@ -41,7 +41,7 @@ Result Queue::init(Context* context)
 void Queue::terminate(VkDevice device)
 {
     waitIdle();
-    DELETE(commandPool, device);
+    TERMINATE(commandPool, device);
 
     release();
 }
@@ -213,13 +213,13 @@ void QueueMap::terminate(VkDevice device)
 {
     if (graphicsQueue != computeQueue)
     {
-        DELETE(computeQueue, device);
+        TERMINATE(computeQueue, device);
     }
     else
     {
         computeQueue = nullptr;
     }
-    DELETE(graphicsQueue, device);
+    TERMINATE(graphicsQueue, device);
 }
 
 const std::vector<VkDeviceQueueCreateInfo>& QueueMap::getQueueCreateInfo() const

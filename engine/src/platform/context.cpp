@@ -22,7 +22,7 @@ void Context::terminate()
 {
     terminateRHI();
 
-    DELETE(window);
+    TERMINATE(window);
 }
 
 Result Context::loop()
