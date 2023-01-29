@@ -36,3 +36,5 @@ android/app/assets
 .scap
 .svace-dir
 output
+
+external
