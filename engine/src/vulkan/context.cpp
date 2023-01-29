@@ -1,4 +1,5 @@
 #include "vulkan/context.h"
+#include "buffer.h"
 #include "rendertarget.h"
 #include "vulkan/device.h"
 #include "vulkan/extension.h"
@@ -48,6 +49,9 @@ Result Context::initRHI(platform::Window* window)
 
     renderTargetManager = new RenderTargetManager();
 
+    bufferManager = new BufferManager();
+    try(bufferManager->init(this));
+
     return Result::Continue;
 }
 
@@ -57,6 +61,7 @@ void Context::terminateRHI()
     queueMap->waitAll();
 
     // Device dependencies
+    DELETE(bufferManager, device->getHandle());
     DELETE(renderTargetManager, device->getHandle());
     DELETE(swapchain, device->getHandle());
     DELETE(queueMap, device->getHandle());
@@ -125,5 +130,11 @@ Swapchain* Context::getSwapchain() const
 {
     ASSERT(swapchain);
     return swapchain;
+}
+
+QueueMap* Context::getQueueMap() const
+{
+    ASSERT(queueMap);
+    return queueMap;
 }
 } // namespace vk

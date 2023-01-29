@@ -75,8 +75,14 @@ class QueueMap
 
     void waitAll();
 
+    inline const std::vector<uint32_t>& getQueueFamilyIndices()
+    {
+        return queueFamilyIndices;
+    }
+
   private:
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::vector<uint32_t> queueFamilyIndices;
     float queuePriority = 1.0f;
     Queue* graphicsQueue;
     Queue* computeQueue;

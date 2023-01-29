@@ -303,4 +303,18 @@ enum class AttachmentStoreOp : uint8_t
     Discard,
     Store
 };
+
+enum VertexChannel
+{
+    Position = 1,
+    Normal = 2,
+    Uv = 4,
+    Color = 8,
+    Tangent = 16,
+    Bitangent = 32,
+    Joint0 = 64,
+    Weight0 = 128
+};
+typedef uint32_t VertexChannelFlags;
+
 }

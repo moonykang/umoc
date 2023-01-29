@@ -65,7 +65,7 @@ class Image final : public WrappedObject<Image, VkImage>, public rhi::Image
 
     inline VkExtent3D getExtent()
     {
-      return extent;
+        return extent;
     }
 
   private:

@@ -23,6 +23,7 @@ class DebugUtilsMessenger;
 class QueueMap;
 class RenderTargetManager;
 class CommandBuffer;
+class BufferManager;
 
 class Context : public rhi::Context
 {
@@ -60,6 +61,8 @@ class Context : public rhi::Context
 
     CommandBuffer* getUploadCommandBuffer() const;
 
+    QueueMap* getQueueMap() const;
+
   private:
     Instance* instance;
     Surface* surface;
@@ -67,6 +70,7 @@ class Context : public rhi::Context
     Device* device;
     Swapchain* swapchain;
     QueueMap* queueMap;
+    BufferManager* bufferManager;
 
     DebugUtilsMessenger* debugCallback;
     RenderTargetManager* renderTargetManager;

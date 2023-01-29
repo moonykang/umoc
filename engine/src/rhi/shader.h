@@ -1,19 +1,10 @@
 #pragma once
 #include "common/memorybuffer.h"
+#include "defines.h"
 #include <string>
 
 namespace rhi
 {
-
-enum VertexAttribute
-{
-    Position = 1,
-    Normal = 2,
-    Uv = 4,
-    Color = 8
-};
-using VertexAttributes = uint8_t;
-
 class ShaderBase
 {
   public:
@@ -21,16 +12,15 @@ class ShaderBase
     {
     }
 
-    ~ShaderBase() = default;
+    virtual ~ShaderBase() = default;
 
     inline size_t getHash()
     {
         return hash;
     }
 
-  private:
+  protected:
     std::string name;
-    VertexAttributes vertexAttributes;
     /*
     name
     attribute layout (pos / normal / uv / color / ...)
@@ -38,6 +28,22 @@ class ShaderBase
     out layout
      */
     size_t hash;
-    MemoryBuffer code;
+    util::MemoryBuffer code;
+};
+
+class VertexShaderBase : public ShaderBase
+{
+  public:
+    VertexShaderBase(std::string name, VertexChannelFlags vertexChannelFlags)
+        : ShaderBase(name), vertexChannelFlags(vertexChannelFlags)
+    {
+    }
+
+  protected:
+    VertexChannelFlags vertexChannelFlags;
+};
+
+class PixelShaderBase : public ShaderBase
+{
 };
 } // namespace rhi

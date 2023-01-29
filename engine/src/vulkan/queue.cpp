@@ -185,12 +185,15 @@ Result QueueMap::createQueueCreateInfos(PhysicalDevice* physicalDevice, Surface*
     graphicsQueue = new Queue(allPurposeQueueFamilyIndex);
     computeQueue = graphicsQueue;
 
+    queueFamilyIndices.push_back(allPurposeQueueFamilyIndex);
+
     if (computeTransferDedicatedQueueFlags != -1)
     {
         queueCreateInfo.queueFamilyIndex = computeTransferDedicatedQueueFamilyIndex;
         queueCreateInfos.push_back(queueCreateInfo);
 
         computeQueue = new Queue(computeTransferDedicatedQueueFamilyIndex);
+        queueFamilyIndices.push_back(computeTransferDedicatedQueueFamilyIndex);
     }
 
     return Result::Continue;

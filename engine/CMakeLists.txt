@@ -41,6 +41,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 ### End of third party libraries
 
+# Shaders
+ADD_SUBDIRECTORY(shaders)
+
 # Engine
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
 SET(DIRECTORIES_TO_INCLUDE ${DIRECTORIES_TO_INCLUDE} ${CMAKE_CURRENT_SOURCE_DIR}/src)
