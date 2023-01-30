@@ -11,4 +11,11 @@ class ScreenPassVertexShader : public rhi::VertexShaderBase
     {
     }
 };
+
+Result ScreenPass::render(platform::Context* context)
+{
+
+
+    return Result::Continue;
+}
 } // namespace renderer

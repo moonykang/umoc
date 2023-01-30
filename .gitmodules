@@ -7,3 +7,6 @@
 [submodule "engine/external/xxHash"]
 	path = engine/external/xxHash
 	url = git@github.com:Cyan4973/xxHash.git
+[submodule "engine/external/glm"]
+	path = engine/external/glm
+	url = https://github.com/g-truc/glm.git

@@ -31,6 +31,10 @@ SET(XXHASH_BUILD_XXHSUM OFF) #optional
 ADD_SUBDIRECTORY(${XXHASH_PATH}/cmake_unofficial/ ${XXHASH_PATH}/build/ EXCLUDE_FROM_ALL)
 SET(THIRD_PARTY_LIBS ${THIRD_PARTY_LIBS} xxHash::xxhash)
 
+# glm
+SET(GLM_PATH external/glm)
+INCLUDE_DIRECTORIES(${GLM_PATH})
+
 # Google test
 include(FetchContent)
 FetchContent_Declare(

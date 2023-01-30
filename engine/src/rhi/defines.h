@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include "common/external.h"
 
 namespace rhi
 {
@@ -318,4 +319,15 @@ enum VertexChannel
 };
 typedef uint32_t VertexChannelFlags;
 
+class Vertex
+{
+public:
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 uv;
+    glm::vec4 color;
+    glm::vec4 joint0;
+    glm::vec4 weight0;
+    glm::vec4 tangent;
+};
 }

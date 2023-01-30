@@ -4,6 +4,7 @@ SET(HEADERS ${HEADERS})
 SET(SUBDIRECTORIES
     common
     platform
+    model
     renderer
     rhi
     vulkan

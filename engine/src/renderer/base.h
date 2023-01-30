@@ -12,8 +12,8 @@ namespace renderer
 class Base
 {
   public:
-    Result init(platform::Context* context);
+    virtual Result init(platform::Context* context);
 
-    Result render(platform::Context* context);
+    virtual Result render(platform::Context* context);
 };
 } // namespace renderer

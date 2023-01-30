@@ -22,9 +22,7 @@ class Object
 
     virtual void preBuild(rhi::Context* context) = 0;
 
-    virtual void draw(rhi::Context* context)
-    {
-    }
+    virtual void draw(rhi::Context* context) = 0;
 
   protected:
     rhi::VertexBuffer* vertexBuffer;
