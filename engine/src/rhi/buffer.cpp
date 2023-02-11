@@ -2,8 +2,13 @@
 
 namespace rhi
 {
-VertexBuffer::VertexBuffer() : buffer(nullptr), vertexChannelFlags(0)
+VertexBuffer::VertexBuffer(size_t size) : buffer(nullptr), vertexChannelFlags(0)
 {
+	buffer = new Buffer<Vertex>(size);
 }
 
+Result VertexBuffer::insert(Vertex& v)
+{
+
+}
 } // namespace rhi
