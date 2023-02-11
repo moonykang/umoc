@@ -11,16 +11,6 @@ FIND_PROGRAM(GLSLC
 
 SET(COMPILER_PARAMETER "")
 
-IF(GLSLC)
-	SET(SHADER_COMPILER ${GLSLC})
-	SET(COMPILER_PARAMETER "--target-spv=spv1.4")
-ENDIF()
-
-IF(GLSLANG_VALIDATOR)
-	SET(SHADER_COMPILER ${GLSLANG_VALIDATOR})
-	SET(COMPILER_PARAMETER "--target-env vulkan1.2 -V")
-ENDIF()
-
 IF(NOT GLSLANG_VALIDATOR AND NOT GLSLC)
 	MESSAGE(FATAL_ERROR "Unable to find glslangValidator or glslc shader compiler")
 ENDIF()
@@ -36,12 +26,25 @@ FOREACH(shader ${shader_files})
 	SET(compiled_shaders ${compiled_shaders} ${output_file})
 	SET(compiled_shaders ${compiled_shaders} PARENT_SCOPE)
 
-	MESSAGE("${SHADER_COMPILER} ${COMPILER_PARAMETER} ${full_path} -o ${output_file}")
-	ADD_CUSTOM_COMMAND(
-		OUTPUT ${output_file}
-		COMMAND "${SHADER_COMPILER} ${COMPILER_PARAMETER} ${full_path} -o ${output_file}"
-		DEPENDS ${full_path}
-	)
+	IF(GLSLANG_VALIDATOR)
+		ADD_CUSTOM_COMMAND(
+			OUTPUT ${output_file}
+			WORKING_DIRECTORY ${directory}
+			COMMAND ${GLSLANG_VALIDATOR} --target-env vulkan1.2 -V ${full_path} -o ${output_file}
+			DEPENDS ${full_path}
+			USES_TERMINAL
+			VERBATIM
+		)
+	ELSE()
+		ADD_CUSTOM_COMMAND(
+			OUTPUT ${output_file}
+			WORKING_DIRECTORY ${directory}
+			COMMAND ${GLSLC} --target-spv=spv1.4 ${full_path} -o ${output_file}
+			DEPENDS ${full_path}
+			USES_TERMINAL
+			VERBATIM
+		)
+	ENDIF()
 ENDFOREACH()
 
 FILE(GLOB_RECURSE shader_extra_files ${shader_extra_files} *.glsl)
