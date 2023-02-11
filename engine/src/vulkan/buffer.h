@@ -57,7 +57,7 @@ class BufferManager
 
     void terminate(VkDevice device);
 
-    rhi::Buffer* createBuffer(Context* context);
+    // rhi::Buffer* createBuffer(Context* context);
 
   private:
     ScratchBuffer* vertexScratchBuffer;

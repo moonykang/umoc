@@ -12,7 +12,6 @@ Buffer::Buffer(const VkBufferUsageFlags usage, const VkMemoryPropertyFlags memor
                const VkMemoryAllocateFlags allocateFlags, const size_t size, const size_t offset)
     : deviceMemory(nullptr), usage(usage), memoryProperty(memoryProperty), allocateFlags(allocateFlags), size(size),
       offset(offset)
-
 {
 }
 
@@ -89,9 +88,10 @@ void BufferManager::terminate(VkDevice device)
 {
     TERMINATE(vertexScratchBuffer, device);
 }
-
+/*
 rhi::Buffer* BufferManager::createBuffer(Context* context)
 {
     return nullptr;
 }
+*/
 } // namespace vk
