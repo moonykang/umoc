@@ -48,6 +48,7 @@ FetchContent_MakeAvailable(googletest)
 
 # Shaders
 ADD_SUBDIRECTORY(shaders)
+ADD_DEFINITIONS(-DSHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 
 # Engine
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)

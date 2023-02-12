@@ -29,10 +29,8 @@ class Context
 
     rhi::Context* getRHI();
 
-  private:
-    Asset* asset;
-
   protected:
     Window* window;
+    Asset* asset;
 };
 } // namespace platform

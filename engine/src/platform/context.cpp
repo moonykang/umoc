@@ -10,6 +10,7 @@ Context::Context() : asset(nullptr), window(nullptr)
 Result Context::init()
 {
     window = Window::createPlatformWindow();
+    asset = Asset::createPlatformAsset();
 
     window->init();
 
