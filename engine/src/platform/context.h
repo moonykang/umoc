@@ -29,6 +29,8 @@ class Context
 
     rhi::Context* getRHI();
 
+    Asset* getAssetManager();
+
   protected:
     Window* window;
     Asset* asset;

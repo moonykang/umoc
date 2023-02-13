@@ -58,6 +58,30 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
                              bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount,
                              imageMemoryBarriers);
     }
+
+    inline void bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)
+    {
+        ASSERT(valid());
+        vkCmdBindPipeline(mHandle, pipelineBindPoint, pipeline);
+    }
+
+    inline void setViewport(const VkViewport& viewport)
+    {
+        ASSERT(valid());
+        vkCmdSetViewport(mHandle, 0, 1, &viewport);
+    }
+
+    inline void setScissor(const VkRect2D& scissor)
+    {
+        ASSERT(valid());
+        vkCmdSetScissor(mHandle, 0, 1, &scissor);
+    }
+
+    inline void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
+    {
+        ASSERT(valid());
+        vkCmdDraw(mHandle, vertexCount, instanceCount, firstVertex, firstInstance);
+    }
     /*
     End of command functions
     */

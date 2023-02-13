@@ -509,28 +509,27 @@ class RenderPassInfo
     std::optional<AttachmentDescription> DepthStencilAttachmentDescription;
     std::vector<SubpassDescription> subpassDescriptions;
 };
-// Pipeline
 
+// Pipeline
 enum class PrimitiveTopology : uint8_t
 {
-    PRIMITIVE_TOPOLOGY_POINT_LIST = 0,
-    PRIMITIVE_TOPOLOGY_LINE_LIST = 1,
-    PRIMITIVE_TOPOLOGY_LINE_STRIP = 2,
-    PRIMITIVE_TOPOLOGY_TRIANGLE_LIST = 3,
-    PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP = 4,
-    PRIMITIVE_TOPOLOGY_TRIANGLE_FAN = 5,
-    PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY = 6,
-    PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY = 7,
-    PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY = 8,
-    PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY = 9,
-    PRIMITIVE_TOPOLOGY_PATCH_LIST = 10
+    POINT_LIST = 0,
+    LINE_LIST = 1,
+    LINE_STRIP = 2,
+    TRIANGLE_LIST = 3,
+    TRIANGLE_STRIP = 4,
+    TRIANGLE_FAN = 5,
+    LINE_LIST_WITH_ADJACENCY = 6,
+    LINE_STRIP_WITH_ADJACENCY = 7,
+    TRIANGLE_LIST_WITH_ADJACENCY = 8,
+    TRIANGLE_STRIP_WITH_ADJACENCY = 9,
+    PATCH_LIST = 10
 };
 
 class AssemblyState
 {
   public:
-    AssemblyState()
-        : primitiveTopology(PrimitiveTopology::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST), primitiveRestartEnable(false)
+    AssemblyState() : primitiveTopology(PrimitiveTopology::TRIANGLE_LIST), primitiveRestartEnable(false)
     {
     }
 
@@ -541,32 +540,32 @@ class AssemblyState
 
 enum class PolygonMode : uint8_t
 {
-    POLYGON_MODE_FILL = 0,
-    POLYGON_MODE_LINE = 1,
-    POLYGON_MODE_POINT = 2
+    FILL = 0,
+    LINE = 1,
+    POINT = 2
 };
 
 enum class CullMode : uint8_t
 {
-    CULL_MODE_NONE = 0,
-    CULL_MODE_FRONT_BIT = 1,
-    CULL_MODE_BACK_BIT = 2,
-    CULL_MODE_FRONT_AND_BACK = 3,
+    NONE = 0,
+    FRONT_BIT = 1,
+    BACK_BIT = 2,
+    FRONT_AND_BACK = 3,
 };
 
 enum class FrontFace : bool
 {
-    VK_FRONT_FACE_COUNTER_CLOCKWISE = 0,
-    VK_FRONT_FACE_CLOCKWISE = 1,
+    COUNTER_CLOCKWISE = 0,
+    CLOCKWISE = 1,
 };
 
 class RasterizationState
 {
   public:
     RasterizationState()
-        : depthBiasConstantFactor(0.f), depthBiasClamp(0.f), depthBiasSlopeFactor(0.f), lineWidth(0.f),
-          polygonMode(PolygonMode::POLYGON_MODE_FILL), cullMode(CullMode::CULL_MODE_BACK_BIT), depthClampEnable(false),
-          rasterizerDiscardEnable(false), depthBiasEnable(false), frontFace(FrontFace::VK_FRONT_FACE_COUNTER_CLOCKWISE)
+        : depthBiasConstantFactor(0.f), depthBiasClamp(0.f), depthBiasSlopeFactor(0.f), lineWidth(1.f),
+          polygonMode(PolygonMode::FILL), cullMode(CullMode::BACK_BIT), depthClampEnable(false),
+          rasterizerDiscardEnable(false), depthBiasEnable(false), frontFace(FrontFace::COUNTER_CLOCKWISE)
     {
     }
 
@@ -596,20 +595,20 @@ class TessellationState
 
 enum class SampleCount : uint8_t
 {
-    SAMPLE_COUNT_1_BIT = 0x00000001,
-    SAMPLE_COUNT_2_BIT = 0x00000002,
-    SAMPLE_COUNT_4_BIT = 0x00000004,
-    SAMPLE_COUNT_8_BIT = 0x00000008,
-    SAMPLE_COUNT_16_BIT = 0x00000010,
-    SAMPLE_COUNT_32_BIT = 0x00000020,
-    SAMPLE_COUNT_64_BIT = 0x00000040,
+    Sample_1 = 0x00000001,
+    Sample_2 = 0x00000002,
+    Sample_4 = 0x00000004,
+    Sample_8 = 0x00000008,
+    Sample_16 = 0x00000010,
+    Sample_32 = 0x00000020,
+    Sample_64 = 0x00000040,
 };
 
 class MultisampleState
 {
   public:
     MultisampleState()
-        : minSampleShading(0.f), sampleCount(SampleCount::SAMPLE_COUNT_1_BIT), sampleShadingEnable(false),
+        : minSampleShading(0.f), sampleCount(SampleCount::Sample_1), sampleShadingEnable(false),
           alphaToCoverageEnable(false), alphaToOneEnable(false)
     {
     }
@@ -650,7 +649,7 @@ class StencilOpState
 {
   public:
     StencilOpState()
-        : failOp(StencilOp::ZERO), passOp(StencilOp::ZERO), depthFailOp(StencilOp::ZERO), compareOp(CompareOp::NEVER),
+        : failOp(StencilOp::KEEP), passOp(StencilOp::KEEP), depthFailOp(StencilOp::KEEP), compareOp(CompareOp::NEVER),
           compareMask(0), writeMask(0), reference(0)
     {
     }
@@ -791,7 +790,7 @@ enum class LogicOp : uint8_t
 class ColorBlendState
 {
   public:
-    ColorBlendState()
+    ColorBlendState() : attachmentCount(0), blendConstants{}, logicOp(LogicOp::COPY), logicOpEnable(false)
     {
     }
 
@@ -803,6 +802,13 @@ class ColorBlendState
     bool logicOpEnable;
 };
 
+class ShaderBase;
+class VertexShaderBase;
+class PixelShaderBase;
+
+constexpr size_t PipelineStateHashSize = sizeof(AssemblyState) + sizeof(RasterizationState) +
+                                         sizeof(TessellationState) + sizeof(MultisampleState) +
+                                         sizeof(DepthStencilState) + sizeof(ColorBlendState);
 class GraphicsPipelineState
 {
   public:
@@ -810,13 +816,20 @@ class GraphicsPipelineState
     {
     }
 
-  private:
+    size_t getHash();
+
+  public:
     AssemblyState assemblyState;
     RasterizationState rasterizationState;
     TessellationState tessellationState;
     MultisampleState multisampleState;
     DepthStencilState depthStencilState;
     ColorBlendState colorBlendState;
+    uint8_t padding1 = 0;
+    uint8_t padding2 = 0;
+
+    VertexShaderBase* vertexShader = nullptr;
+    PixelShaderBase* pixelShader = nullptr;
     /*
     - shader
     - vertex input

@@ -5,15 +5,12 @@
 
 namespace platform
 {
-Application::Application() : baseRenderer(nullptr)
+Application::Application()
 {
 }
 
 Result Application::init(Context* context)
 {
-    baseRenderer = new renderer::Base();
-    try(baseRenderer->init(context));
-
     return Result::Continue;
 }
 
@@ -24,9 +21,10 @@ void Application::loop(Context* context)
     size_t debug_loop_count = 0;
     try
     {
-        while (context->loop() == Result::Continue && debug_loop_count++ < 6)
+        while (context->loop() == Result::Continue && debug_loop_count++ < 120)
         {
-            baseRenderer->render(context);
+            renderer::BaseRenderPass baseRenderpass;
+            baseRenderpass.render(context);
         }
     }
     catch (std::exception& e)
@@ -38,10 +36,5 @@ void Application::loop(Context* context)
 
 void Application::terminate(Context* context)
 {
-    if (baseRenderer)
-    {
-        delete baseRenderer;
-        baseRenderer = nullptr;
-    }
 }
 } // namespace platform

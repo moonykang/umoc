@@ -2,13 +2,15 @@
 #include "common/memorybuffer.h"
 #include "defines.h"
 #include <string>
+#include <unordered_map>
 
 namespace rhi
 {
+class Context;
 class ShaderBase
 {
   public:
-    ShaderBase(std::string name) : name(name)
+    ShaderBase(std::string name, ShaderStage shaderStage) : name(name), shaderStage(shaderStage), loaded(false)
     {
     }
 
@@ -19,6 +21,25 @@ class ShaderBase
         return hash;
     }
 
+    Result loadShader(Context* context);
+
+    size_t size()
+    {
+        ASSERT(loaded);
+        return code.size();
+    }
+
+    void* data()
+    {
+        ASSERT(loaded);
+        return code.data();
+    }
+
+    ShaderStage getShaderStage()
+    {
+        return shaderStage;
+    }
+
   protected:
     std::string name;
     /*
@@ -27,16 +48,24 @@ class ShaderBase
     ub layout
     out layout
      */
+
     size_t hash;
     util::MemoryBuffer code;
+    bool loaded;
+    ShaderStage shaderStage;
 };
 
 class VertexShaderBase : public ShaderBase
 {
   public:
     VertexShaderBase(std::string name, VertexChannelFlags vertexChannelFlags)
-        : ShaderBase(name), vertexChannelFlags(vertexChannelFlags)
+        : ShaderBase(name, ShaderStage::Vertex), vertexChannelFlags(vertexChannelFlags)
     {
+    }
+
+    VertexChannelFlags getVertexChannelFlags()
+    {
+        return vertexChannelFlags;
     }
 
   protected:
@@ -45,5 +74,9 @@ class VertexShaderBase : public ShaderBase
 
 class PixelShaderBase : public ShaderBase
 {
+  public:
+    PixelShaderBase(std::string name) : ShaderBase(name, ShaderStage::Pixel)
+    {
+    }
 };
 } // namespace rhi

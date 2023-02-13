@@ -28,7 +28,17 @@ Result Context::endRenderpass()
     return Result::Continue;
 }
 
-RenderTargetManager::RenderTargetManager()
+size_t Context::getCurrentRenderpassHash()
+{
+    return renderTargetManager->getCurrentRenderPassHash();
+}
+
+Renderpass* Context::getCurrentRenderpass()
+{
+    return renderTargetManager->getCurrentRenderpass();
+}
+
+RenderTargetManager::RenderTargetManager() : currentRenderPassHash(0)
 {
 }
 
@@ -121,16 +131,31 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
         clearValues.push_back(clearValue);
     }
 
+    VkExtent3D frameBufferExtent = framebuffer->getExtent();
+
     VkRenderPassBeginInfo renderpassBeginInfo = {};
     renderpassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderpassBeginInfo.pNext = nullptr;
     renderpassBeginInfo.renderPass = renderpass->getHandle();
     renderpassBeginInfo.framebuffer = framebuffer->getHandle();
-    renderpassBeginInfo.renderArea = {0, 0, framebuffer->getExtent().width, framebuffer->getExtent().height};
+    renderpassBeginInfo.renderArea = {0, 0, frameBufferExtent.width, frameBufferExtent.height};
     renderpassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderpassBeginInfo.pClearValues = clearValues.data();
 
     commandBuffer->beginRenderPass(renderpassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    VkViewport viewport = {};
+    viewport.x = static_cast<float>(renderpassBeginInfo.renderArea.offset.x);
+    viewport.y = static_cast<float>(renderpassBeginInfo.renderArea.offset.y);
+    viewport.width = static_cast<float>(renderpassBeginInfo.renderArea.extent.width);
+    viewport.height = static_cast<float>(renderpassBeginInfo.renderArea.extent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    commandBuffer->setViewport(viewport);
+    commandBuffer->setScissor(renderpassBeginInfo.renderArea);
+
+    currentRenderPassHash = renderPassHash;
 
     return Result::Continue;
 }

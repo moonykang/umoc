@@ -2,11 +2,6 @@
 
 #include "common/util.h"
 
-namespace renderer
-{
-class Base;
-}
-
 namespace platform
 {
 class Context;
@@ -22,8 +17,5 @@ class Application
     void loop(Context* context);
 
     void terminate(Context* context);
-
-  private:
-    renderer::Base* baseRenderer;
 };
 } // namespace platform

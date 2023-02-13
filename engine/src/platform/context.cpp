@@ -37,4 +37,10 @@ rhi::Context* Context::getRHI()
 {
     return reinterpret_cast<rhi::Context*>(this);
 }
+
+Asset* Context::getAssetManager()
+{
+    ASSERT(asset);
+    return asset;
+}
 } // namespace platform

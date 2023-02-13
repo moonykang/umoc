@@ -8,6 +8,7 @@ namespace rhi
 {
 class Image;
 class Renderpass;
+class ShaderBase;
 } // namespace rhi
 
 namespace vk
@@ -24,17 +25,19 @@ class QueueMap;
 class RenderTargetManager;
 class CommandBuffer;
 class BufferManager;
+class Shader;
+class ShaderMap;
+class PipelineMap;
+class Renderpass;
 
 class Context : public rhi::Context
 {
   public:
     Context();
 
-    void terminate();
+    Result initRHIImplementation(platform::Window* window) override final;
 
-    Result initRHI(platform::Window* window) override final;
-
-    void terminateRHI() override final;
+    void terminateRHIImplementation() override final;
 
     rhi::Image* getCurrentSurfaceImage() override;
 
@@ -45,6 +48,10 @@ class Context : public rhi::Context
     Result beginRenderpass(rhi::RenderPassInfo& renderpassInfo) override final;
 
     Result endRenderpass() override final;
+
+    Result createGfxPipeline(rhi::GraphicsPipelineState gfxPipelineState) override final;
+
+    void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
 
   public:
     Instance* getInstance() const;
@@ -63,6 +70,12 @@ class Context : public rhi::Context
 
     QueueMap* getQueueMap() const;
 
+    size_t getCurrentRenderpassHash();
+
+    Renderpass* getCurrentRenderpass();
+
+    Shader* getShader(rhi::ShaderBase* shaderBase);
+
   private:
     Instance* instance;
     Surface* surface;
@@ -71,6 +84,8 @@ class Context : public rhi::Context
     Swapchain* swapchain;
     QueueMap* queueMap;
     BufferManager* bufferManager;
+    ShaderMap* shaderMap;
+    PipelineMap* pipelineMap;
 
     DebugUtilsMessenger* debugCallback;
     RenderTargetManager* renderTargetManager;

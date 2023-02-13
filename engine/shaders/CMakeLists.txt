@@ -30,7 +30,7 @@ FOREACH(shader ${shader_files})
 		ADD_CUSTOM_COMMAND(
 			OUTPUT ${output_file}
 			WORKING_DIRECTORY ${directory}
-			COMMAND ${GLSLANG_VALIDATOR} --target-env vulkan1.2 -V ${full_path} -o ${output_file}
+			COMMAND ${GLSLANG_VALIDATOR} --target-env vulkan1.0 -V ${full_path} -o ${output_file}
 			DEPENDS ${full_path}
 			USES_TERMINAL
 			VERBATIM

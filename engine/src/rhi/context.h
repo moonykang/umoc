@@ -3,6 +3,7 @@
 #include "defines.h"
 #include "platform/context.h"
 #include "resources.h"
+#include <unordered_map>
 
 namespace rhi
 {
@@ -15,9 +16,15 @@ class Context : public platform::Context
     static Context* createRHIContext(rhi::List rhi);
 
   public:
-    virtual Result initRHI(platform::Window* window) = 0;
+    Context();
 
-    virtual void terminateRHI() = 0;
+    Result initRHI(platform::Window* window) override final;
+
+    virtual Result initRHIImplementation(platform::Window* window) = 0;
+
+    virtual void terminateRHI() override final;
+
+    virtual void terminateRHIImplementation() = 0;
 
     virtual Result flush() = 0;
 
@@ -28,5 +35,9 @@ class Context : public platform::Context
     virtual Result beginRenderpass(RenderPassInfo& renderpassInfo) = 0;
 
     virtual Result endRenderpass() = 0;
+
+    virtual Result createGfxPipeline(GraphicsPipelineState gfxPipelineState) = 0;
+
+    virtual void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) = 0;
 };
 } // namespace rhi

@@ -1,5 +1,6 @@
 #include "vulkan/context.h"
 #include "buffer.h"
+#include "pipeline.h"
 #include "rendertarget.h"
 #include "vulkan/device.h"
 #include "vulkan/extension.h"
@@ -14,11 +15,11 @@ namespace vk
 {
 Context::Context()
     : device(nullptr), instance(nullptr), physicalDevice(nullptr), surface(nullptr), swapchain(nullptr),
-      enableValidationLayer(true), debugCallback(nullptr)
+      enableValidationLayer(true), debugCallback(nullptr), shaderMap(nullptr), pipelineMap(nullptr)
 {
 }
 
-Result Context::initRHI(platform::Window* window)
+Result Context::initRHIImplementation(platform::Window* window)
 {
     LOGD("init vulkan RHI");
 
@@ -52,15 +53,21 @@ Result Context::initRHI(platform::Window* window)
     bufferManager = new BufferManager();
     try(bufferManager->init(this));
 
+    shaderMap = new ShaderMap();
+
+    pipelineMap = new PipelineMap();
+
     return Result::Continue;
 }
 
-void Context::terminateRHI()
+void Context::terminateRHIImplementation()
 {
     LOGD("Begin of terminate Vulkan RHI");
     queueMap->waitAll();
 
     // Device dependencies
+    TERMINATE(shaderMap, device->getHandle());
+    TERMINATE(pipelineMap, device->getHandle());
     TERMINATE(bufferManager, device->getHandle());
     TERMINATE(renderTargetManager, device->getHandle());
     TERMINATE(swapchain, device->getHandle());

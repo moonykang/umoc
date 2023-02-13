@@ -39,7 +39,7 @@ TEST(PipelineStateFixture, RasterizationStateTest)
     EXPECT_EQ(sizeof(FrontFace), sizeof(bool));
 
     RasterizationState rasterizationState2;
-    rasterizationState2.cullMode = CullMode::CULL_MODE_FRONT_BIT;
+    rasterizationState2.cullMode = CullMode::FRONT_BIT;
 
     size_t hash1 = util::computeGenericHash(&rasterizationState, sizeof(RasterizationState));
     size_t hash2 = util::computeGenericHash(&rasterizationState2, sizeof(RasterizationState));

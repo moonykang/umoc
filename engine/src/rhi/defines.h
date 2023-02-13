@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cstdlib>
-#include <cstdint>
 #include "common/external.h"
+#include <cstdint>
+#include <cstdlib>
 
 namespace rhi
 {
@@ -321,7 +321,7 @@ typedef uint32_t VertexChannelFlags;
 
 class Vertex
 {
-public:
+  public:
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 uv;
@@ -330,4 +330,10 @@ public:
     glm::vec4 weight0;
     glm::vec4 tangent;
 };
-}
+
+enum class ShaderStage
+{
+    Vertex,
+    Pixel
+};
+} // namespace rhi
