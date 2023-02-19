@@ -24,7 +24,6 @@ class DebugUtilsMessenger;
 class QueueMap;
 class RenderTargetManager;
 class CommandBuffer;
-class BufferManager;
 class Shader;
 class ShaderMap;
 class PipelineMap;
@@ -83,7 +82,6 @@ class Context : public rhi::Context
     Device* device;
     Swapchain* swapchain;
     QueueMap* queueMap;
-    BufferManager* bufferManager;
     ShaderMap* shaderMap;
     PipelineMap* pipelineMap;
 

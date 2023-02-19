@@ -25,7 +25,7 @@ class Object
     virtual void draw(rhi::Context* context) = 0;
 
   protected:
-    rhi::VertexBuffer* vertexBuffer;
-    rhi::IndexBuffer* indexBuffer;
+    // rhi::VertexBuffer* vertexBuffer;
+    // rhi::IndexBuffer* indexBuffer;
 };
 } // namespace model

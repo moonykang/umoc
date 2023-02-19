@@ -336,4 +336,80 @@ enum class ShaderStage
     Vertex,
     Pixel
 };
+
+using MemoryPropertyFlags = uint32_t;
+class MemoryProperty
+{
+  public:
+    enum Value : uint32_t
+    {
+        Device_Local = 0x00000001,
+        Host_Visible = 0x00000002,
+        Host_Coherent = 0x00000004,
+        Host_Cached = 0x00000008,
+        Lazily_Allocated = 0x00000010,
+        Protected = 0x00000020,
+        Device_Coherent = 0x00000040,
+        Device_Uncached = 0x00000080,
+    };
+
+    MemoryProperty() = default;
+
+    constexpr MemoryProperty(Value value) : value(value)
+    {
+    }
+
+    constexpr MemoryPropertyFlags operator|(MemoryProperty& other) const
+    {
+        return value | other.value;
+    }
+
+  private:
+    Value value;
+};
+
+using BufferUsageFlags = uint32_t;
+class BufferUsage
+{
+  public:
+    enum Value : uint32_t
+    {
+        TRANSFER_SRC_BIT = 0x00000001,
+        TRANSFER_DST_BIT = 0x00000002,
+        UNIFORM_TEXEL_BUFFER_BIT = 0x00000004,
+        STORAGE_TEXEL_BUFFER_BIT = 0x00000008,
+        UNIFORM_BUFFER_BIT = 0x00000010,
+        STORAGE_BUFFER_BIT = 0x00000020,
+        INDEX_BUFFER_BIT = 0x00000040,
+        VERTEX_BUFFER_BIT = 0x00000080,
+        INDIRECT_BUFFER_BIT = 0x00000100,
+        SHADER_DEVICE_ADDRESS_BIT = 0x00020000,
+        VIDEO_DECODE_SRC_BIT_KHR = 0x00002000,
+        VIDEO_DECODE_DST_BIT_KHR = 0x00004000,
+        TRANSFORM_FEEDBACK_BUFFER_BIT_EXT = 0x00000800,
+        TRANSFORM_FEEDBACK_COUNTER_BUFFER_BIT_EXT = 0x00001000,
+        CONDITIONAL_RENDERING_BIT_EXT = 0x00000200,
+        ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR = 0x00080000,
+        ACCELERATION_STRUCTURE_STORAGE_BIT_KHR = 0x00100000,
+        SHADER_BINDING_TABLE_BIT_KHR = 0x00000400,
+        VIDEO_ENCODE_DST_BIT_KHR = 0x00008000,
+        VIDEO_ENCODE_SRC_BIT_KHR = 0x00010000,
+        MICROMAP_BUILD_INPUT_READ_ONLY_BIT_EXT = 0x00800000,
+        MICROMAP_STORAGE_BIT_EXT = 0x01000000,
+    };
+
+    BufferUsage() = default;
+
+    constexpr BufferUsage(Value value) : value(value)
+    {
+    }
+
+    constexpr BufferUsageFlags operator|(BufferUsage& other) const
+    {
+        return value | other.value;
+    }
+
+  private:
+    Value value;
+};
 } // namespace rhi

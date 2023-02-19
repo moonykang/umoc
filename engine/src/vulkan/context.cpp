@@ -50,9 +50,6 @@ Result Context::initRHIImplementation(platform::Window* window)
 
     renderTargetManager = new RenderTargetManager();
 
-    bufferManager = new BufferManager();
-    try(bufferManager->init(this));
-
     shaderMap = new ShaderMap();
 
     pipelineMap = new PipelineMap();
@@ -68,7 +65,6 @@ void Context::terminateRHIImplementation()
     // Device dependencies
     TERMINATE(shaderMap, device->getHandle());
     TERMINATE(pipelineMap, device->getHandle());
-    TERMINATE(bufferManager, device->getHandle());
     TERMINATE(renderTargetManager, device->getHandle());
     TERMINATE(swapchain, device->getHandle());
     TERMINATE(queueMap, device->getHandle());

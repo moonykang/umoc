@@ -6,6 +6,7 @@ SET(SUBDIRECTORIES
     platform
     model
     renderer
+    scene
     rhi
     vulkan
 )

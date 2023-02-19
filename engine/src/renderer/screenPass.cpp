@@ -59,6 +59,7 @@ Result ScreenPass::render(platform::Context* platformContext)
     graphicsPipelineState.vertexShader = &triangleVertexShader;
     graphicsPipelineState.pixelShader = &trianglePixelShader;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
+    graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::CLOCKWISE;
     context->createGfxPipeline(graphicsPipelineState);
     context->draw(3, 1, 0, 0);
 

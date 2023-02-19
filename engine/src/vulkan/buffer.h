@@ -9,11 +9,10 @@ class Context;
 class DeviceMemory;
 
 // Reference of actual buffer
-class Buffer : public WrappedObject<Buffer, VkBuffer>
+class Buffer : rhi::Buffer, public WrappedObject<Buffer, VkBuffer>
 {
   public:
-    Buffer(const VkBufferUsageFlags usage, const VkMemoryPropertyFlags memoryProperty,
-           const VkMemoryAllocateFlags allocateFlags, const size_t size, const size_t offset = 0);
+    Buffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
 
     virtual Result init(Context* context);
 
@@ -26,40 +25,5 @@ class Buffer : public WrappedObject<Buffer, VkBuffer>
 
   private:
     DeviceMemory* deviceMemory;
-    VkDeviceSize offset;
-    VkDeviceSize size;
-
-    VkBufferUsageFlags usage;
-    VkMemoryPropertyFlags memoryProperty;
-    VkMemoryAllocateFlags allocateFlags;
-};
-
-// Actual buffer
-class ScratchBuffer : public Buffer
-{
-  public:
-    ScratchBuffer(const VkBufferUsageFlags usage, const VkMemoryPropertyFlags memoryProperty,
-                  const VkMemoryAllocateFlags allocateFlags, const size_t size, const size_t offset = 0);
-
-    ~ScratchBuffer() = default;
-
-  private:
-};
-
-class BufferManager
-{
-  public:
-    BufferManager();
-
-    ~BufferManager() = default;
-
-    Result init(Context* context);
-
-    void terminate(VkDevice device);
-
-    // rhi::Buffer* createBuffer(Context* context);
-
-  private:
-    ScratchBuffer* vertexScratchBuffer;
 };
 } // namespace vk
