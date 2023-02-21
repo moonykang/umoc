@@ -100,6 +100,13 @@ Result Context::present()
     return Result::Continue;
 }
 
+Result Context::waitIdle()
+{
+    queueMap->waitAll();
+
+    return Result::Continue;
+}
+
 rhi::Image* Context::getCurrentSurfaceImage()
 {
     return swapchain->getCurrentSurfaceImage();

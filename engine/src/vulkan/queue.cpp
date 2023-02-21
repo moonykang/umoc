@@ -20,6 +20,12 @@ CommandBuffer* Context::getUploadCommandBuffer() const
     return queueMap->getUploadCommandBuffer(this, QueueType::GraphicPresent);
 }
 
+Result Context::submitUploadCommandBuffer()
+{
+    ASSERT(queueMap);
+    return queueMap->getQueue(QueueType::GraphicPresent)->submitUpload(this);
+}
+
 Queue::Queue(uint32_t queueFamilyIndex) : commandPool(nullptr), queueFamilyIndex(queueFamilyIndex)
 {
 }

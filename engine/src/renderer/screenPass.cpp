@@ -1,9 +1,12 @@
 #include "screenPass.h"
+#include "model/vertexInput.h"
 #include "rhi/context.h"
 #include "rhi/defines.h"
 #include "rhi/rendertarget.h"
 #include "rhi/resources.h"
 #include "rhi/shader.h"
+#include "scene/scene.h"
+#include "scene/testScene.h"
 
 namespace renderer
 {
@@ -19,7 +22,8 @@ class ScreenPassVertexShader : public rhi::VertexShaderBase
 class TriangleVertexShader : public rhi::VertexShaderBase
 {
   public:
-    TriangleVertexShader() : rhi::VertexShaderBase("triangle.vert.spv", 0)
+    TriangleVertexShader()
+        : rhi::VertexShaderBase("triangle.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Color)
     {
     }
 };
@@ -37,7 +41,7 @@ TriangleFragmentShader trianglePixelShader;
 
 ScreenPassVertexShader screenPassVertexShader;
 
-Result ScreenPass::render(platform::Context* platformContext)
+Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = platformContext->getRHI();
 
@@ -61,6 +65,10 @@ Result ScreenPass::render(platform::Context* platformContext)
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::CLOCKWISE;
     context->createGfxPipeline(graphicsPipelineState);
+
+    scene::TestScene* testScene = reinterpret_cast<scene::TestScene*>(sceneInfo);
+    testScene->quad->bind(context);
+
     context->draw(3, 1, 0, 0);
 
     try(context->endRenderpass());

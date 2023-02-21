@@ -82,6 +82,20 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         ASSERT(valid());
         vkCmdDraw(mHandle, vertexCount, instanceCount, firstVertex, firstInstance);
     }
+
+    inline void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, const VkBufferCopy& copyRegion)
+    {
+        ASSERT(valid());
+        vkCmdCopyBuffer(mHandle, srcBuffer, dstBuffer, 1, &copyRegion);
+    }
+
+    inline void bindVertexBuffers(VkBuffer buffer, VkDeviceSize offset)
+    {
+        ASSERT(valid());
+        VkBuffer buffers[] = {buffer};
+        VkDeviceSize offsets[] = {offset};
+        vkCmdBindVertexBuffers(mHandle, 0, 1, buffers, offsets);
+    }
     /*
     End of command functions
     */

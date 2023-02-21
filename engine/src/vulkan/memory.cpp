@@ -40,6 +40,20 @@ void DeviceMemory::terminate(VkDevice device)
     }
 }
 
+Result DeviceMemory::map(Context* context, VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags,
+                         void** ppData)
+{
+    ASSERT(valid());
+    vk_try(vkMapMemory(context->getDevice()->getHandle(), mHandle, offset, size, flags, ppData));
+    return Result::Continue;
+}
+
+void DeviceMemory::unmap(Context* context)
+{
+    ASSERT(valid());
+    vkUnmapMemory(context->getDevice()->getHandle(), mHandle);
+}
+
 VkResult DeviceMemory::allocate(VkDevice device, const VkMemoryAllocateInfo& allocateInfo)
 {
     ASSERT(!valid());

@@ -2,9 +2,12 @@
 #include "common/memorybuffer.h"
 #include "common/util.h"
 #include "rhi/defines.h"
+#include <unordered_map>
+#include <vector>
 
 namespace rhi
 {
+class Context;
 
 template <typename T> class DataBuffer
 {
@@ -28,6 +31,21 @@ template <typename T> class DataBuffer
         return Result::Continue;
     }
 
+    size_t getSize()
+    {
+        return memoryBuffer.size();
+    }
+
+    size_t getCount()
+    {
+        return size;
+    }
+
+    void* data()
+    {
+        return memoryBuffer.data();
+    }
+
   private:
     util::MemoryBuffer memoryBuffer;
     size_t current;
@@ -38,13 +56,34 @@ template <typename T> class DataBuffer
 data >
 */
 
-class VertexBuffer
+class ScratchBuffer;
+class SubAllocatedBuffer
 {
   public:
+    SubAllocatedBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
+
+    virtual ~SubAllocatedBuffer() = default;
+
+    void terminate(Context* context);
+
+    void bind(Context* context);
+
+  private:
+    ScratchBuffer* buffer;
+    size_t offset;
+    size_t size;
 };
 
-class IndexBuffer
+class VertexBuffer : public SubAllocatedBuffer
 {
+  public:
+    VertexBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
+};
+
+class IndexBuffer : public SubAllocatedBuffer
+{
+  public:
+    IndexBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
 };
 
 class Buffer
@@ -57,6 +96,14 @@ class Buffer
 
     virtual ~Buffer() = default;
 
+    virtual Result init(Context* context) = 0;
+
+    virtual void terminate(Context* context) = 0;
+
+    virtual Result allocate(Context* context, size_t offset, size_t size, void* data) = 0;
+
+    virtual void bind(Context* context, size_t offset) = 0;
+
   protected:
     BufferUsageFlags bufferUsage;
     MemoryPropertyFlags memoryProperty;
@@ -65,13 +112,42 @@ class Buffer
 
 class ScratchBuffer
 {
+  public:
+    ScratchBuffer();
+
+    virtual ~ScratchBuffer() = default;
+
+    virtual Result init(Context* context) = 0;
+
+    virtual SubAllocatedBuffer* subAllocate(Context* context, size_t size, void* data) = 0;
+
+    void terminate(Context* context);
+
+    void bind(Context* context, size_t offset)
+    {
+        ASSERT(buffer);
+        buffer->bind(context, offset);
+    }
+
+  protected:
+    Buffer* buffer;
+    size_t offset;
+    std::vector<SubAllocatedBuffer*> subAllocatedBuffers;
 };
 
 class VertexScratchBuffer : public ScratchBuffer
 {
+  public:
+    Result init(Context* context) override;
+
+    SubAllocatedBuffer* subAllocate(Context* context, size_t size, void* data) override;
 };
 
 class IndexScratchBuffer : public ScratchBuffer
 {
+  public:
+    Result init(Context* context) override;
+
+    SubAllocatedBuffer* subAllocate(Context* context, size_t size, void* data) override;
 };
 } // namespace rhi

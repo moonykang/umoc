@@ -17,6 +17,10 @@ class DeviceMemory final : public WrappedObject<DeviceMemory, VkDeviceMemory>
 
     void terminate(VkDevice device);
 
+    Result map(Context* context, VkDeviceSize offset, VkDeviceSize size, VkMemoryMapFlags flags, void** ppData);
+
+    void unmap(Context* context);
+
   private:
     VkResult allocate(VkDevice device, const VkMemoryAllocateInfo& allocateInfo);
 

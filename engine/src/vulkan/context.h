@@ -13,6 +13,7 @@ class ShaderBase;
 
 namespace vk
 {
+class Buffer;
 class Device;
 class DeviceExtension;
 class InstanceExtension;
@@ -44,6 +45,8 @@ class Context : public rhi::Context
 
     Result present() override;
 
+    Result waitIdle() override;
+
     Result beginRenderpass(rhi::RenderPassInfo& renderpassInfo) override final;
 
     Result endRenderpass() override final;
@@ -51,6 +54,11 @@ class Context : public rhi::Context
     Result createGfxPipeline(rhi::GraphicsPipelineState gfxPipelineState) override final;
 
     void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
+
+    // factory
+  public:
+    rhi::Buffer* createBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
+                              size_t size) override;
 
   public:
     Instance* getInstance() const;
@@ -66,6 +74,8 @@ class Context : public rhi::Context
     CommandBuffer* getActiveCommandBuffer() const;
 
     CommandBuffer* getUploadCommandBuffer() const;
+
+    Result submitUploadCommandBuffer();
 
     QueueMap* getQueueMap() const;
 

@@ -189,52 +189,52 @@ std::vector<VkVertexInputAttributeDescription> generateVertexInputDescription(
 {
     std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
-    uint32_t binding = 0;
+    uint32_t location = 0;
     if ((vertexChannelFlags & rhi::VertexChannel::Position) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {0, binding++, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, position)});
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, position)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Normal) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {0, binding++, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, normal)});
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, normal)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Uv) != 0)
     {
-        vertexInputAttributeDescriptions.push_back({0, binding++, VK_FORMAT_R32G32_SFLOAT, offsetof(rhi::Vertex, uv)});
+        vertexInputAttributeDescriptions.push_back({location++, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(rhi::Vertex, uv)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Color) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {0, binding++, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, color)});
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, color)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Tangent) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {0, binding++, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, tangent)});
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, tangent)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Bitangent) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {0, binding++, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, tangent)});
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, tangent)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Joint0) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {0, binding++, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, joint0)});
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, joint0)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Weight0) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {0, binding++, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, weight0)});
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, weight0)});
     }
 
     return vertexInputAttributeDescriptions;
@@ -266,18 +266,20 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         shaderStageInfos.push_back(vertexShader->getPipelineShaderStageCreateInfo());
         shaderStageInfos.push_back(pixelShader->getPipelineShaderStageCreateInfo());
 
-        VkPipelineVertexInputStateCreateInfo vertexInputState = {};
-        vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputState.vertexBindingDescriptionCount = 0;
-        vertexInputState.vertexAttributeDescriptionCount = 0;
         /*
-                VkVertexInputBindingDescription vertexInputBindingDescription;
-                vertexInputBindingDescription.binding = 0;
-                vertexInputBindingDescription.stride = sizeof(rhi::Vertex);
-                vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+                VkPipelineVertexInputStateCreateInfo vertexInputState = {};
+                vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+                vertexInputState.vertexBindingDescriptionCount = 0;
+                vertexInputState.vertexAttributeDescriptionCount = 0;
+                */
 
-                std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions =
-                    generateVertexInputDescription(gfxPipelineState.vertexShader->getVertexChannelFlags());
+        VkVertexInputBindingDescription vertexInputBindingDescription;
+        vertexInputBindingDescription.binding = 0;
+        vertexInputBindingDescription.stride = sizeof(rhi::Vertex);
+        vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions =
+            generateVertexInputDescription(gfxPipelineState.vertexShader->getVertexChannelFlags());
 
         VkPipelineVertexInputStateCreateInfo vertexInputState = {};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -286,7 +288,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         vertexInputState.vertexAttributeDescriptionCount =
             static_cast<uint32_t>(vertexInputAttributeDescriptions.size());
         vertexInputState.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
-        */
+
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {};
         inputAssemblyState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssemblyState.topology = convertToVkPrimitiveTopology(gfxPipelineState.assemblyState.primitiveTopology);

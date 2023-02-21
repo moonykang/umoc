@@ -2,6 +2,11 @@
 
 #include "common/util.h"
 
+namespace scene
+{
+class SceneInfo;
+}
+
 namespace platform
 {
 class Context;
@@ -17,5 +22,8 @@ class Application
     void loop(Context* context);
 
     void terminate(Context* context);
+
+  private:
+    scene::SceneInfo* sceneInfo;
 };
 } // namespace platform

@@ -1,10 +1,13 @@
 #include "quad.h"
 #include "rhi/buffer.h"
+#include "rhi/context.h"
 
 namespace model
 {
-Result Quad::load(platform::Context* context, rhi::VertexChannelFlags vertexChannels)
+Result Quad::load(platform::Context* platformContext, rhi::VertexChannelFlags vertexChannels)
 {
+    rhi::Context* context = platformContext->getRHI();
+
     uint32_t indexStart = 0;
     uint32_t vertexStart = 0;
 
@@ -25,20 +28,30 @@ Result Quad::load(platform::Context* context, rhi::VertexChannelFlags vertexChan
 
     const glm::vec2 uvs[num_vertices] = {{0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}};
 
-    const glm::vec3 colors[num_vertices] = {
-        {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}};
+    const glm::vec4 colors[num_vertices] = {
+        {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}};
 
-    rhi::DataBuffer<rhi::Vertex> vertexBuffer(num_vertices);
+    rhi::DataBuffer<rhi::Vertex> vertexDataBuffer(num_vertices);
 
     for (uint32_t i = 0; i < num_vertices; i++)
     {
         rhi::Vertex vertex;
         vertex.position = positions[i];
         vertex.uv = uvs[i];
+        vertex.color = colors[i];
 
-        vertexBuffer.insert(vertex);
+        vertexDataBuffer.insert(vertex);
     }
+
+    vertexBuffer = reinterpret_cast<rhi::VertexBuffer*>(
+        context->getVertexScratchBuffer()->subAllocate(context, vertexDataBuffer.getSize(), vertexDataBuffer.data()));
 
     return Result::Continue;
 }
+
+void Quad::bind(rhi::Context* context)
+{
+    vertexBuffer->bind(context);
+}
+
 } // namespace model

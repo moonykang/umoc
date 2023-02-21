@@ -1,25 +1,39 @@
 #pragma once
 
 #include "common/util.h"
+#include <vector>
 
 namespace platform
 {
-class Conetxt;
+class Context;
+}
+
+namespace model
+{
+class VertexInput;
 }
 
 namespace scene
 {
-class Scene
+class SceneInfo
 {
   public:
-    virtual Result init(platform::Conetxt* context) = 0;
+    virtual ~SceneInfo() = default;
 
-    virtual Result load(platform::Conetxt* context) = 0;
+    virtual Result init(platform::Context* context) = 0;
 
-    virtual Result udpate(platform::Conetxt* context) = 0;
+    virtual Result load(platform::Context* context) = 0;
 
-    virtual void terminate(platform::Conetxt* context) = 0;
+    virtual Result udpate(platform::Context* context) = 0;
+
+    virtual void terminate(platform::Context* context) = 0;
+
+    std::vector<model::VertexInput*>& getModels()
+    {
+        return models;
+    }
 
   protected:
+    std::vector<model::VertexInput*> models;
 };
 } // namespace scene

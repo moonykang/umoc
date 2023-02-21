@@ -6,7 +6,7 @@ namespace renderer
 {
 class ScreenPass : public Base
 {
-public:
-	Result render(platform::Context* context) override;
+  public:
+    Result render(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 };
 } // namespace renderer
