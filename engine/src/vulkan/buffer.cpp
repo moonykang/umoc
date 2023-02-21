@@ -16,6 +16,11 @@ rhi::Buffer* Context::createBuffer(rhi::BufferUsageFlags bufferUsage, rhi::Memor
         return new VertexBuffer(bufferUsage, memoryProperty, size);
     }
 
+    if ((bufferUsage & rhi::BufferUsage::INDEX_BUFFER) != 0)
+    {
+        return new IndexBuffer(bufferUsage, memoryProperty, size);
+    }
+
     return new Buffer(bufferUsage, memoryProperty, size);
 }
 
@@ -136,5 +141,17 @@ void VertexBuffer::bind(rhi::Context* rhiContext, size_t offset)
     Context* context = reinterpret_cast<Context*>(rhiContext);
     CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
     commandBuffer->bindVertexBuffers(mHandle, offset);
+}
+
+IndexBuffer::IndexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(bufferUsage, memoryProperty, size)
+{
+}
+
+void IndexBuffer::bind(rhi::Context* rhiContext, size_t offset)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
+    commandBuffer->bindIndexBuffers(mHandle, offset, VK_INDEX_TYPE_UINT32);
 }
 } // namespace vk

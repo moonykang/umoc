@@ -6,7 +6,7 @@
 
 namespace model
 {
-VertexInput::VertexInput() : vertexBuffer(nullptr)
+VertexInput::VertexInput() : vertexBuffer(nullptr), indexBuffer(nullptr)
 {
 }
 

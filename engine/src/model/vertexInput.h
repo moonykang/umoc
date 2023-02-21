@@ -27,9 +27,10 @@ class VertexInput
 
     void terminate(platform::Context* context);
 
-    virtual void bind(rhi::Context* context) = 0;
+    virtual void draw(rhi::Context* context) = 0;
 
   protected:
     rhi::VertexBuffer* vertexBuffer;
+    rhi::IndexBuffer* indexBuffer;
 };
 } // namespace model

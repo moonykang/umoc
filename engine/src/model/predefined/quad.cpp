@@ -31,7 +31,8 @@ Result Quad::load(platform::Context* platformContext, rhi::VertexChannelFlags ve
     const glm::vec4 colors[num_vertices] = {
         {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}};
 
-    rhi::DataBuffer<rhi::Vertex> vertexDataBuffer(num_vertices);
+    // rhi::DataBuffer<rhi::Vertex> vertexDataBuffer(num_vertices);
+    std::vector<rhi::Vertex> vertexDataBuffer;
 
     for (uint32_t i = 0; i < num_vertices; i++)
     {
@@ -40,18 +41,45 @@ Result Quad::load(platform::Context* platformContext, rhi::VertexChannelFlags ve
         vertex.uv = uvs[i];
         vertex.color = colors[i];
 
-        vertexDataBuffer.insert(vertex);
+        vertexDataBuffer.push_back(vertex);
+
+        // vertexDataBuffer.insert(std::move(vertex));
     }
 
     vertexBuffer = reinterpret_cast<rhi::VertexBuffer*>(
-        context->getVertexScratchBuffer()->subAllocate(context, vertexDataBuffer.getSize(), vertexDataBuffer.data()));
+        context->getVertexScratchBuffer()->subAllocate(context, vertexDataBuffer.size(), vertexDataBuffer.data()));
+
+    const uint32_t num_indices = 6;
+
+    // rhi::DataBuffer<uint32_t> indexDataBuffer(num_indices);
+    std::vector<uint32_t> indexDataBuffer;
+    /*
+    indexDataBuffer.insert(0);
+    indexDataBuffer.insert(1);
+    indexDataBuffer.insert(2);
+    indexDataBuffer.insert(2);
+    indexDataBuffer.insert(1);
+    indexDataBuffer.insert(3);
+    */
+    indexDataBuffer.push_back(0);
+    indexDataBuffer.push_back(1);
+    indexDataBuffer.push_back(2);
+    indexDataBuffer.push_back(2);
+    indexDataBuffer.push_back(1);
+    indexDataBuffer.push_back(3);
+
+    indexBuffer = reinterpret_cast<rhi::IndexBuffer*>(
+        context->getIndexScratchBuffer()->subAllocate(context, indexDataBuffer.size(), indexDataBuffer.data()));
 
     return Result::Continue;
 }
 
-void Quad::bind(rhi::Context* context)
+void Quad::draw(rhi::Context* context)
 {
     vertexBuffer->bind(context);
+    indexBuffer->bind(context);
+
+    context->drawIndexed(6, 1, 0, 0, 0);
 }
 
 } // namespace model

@@ -83,6 +83,13 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         vkCmdDraw(mHandle, vertexCount, instanceCount, firstVertex, firstInstance);
     }
 
+    inline void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
+                            uint32_t firstInstance)
+    {
+        ASSERT(valid());
+        vkCmdDrawIndexed(mHandle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    }
+
     inline void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, const VkBufferCopy& copyRegion)
     {
         ASSERT(valid());
@@ -95,6 +102,12 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         VkBuffer buffers[] = {buffer};
         VkDeviceSize offsets[] = {offset};
         vkCmdBindVertexBuffers(mHandle, 0, 1, buffers, offsets);
+    }
+
+    inline void bindIndexBuffers(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
+    {
+        ASSERT(valid());
+        vkCmdBindIndexBuffer(mHandle, buffer, offset, indexType);
     }
     /*
     End of command functions

@@ -4,6 +4,7 @@
 namespace rhi
 {
 const size_t VERTEX_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
+const size_t INDEX_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
 
 SubAllocatedBuffer::SubAllocatedBuffer(ScratchBuffer* buffer, size_t offset, size_t size)
     : buffer(buffer), offset(offset), size(size)
@@ -77,6 +78,11 @@ SubAllocatedBuffer* IndexScratchBuffer::subAllocate(Context* context, size_t siz
 
     // TODO
     size_t aligned_size = ((size + 3) / 4) * 4;
+    if (buffer->allocate(context, offset, size, data) != Result::Continue)
+    {
+        ASSERT(true);
+        return nullptr;
+    }
     offset += aligned_size;
 
     return subAllocatedBuffer;
@@ -84,6 +90,10 @@ SubAllocatedBuffer* IndexScratchBuffer::subAllocate(Context* context, size_t siz
 
 Result IndexScratchBuffer::init(Context* context)
 {
+    buffer = context->createBuffer(rhi::BufferUsage::INDEX_BUFFER | rhi::BufferUsage::TRANSFER_DST,
+                                   rhi::MemoryProperty::DEVICE_LOCAL, INDEX_SCRATCH_BUFFER_SIZE);
+
+    try(buffer->init(context));
     return Result::Continue;
 }
 

@@ -162,6 +162,12 @@ void Context::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstV
     getActiveCommandBuffer()->draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
+void Context::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
+                          uint32_t firstInstance)
+{
+    getActiveCommandBuffer()->drawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+}
+
 PipelineMap::PipelineMap() : pipelineCache(nullptr)
 {
 }

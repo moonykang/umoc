@@ -11,6 +11,6 @@ class Quad : public VertexInput
   public:
     Result load(platform::Context* context, rhi::VertexChannelFlags vertexChannels) override;
 
-    void bind(rhi::Context* context) override;
+    void draw(rhi::Context* context) override;
 };
 } // namespace model

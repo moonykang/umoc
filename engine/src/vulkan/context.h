@@ -55,6 +55,8 @@ class Context : public rhi::Context
 
     void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
 
+    void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
+                     uint32_t firstInstance) override;
     // factory
   public:
     rhi::Buffer* createBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,

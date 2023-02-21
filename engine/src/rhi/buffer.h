@@ -20,12 +20,13 @@ template <typename T> class DataBuffer
         memoryBuffer.resize(size * typeSize);
     }
 
-    Result insert(T& v)
+    Result insert(T&& v)
     {
         if (current >= size)
         {
             return Result::Fail;
         }
+        // memoryBuffer.
 
         current++;
         return Result::Continue;

@@ -48,5 +48,9 @@ class VertexBuffer : public Buffer
 
 class IndexBuffer : public Buffer
 {
+  public:
+    IndexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
+
+    virtual void bind(rhi::Context* context, size_t offset) override;
 };
 } // namespace vk

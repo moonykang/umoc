@@ -63,13 +63,12 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
     graphicsPipelineState.vertexShader = &triangleVertexShader;
     graphicsPipelineState.pixelShader = &trianglePixelShader;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
-    graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::CLOCKWISE;
+    graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
     context->createGfxPipeline(graphicsPipelineState);
 
     scene::TestScene* testScene = reinterpret_cast<scene::TestScene*>(sceneInfo);
-    testScene->quad->bind(context);
-
-    context->draw(3, 1, 0, 0);
+    testScene->quad->draw(context);
 
     try(context->endRenderpass());
 
