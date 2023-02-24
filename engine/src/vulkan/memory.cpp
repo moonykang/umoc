@@ -31,11 +31,11 @@ Result DeviceMemory::init(Context* context, const VkMemoryRequirements& memoryRe
     return Result::Continue;
 }
 
-void DeviceMemory::terminate(VkDevice device)
+void DeviceMemory::terminate(Context* context)
 {
     if (valid())
     {
-        vkFreeMemory(device, mHandle, nullptr);
+        context->addGarbage(HandleType::DeviceMemory, mHandle);
         mHandle = VK_NULL_HANDLE;
     }
 }

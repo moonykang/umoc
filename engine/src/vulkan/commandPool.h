@@ -1,5 +1,6 @@
 #pragma once
 
+#include "util.h"
 #include "vulkan/core.h"
 #include <queue>
 
@@ -11,6 +12,43 @@ class Queue;
 
 const uint32_t kMaxInFlightCommandBuffers = 5;
 
+class CommandBufferAndGarbage
+{
+  public:
+    CommandBufferAndGarbage()
+    {
+    }
+
+    CommandBufferAndGarbage(CommandBuffer* commandBuffer) : garbageList(), commandBuffer(commandBuffer)
+    {
+    }
+
+    CommandBufferAndGarbage(GarbageList&& garbageList, CommandBuffer* commandBuffer)
+        : garbageList(std::move(garbageList)), commandBuffer(commandBuffer)
+    {
+    }
+
+    CommandBufferAndGarbage(CommandBufferAndGarbage&& other)
+        : garbageList(std::move(other.garbageList)), commandBuffer(other.commandBuffer)
+    {
+        other.commandBuffer = nullptr;
+    }
+
+    CommandBuffer* getCommandBuffer()
+    {
+        return commandBuffer;
+    }
+
+    GarbageList& getGarbage()
+    {
+        return garbageList;
+    }
+
+  private:
+    GarbageList garbageList;
+    CommandBuffer* commandBuffer;
+};
+
 class CommandPool final : public WrappedObject<CommandPool, VkCommandPool>
 {
   public:
@@ -18,7 +56,7 @@ class CommandPool final : public WrappedObject<CommandPool, VkCommandPool>
 
     Result init(VkDevice device, uint32_t queueFamilyIndex);
 
-    void terminate(VkDevice device);
+    void terminate(Context* context);
 
     Result allocateCommandBuffers(VkDevice device);
 
@@ -32,19 +70,20 @@ class CommandPool final : public WrappedObject<CommandPool, VkCommandPool>
 
     std::vector<VkCommandBuffer> prepareSubmit();
 
-    Result submitActiveCommandBuffer(VkDevice device, Queue* queue, std::vector<VkSemaphore>* waitSemaphores = nullptr,
-                                     std::vector<VkSemaphore>* signalSemaphores = nullptr);
+    Result submitActiveCommandBuffer(Context* context, Queue* queue, std::vector<VkSemaphore>& waitSemaphores,
+                                     std::vector<VkSemaphore>& signalSemaphores, GarbageList&& currentGarbage);
 
-    Result submitUploadCommandBuffer(VkDevice device, Queue* queue);
+    Result submitUploadCommandBuffer(Context* context, Queue* queue);
 
-    void resetCommandBuffers(VkDevice device, bool bIdle = false);
+    void resetCommandBuffers(Context* context, bool bIdle = false);
 
   private:
     const uint32_t DEFAULT_NUM_COMMAND_BUFFER = 10;
 
     CommandBuffer* uploadCommandBuffer;
     CommandBuffer* activeCommandBuffer;
-    std::queue<CommandBuffer*> submitCommandBuffers;
+    std::queue<CommandBufferAndGarbage> submitCommandBuffers;
     std::queue<CommandBuffer*> readyCommandBuffers;
+    std::queue<std::pair<int, GarbageList>> garbageListQueue;
 };
 } // namespace vk

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "rhi/context.h"
+#include "util.h"
 #include "vulkan/core.h"
 #include <map>
 
@@ -87,6 +88,13 @@ class Context : public rhi::Context
 
     Shader* getShader(rhi::ShaderBase* shaderBase);
 
+    template <typename T> void addGarbage(HandleType type, T* object)
+    {
+        garbageList.emplace_back(GarbageObject(type, (GarbageHandle)object));
+    }
+
+    void clearAllGarbage();
+
   private:
     Instance* instance;
     Surface* surface;
@@ -105,6 +113,8 @@ class Context : public rhi::Context
 
     VkPhysicalDeviceProperties physicalDeviceProperties;
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2;
+
+    GarbageList garbageList;
 
   private:
     bool enableValidationLayer;

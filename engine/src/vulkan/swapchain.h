@@ -1,6 +1,7 @@
 #pragma once
 
 #include "sync.h"
+#include "util.h"
 #include "vulkan/core.h"
 #include "vulkan/resources.h"
 #include <vector>
@@ -29,11 +30,11 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 
     Result init(Context* context);
 
-    void terminate(VkDevice device);
+    void terminate(Context* context);
 
     Result acquireNextImage(Context* context);
 
-    Result present(Context* context, Queue* queue);
+    Result present(Context* context, Queue* queue, GarbageList&& currentGarbage);
 
     Image* getCurrentSurfaceImage();
 
@@ -42,7 +43,7 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 
     Result setupSwapchainImages(Context* context, Format format, VkExtent2D extent);
 
-    void releaseSwapchainImages(VkDevice device);
+    void releaseSwapchainImages(Context* context);
 
     Result setupSwapchainSemaphores(Context* context);
 

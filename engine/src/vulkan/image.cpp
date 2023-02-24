@@ -28,11 +28,11 @@ Result ImageView::init(Context* context, VkImage image, Format format, VkCompone
     return Result::Continue;
 }
 
-void ImageView::terminate(VkDevice device)
+void ImageView::terminate(Context* context)
 {
     if (valid())
     {
-        vkDestroyImageView(device, mHandle, nullptr);
+        context->addGarbage(HandleType::ImageView, mHandle);
         mHandle = VK_NULL_HANDLE;
     }
 }
@@ -130,22 +130,22 @@ Result Image::init(Context* context, VkImage image, Format format, VkImageType i
     return Result::Continue;
 }
 
-void Image::terminate(VkDevice device)
+void Image::terminate(Context* context)
 {
     if (valid())
     {
-        vkDestroyImage(device, mHandle, nullptr);
+        context->addGarbage(HandleType::Image, mHandle);
         mHandle = VK_NULL_HANDLE;
     }
 
-    TERMINATE(view, device);
-    TERMINATE(deviceMemory, device);
+    TERMINATE(view, context);
+    TERMINATE(deviceMemory, context);
 }
 
-void Image::release(VkDevice device)
+void Image::release(Context* context)
 {
-    TERMINATE(view, device);
-    TERMINATE(deviceMemory, device);
+    TERMINATE(view, context);
+    TERMINATE(deviceMemory, context);
     mHandle = VK_NULL_HANDLE;
 }
 

@@ -2,6 +2,7 @@
 #include "commandBuffer.h"
 #include "commandPool.h"
 #include "queue.h"
+#include "util.h"
 #include "vulkan/context.h"
 #include "vulkan/device.h"
 #include "vulkan/image.h"
@@ -111,7 +112,7 @@ Result Swapchain::init(Context* context)
     // This also cleans up all the presentable images
     if (oldSwapchain != VK_NULL_HANDLE)
     {
-        releaseSwapchainImages(device->getHandle());
+        releaseSwapchainImages(context);
         vkDestroySwapchainKHR(device->getHandle(), oldSwapchain, nullptr);
     }
 
@@ -121,14 +122,14 @@ Result Swapchain::init(Context* context)
     return Result::Continue;
 }
 
-void Swapchain::terminate(VkDevice device)
+void Swapchain::terminate(Context* context)
 {
-    releaseSwapchainImages(device);
-    releaseSwapchainSemaphores(device);
+    releaseSwapchainImages(context);
+    releaseSwapchainSemaphores(context->getDevice()->getHandle());
 
     if (valid())
     {
-        vkDestroySwapchainKHR(device, mHandle, nullptr);
+        vkDestroySwapchainKHR(context->getDevice()->getHandle(), mHandle, nullptr);
         mHandle = VK_NULL_HANDLE;
     }
 }
@@ -142,7 +143,7 @@ Result Swapchain::acquireNextImage(Context* context)
     return Result::Continue;
 }
 
-Result Swapchain::present(Context* context, Queue* queue)
+Result Swapchain::present(Context* context, Queue* queue, GarbageList&& garbageList)
 {
     auto image = swapchainImages[currentImageIndex];
 
@@ -152,7 +153,7 @@ Result Swapchain::present(Context* context, Queue* queue)
     std::vector<VkSemaphore> waitSemaphores = {semaphores[currentImageIndex].acquireSemaphore.getHandle()};
     std::vector<VkSemaphore> signalSemaphores = {semaphores[currentImageIndex].presentSemaphore.getHandle()};
 
-    queue->submitActive(context, &waitSemaphores, &signalSemaphores);
+    queue->submitActive(context, waitSemaphores, signalSemaphores, std::move(garbageList));
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -209,11 +210,11 @@ Result Swapchain::setupSwapchainImages(Context* context, Format format, VkExtent
     return Result::Continue;
 }
 
-void Swapchain::releaseSwapchainImages(VkDevice device)
+void Swapchain::releaseSwapchainImages(Context* context)
 {
     for (auto& swapchainImage : swapchainImages)
     {
-        swapchainImage->release(device);
+        swapchainImage->release(context);
         delete swapchainImage;
         swapchainImage = nullptr;
     }

@@ -44,10 +44,10 @@ Result Queue::init(Context* context)
     return Result::Continue;
 }
 
-void Queue::terminate(VkDevice device)
+void Queue::terminate(Context* context)
 {
     waitIdle();
-    TERMINATE(commandPool, device);
+    TERMINATE(commandPool, context);
 
     release();
 }
@@ -57,22 +57,20 @@ Result Queue::submitUpload(Context* context)
     ASSERT(valid());
     ASSERT(commandPool && commandPool->valid());
 
-    Device* device = context->getDevice();
-    return commandPool->submitUploadCommandBuffer(device->getHandle(), this);
+    return commandPool->submitUploadCommandBuffer(context, this);
 }
 
-Result Queue::submitActive(Context* context, std::vector<VkSemaphore>* waitSemaphores,
-                           std::vector<VkSemaphore>* signalSemaphores)
+Result Queue::submitActive(Context* context, std::vector<VkSemaphore>& waitSemaphores,
+                           std::vector<VkSemaphore>& signalSemaphores, GarbageList&& garbageList)
 {
     ASSERT(valid());
     ASSERT(commandPool && commandPool->valid());
 
-    Device* device = context->getDevice();
-    return commandPool->submitActiveCommandBuffer(device->getHandle(), this, waitSemaphores, signalSemaphores);
+    return commandPool->submitActiveCommandBuffer(context, this, waitSemaphores, signalSemaphores,
+                                                  std::move(garbageList));
 }
 
-Result Queue::submit(CommandBuffer* commandBuffer, std::vector<VkSemaphore>* waitSemaphores,
-                     std::vector<VkSemaphore>* signalSemaphores)
+Result Queue::submit(CommandBuffer* commandBuffer)
 {
     const uint32_t commandBufferCount = 1;
     VkCommandBuffer commandBuffers[commandBufferCount] = {commandBuffer->getHandle()};
@@ -83,18 +81,35 @@ Result Queue::submit(CommandBuffer* commandBuffer, std::vector<VkSemaphore>* wai
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = commandBuffers;
 
-    if (waitSemaphores)
+    vk_try(submit(submitInfo, commandBuffer->getFence()));
+
+    return Result::Continue;
+}
+
+Result Queue::submit(CommandBuffer* commandBuffer, std::vector<VkSemaphore>& waitSemaphores,
+                     std::vector<VkSemaphore>& signalSemaphores)
+{
+    const uint32_t commandBufferCount = 1;
+    VkCommandBuffer commandBuffers[commandBufferCount] = {commandBuffer->getHandle()};
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = nullptr;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = commandBuffers;
+
+    if (!waitSemaphores.empty())
     {
         VkPipelineStageFlags waitDstStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores->size());
-        submitInfo.pWaitSemaphores = waitSemaphores->data();
+        submitInfo.waitSemaphoreCount = static_cast<uint32_t>(waitSemaphores.size());
+        submitInfo.pWaitSemaphores = waitSemaphores.data();
         submitInfo.pWaitDstStageMask = &waitDstStage;
     }
 
-    if (signalSemaphores)
+    if (!signalSemaphores.empty())
     {
-        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores->size());
-        submitInfo.pSignalSemaphores = signalSemaphores->data();
+        submitInfo.signalSemaphoreCount = static_cast<uint32_t>(signalSemaphores.size());
+        submitInfo.pSignalSemaphores = signalSemaphores.data();
     }
 
     vk_try(submit(submitInfo, commandBuffer->getFence()));
@@ -215,17 +230,17 @@ Result QueueMap::initQueues(Context* context)
     return Result::Continue;
 }
 
-void QueueMap::terminate(VkDevice device)
+void QueueMap::terminate(Context* context)
 {
     if (graphicsQueue != computeQueue)
     {
-        TERMINATE(computeQueue, device);
+        TERMINATE(computeQueue, context);
     }
     else
     {
         computeQueue = nullptr;
     }
-    TERMINATE(graphicsQueue, device);
+    TERMINATE(graphicsQueue, context);
 }
 
 const std::vector<VkDeviceQueueCreateInfo>& QueueMap::getQueueCreateInfo() const

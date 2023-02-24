@@ -66,8 +66,10 @@ void Context::terminateRHIImplementation()
     TERMINATE(shaderMap, device->getHandle());
     TERMINATE(pipelineMap, device->getHandle());
     TERMINATE(renderTargetManager, device->getHandle());
-    TERMINATE(swapchain, device->getHandle());
-    TERMINATE(queueMap, device->getHandle());
+    TERMINATE(swapchain, this);
+    TERMINATE(queueMap, this);
+
+    clearAllGarbage();
     TERMINATE(device);
 
     // Instance dependencies
@@ -93,7 +95,7 @@ Result Context::present()
 
     Queue* presentQueue = queueMap->getQueue(QueueType::GraphicPresent);
 
-    try(swapchain->present(this, presentQueue));
+    try(swapchain->present(this, presentQueue, std::move(garbageList)));
 
     vk_try(presentQueue->waitIdle());
 
@@ -146,5 +148,14 @@ QueueMap* Context::getQueueMap() const
 {
     ASSERT(queueMap);
     return queueMap;
+}
+
+void Context::clearAllGarbage()
+{
+    for (auto& garbage : garbageList)
+    {
+        garbage.terminate(this);
+    }
+    garbageList.clear();
 }
 } // namespace vk

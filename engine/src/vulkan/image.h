@@ -16,7 +16,7 @@ class ImageView final : public WrappedObject<ImageView, VkImageView>
     Result init(Context* context, VkImage image, Format format, VkComponentMapping components,
                 VkImageSubresourceRange subresourceRange, VkImageViewType viewType);
 
-    void terminate(VkDevice device);
+    void terminate(Context* context);
 
   private:
     VkResult create(VkDevice device, const VkImageViewCreateInfo& createInfo);
@@ -41,9 +41,9 @@ class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
 
     Result initView(Context* context, VkComponentMapping components, VkImageSubresourceRange subresourceRange);
 
-    void terminate(VkDevice device);
+    void terminate(Context* context);
 
-    void release(VkDevice device); // Only for swapchain images
+    void release(Context* context); // Only for swapchain images
 
     Transition* updateImageLayoutAndBarrier(rhi::ImageLayout newLayout);
 

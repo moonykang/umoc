@@ -35,7 +35,6 @@ class Buffer : public rhi::Buffer, public WrappedObject<Buffer, VkBuffer>
 
   private:
     DeviceMemory* deviceMemory;
-    Buffer* stagingBuffer;
 };
 
 class VertexBuffer : public Buffer

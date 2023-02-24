@@ -25,11 +25,20 @@ Result CommandPool::init(VkDevice device, uint32_t queueFamilyIndex)
     return Result::Continue;
 }
 
-void CommandPool::terminate(VkDevice device)
+void CommandPool::terminate(Context* context)
 {
+    VkDevice device = context->getDevice()->getHandle();
+
     while (!submitCommandBuffers.empty())
     {
-        auto& commandBuffer = submitCommandBuffers.front();
+        CommandBufferAndGarbage& entry = submitCommandBuffers.front();
+        auto commandBuffer = entry.getCommandBuffer();
+
+        // TODO
+        for (auto& garbage : entry.getGarbage())
+        {
+            garbage.terminate(context);
+        }
         submitCommandBuffers.pop();
 
         commandBuffer->terminate(device, mHandle);
@@ -133,48 +142,55 @@ std::vector<VkCommandBuffer> CommandPool::prepareSubmit()
     return commandBuffersToSubmit;
 }
 
-Result CommandPool::submitActiveCommandBuffer(VkDevice device, Queue* queue, std::vector<VkSemaphore>* waitSemaphores,
-                                              std::vector<VkSemaphore>* signalSemaphores)
+Result CommandPool::submitActiveCommandBuffer(Context* context, Queue* queue, std::vector<VkSemaphore>& waitSemaphores,
+                                              std::vector<VkSemaphore>& signalSemaphores, GarbageList&& garbageList)
 {
     ASSERT(activeCommandBuffer);
     if (uploadCommandBuffer)
     {
-        try(submitUploadCommandBuffer(device, queue));
+        try(submitUploadCommandBuffer(context, queue));
     }
     activeCommandBuffer->end();
 
     try(queue->submit(activeCommandBuffer, waitSemaphores, signalSemaphores));
 
-    resetCommandBuffers(device);
-    submitCommandBuffers.push(activeCommandBuffer);
+    resetCommandBuffers(context);
+
+    submitCommandBuffers.push({std::move(garbageList), activeCommandBuffer});
     activeCommandBuffer = nullptr;
 
     return Result::Continue;
 }
 
-Result CommandPool::submitUploadCommandBuffer(VkDevice device, Queue* queue)
+Result CommandPool::submitUploadCommandBuffer(Context* context, Queue* queue)
 {
     ASSERT(uploadCommandBuffer);
     uploadCommandBuffer->end();
     try(queue->submit(uploadCommandBuffer));
 
-    resetCommandBuffers(device);
+    resetCommandBuffers(context);
     submitCommandBuffers.push(uploadCommandBuffer);
     uploadCommandBuffer = nullptr;
 
     return Result::Continue;
 }
 
-void CommandPool::resetCommandBuffers(VkDevice device, bool bIdle)
+void CommandPool::resetCommandBuffers(Context* context, bool bIdle)
 {
     while (!submitCommandBuffers.empty())
     {
-        auto commandBuffer = submitCommandBuffers.front();
+        CommandBufferAndGarbage& entry = submitCommandBuffers.front();
+        auto commandBuffer = entry.getCommandBuffer();
 
         const bool forceWait = submitCommandBuffers.size() > kMaxInFlightCommandBuffers || bIdle;
 
-        if (commandBuffer->reset(device, forceWait) == Result::Continue)
+        if (commandBuffer->reset(context->getDevice()->getHandle(), forceWait) == Result::Continue)
         {
+            for (auto& garbage : entry.getGarbage())
+            {
+                garbage.terminate(context);
+            }
+
             submitCommandBuffers.pop();
             readyCommandBuffers.push(commandBuffer);
         }

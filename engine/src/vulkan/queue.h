@@ -23,15 +23,17 @@ class Queue final : public WrappedObject<Queue, VkQueue>
 
     Result init(Context* context);
 
-    void terminate(VkDevice device);
+    void terminate(Context* context);
 
     Result submitUpload(Context* context);
 
-    Result submitActive(Context* context, std::vector<VkSemaphore>* waitSemaphores,
-                        std::vector<VkSemaphore>* signalSemaphores);
+    Result submitActive(Context* context, std::vector<VkSemaphore>& waitSemaphores,
+                        std::vector<VkSemaphore>& signalSemaphores, GarbageList&& currentGarbage);
 
-    Result submit(CommandBuffer* commandBuffer, std::vector<VkSemaphore>* waitSemaphores = nullptr,
-                  std::vector<VkSemaphore>* signalSemaphores = nullptr);
+    Result submit(CommandBuffer* commandBuffer);
+
+    Result submit(CommandBuffer* commandBuffer, std::vector<VkSemaphore>& waitSemaphores,
+                  std::vector<VkSemaphore>& signalSemaphores);
 
     inline CommandPool* getCommandPool()
     {
@@ -62,7 +64,7 @@ class QueueMap
 
     Result initQueues(Context* context);
 
-    void terminate(VkDevice device);
+    void terminate(Context* context);
 
     const std::vector<VkDeviceQueueCreateInfo>& getQueueCreateInfo() const;
 

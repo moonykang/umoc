@@ -4,6 +4,7 @@
 #include "device.h"
 #include "memory.h"
 #include "queue.h"
+#include "util.h"
 
 namespace vk
 {
@@ -25,7 +26,7 @@ rhi::Buffer* Context::createBuffer(rhi::BufferUsageFlags bufferUsage, rhi::Memor
 }
 
 Buffer::Buffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : rhi::Buffer(bufferUsage, memoryProperty, size), stagingBuffer(nullptr)
+    : rhi::Buffer(bufferUsage, memoryProperty, size)
 {
 }
 
@@ -60,24 +61,26 @@ void Buffer::terminate(rhi::Context* rhiContext)
 
     if (valid())
     {
-        vkDestroyBuffer(context->getDevice()->getHandle(), mHandle, nullptr);
+        context->addGarbage(vk::HandleType::Buffer, mHandle);
         mHandle = VK_NULL_HANDLE;
     }
 
-    TERMINATE(deviceMemory, context->getDevice()->getHandle());
-    TERMINATE(stagingBuffer, rhiContext);
+    TERMINATE(deviceMemory, context);
 }
 
 Result Buffer::allocate(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
 
-    stagingBuffer = new Buffer(rhi::BufferUsage::TRANSFER_SRC,
-                               rhi::MemoryProperty::HOST_COHERENT | rhi::MemoryProperty::HOST_VISIBLE, this->size);
+    Buffer* stagingBuffer =
+        new Buffer(rhi::BufferUsage::TRANSFER_SRC,
+                   rhi::MemoryProperty::HOST_COHERENT | rhi::MemoryProperty::HOST_VISIBLE, this->size);
 
     try(stagingBuffer->init(rhiContext));
     try(stagingBuffer->map(context, 0, size, data));
     try(copy(context, stagingBuffer, offset, size));
+
+    TERMINATE(stagingBuffer, rhiContext);
 
     return Result::Continue;
 }
