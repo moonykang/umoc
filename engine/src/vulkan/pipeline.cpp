@@ -2,7 +2,9 @@
 #include "commandBuffer.h"
 #include "common/hash.h"
 #include "context.h"
+#include "descriptor.h"
 #include "device.h"
+#include "pendingState.h"
 #include "renderpass.h"
 #include "rendertarget.h"
 #include "resources.h"
@@ -73,13 +75,14 @@ Shader* Context::getShader(rhi::ShaderBase* shaderBase)
 }
 
 // TODO: empty layout now
-Result PipelineLayout::init(Context* context)
+Result PipelineLayout::init(Context* context, std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
 {
     ASSERT(!valid());
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
     pipelineLayoutInfo.pushConstantRangeCount = 0;
 
     vk_try(vkCreatePipelineLayout(context->getDevice()->getHandle(), &pipelineLayoutInfo, nullptr, &mHandle));
@@ -153,6 +156,8 @@ Result Context::createGfxPipeline(rhi::GraphicsPipelineState gfxPipelineState)
 
     CommandBuffer* commandBuffer = getActiveCommandBuffer();
     pipeline->bind(commandBuffer);
+
+    pendingState->setPipeline(pipeline);
 
     return Result::Continue;
 }
@@ -272,13 +277,6 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         std::vector<VkPipelineShaderStageCreateInfo> shaderStageInfos;
         shaderStageInfos.push_back(vertexShader->getPipelineShaderStageCreateInfo());
         shaderStageInfos.push_back(pixelShader->getPipelineShaderStageCreateInfo());
-
-        /*
-                VkPipelineVertexInputStateCreateInfo vertexInputState = {};
-                vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-                vertexInputState.vertexBindingDescriptionCount = 0;
-                vertexInputState.vertexAttributeDescriptionCount = 0;
-                */
 
         VkVertexInputBindingDescription vertexInputBindingDescription;
         vertexInputBindingDescription.binding = 0;
@@ -407,9 +405,17 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateList.size());
         dynamicState.pDynamicStates = dynamicStateList.data();
 
+        auto rhiDescriptorSetLayouts = gfxPipelineState.shaderContainer->getDescriptorLayouts();
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+        for (auto& rhiDescriptorSetLayout : rhiDescriptorSetLayouts)
+        {
+            DescriptorSetLayout* descriptorSetLayout = reinterpret_cast<DescriptorSetLayout*>(rhiDescriptorSetLayout);
+            descriptorSetLayouts.push_back(descriptorSetLayout->getHandle());
+        }
+
         Pipeline* newPipeline = new Pipeline();
         newPipeline->init(context);
-        newPipeline->getLayout()->init(context);
+        newPipeline->getLayout()->init(context, descriptorSetLayouts);
 
         VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = {};
         graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

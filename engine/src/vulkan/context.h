@@ -17,6 +17,8 @@ namespace vk
 class Buffer;
 class Device;
 class DeviceExtension;
+class DescriptorPool;
+class DescriptorSet;
 class InstanceExtension;
 class Instance;
 class PhysicalDevice;
@@ -30,6 +32,7 @@ class Shader;
 class ShaderMap;
 class PipelineMap;
 class Renderpass;
+class PendingState;
 
 class Context : public rhi::Context
 {
@@ -65,6 +68,8 @@ class Context : public rhi::Context
 
     rhi::DescriptorSetLayout* allocateDescriptorSetLayout() override;
 
+    rhi::DescriptorSet* allocateDescriptorSet() override;
+
   public:
     Instance* getInstance() const;
 
@@ -90,6 +95,10 @@ class Context : public rhi::Context
 
     Shader* getShader(rhi::ShaderBase* shaderBase);
 
+    DescriptorPool* getDescriptorPool();
+
+    PendingState* getPendingState();
+
     template <typename T> void addGarbage(HandleType type, T* object)
     {
         garbageList.emplace_back(GarbageObject(type, (GarbageHandle)object));
@@ -102,6 +111,7 @@ class Context : public rhi::Context
     Surface* surface;
     PhysicalDevice* physicalDevice;
     Device* device;
+    DescriptorPool* descriptorPool;
     Swapchain* swapchain;
     QueueMap* queueMap;
     ShaderMap* shaderMap;
@@ -117,6 +127,8 @@ class Context : public rhi::Context
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2;
 
     GarbageList garbageList;
+
+    PendingState* pendingState;
 
   private:
     bool enableValidationLayer;

@@ -1,5 +1,7 @@
 #include "vulkan/context.h"
 #include "buffer.h"
+#include "descriptor.h"
+#include "pendingState.h"
 #include "pipeline.h"
 #include "rendertarget.h"
 #include "vulkan/device.h"
@@ -15,7 +17,8 @@ namespace vk
 {
 Context::Context()
     : device(nullptr), instance(nullptr), physicalDevice(nullptr), surface(nullptr), swapchain(nullptr),
-      enableValidationLayer(true), debugCallback(nullptr), shaderMap(nullptr), pipelineMap(nullptr)
+      enableValidationLayer(true), debugCallback(nullptr), shaderMap(nullptr), pipelineMap(nullptr),
+      pendingState(nullptr)
 {
 }
 
@@ -54,6 +57,11 @@ Result Context::initRHIImplementation(platform::Window* window)
 
     pipelineMap = new PipelineMap();
 
+    descriptorPool = new DescriptorPool();
+    try(descriptorPool->init(this));
+
+    pendingState = new PendingState();
+
     return Result::Continue;
 }
 
@@ -63,11 +71,18 @@ void Context::terminateRHIImplementation()
     queueMap->waitAll();
 
     // Device dependencies
+    TERMINATE(descriptorPool, this);
     TERMINATE(shaderMap, device->getHandle());
     TERMINATE(pipelineMap, device->getHandle());
     TERMINATE(renderTargetManager, device->getHandle());
     TERMINATE(swapchain, this);
     TERMINATE(queueMap, this);
+
+    if (pendingState)
+    {
+        delete pendingState;
+        pendingState = nullptr;
+    }
 
     clearAllGarbage();
     TERMINATE(device);

@@ -92,12 +92,43 @@ class ShaderContainer
 
     void terminate(Context* context);
 
-    virtual std::vector<DescriptorInfoList> getDescriptorListSet() = 0;
+    virtual DescriptorInfoListSet getDescriptorListSet() = 0;
+
+    class ShaderParameters
+    {
+      public:
+        virtual ~ShaderParameters() = default;
+
+      protected:
+        static inline void fillDescriptorInfo(DescriptorInfoListSet& descriptorInfoSet, uint32_t set, uint32_t binding,
+                                              ShaderStageFlags stage, DescriptorType type)
+        {
+            ASSERT(descriptorInfoSet.size() >= set);
+            descriptorInfoSet[set].push_back({binding, stage, type});
+        }
+
+        static inline void fillDescriptor(DescriptorListSet& descriptorInfoSet, uint32_t set, uint32_t binding,
+                                          ShaderStageFlags stage, DescriptorType type, Descriptor* descriptor)
+        {
+            ASSERT(descriptorInfoSet.size() >= set);
+            descriptorInfoSet[set].push_back({{binding, stage, type}, descriptor});
+        }
+    };
 
   public:
     VertexShaderBase* getVertexShader();
 
     PixelShaderBase* getPixelShader();
+
+    DescriptorSetLayout* getDescriptorLayout(uint32_t i)
+    {
+        return descriptorSetLayouts[i];
+    }
+
+    std::vector<DescriptorSetLayout*> getDescriptorLayouts()
+    {
+        return descriptorSetLayouts;
+    }
 
   private:
     bool initialized;

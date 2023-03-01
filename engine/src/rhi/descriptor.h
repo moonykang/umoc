@@ -17,7 +17,19 @@ class DescriptorSetLayout
 
 class DescriptorSet
 {
-  private:
+  public:
+    virtual ~DescriptorSet() = default;
+
+    virtual Result init(Context* context, DescriptorSetLayout* descriptorSetLayout) = 0;
+
+    virtual Result update(rhi::Context* context, DescriptorList descriptors) = 0;
+
+    virtual void terminate(Context* context) = 0;
+
+    virtual void bind(Context* context, uint32_t binding) = 0;
+
+    // virtual Result init(Context* context)
+  protected:
     std::vector<Descriptor*> descriptors;
 };
 } // namespace rhi

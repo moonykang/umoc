@@ -6,6 +6,12 @@ namespace model
 class VertexInput;
 }
 
+namespace rhi
+{
+class UniformBuffer;
+class DescriptorSet;
+} // namespace rhi
+
 namespace scene
 {
 class TestScene : public SceneInfo
@@ -21,5 +27,7 @@ class TestScene : public SceneInfo
 
   public:
     model::VertexInput* quad;
+    rhi::UniformBuffer* uniformBuffer;
+    rhi::DescriptorSet* descriptorSet;
 };
 } // namespace scene

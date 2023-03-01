@@ -22,6 +22,11 @@ rhi::Buffer* Context::allocateBuffer(rhi::DescriptorType descriptorType, rhi::Bu
         return new IndexBuffer(descriptorType, bufferUsage, memoryProperty, size);
     }
 
+    if ((bufferUsage & rhi::BufferUsage::UNIFORM_BUFFER) != 0)
+    {
+        return new UniformBuffer(descriptorType, bufferUsage, memoryProperty, size);
+    }
+
     UNREACHABLE();
     return nullptr;
 }
@@ -110,7 +115,7 @@ const VkMemoryRequirements RealBuffer::getMemoryRequirements(VkDevice device)
 
 Buffer::Buffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
                rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : rhi::Buffer(descriptorType, bufferUsage, memoryProperty, size)
+    : rhi::Buffer(descriptorType, bufferUsage, memoryProperty, size), bufferInfo()
 {
 }
 
@@ -120,6 +125,10 @@ Result Buffer::init(rhi::Context* rhiContext)
 
     buffer = new RealBuffer();
     try(buffer->init(context, bufferUsage, memoryProperty, size));
+
+    bufferInfo.buffer = buffer->getHandle();
+    bufferInfo.offset = 0;
+    bufferInfo.range = VK_WHOLE_SIZE;
 
     return Result::Continue;
 }
@@ -171,5 +180,18 @@ void IndexBuffer::bind(rhi::Context* rhiContext, size_t offset)
     Context* context = reinterpret_cast<Context*>(rhiContext);
     CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
     commandBuffer->bindIndexBuffers(buffer->getHandle(), offset, VK_INDEX_TYPE_UINT32);
+}
+
+UniformBuffer::UniformBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
+                             rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(descriptorType, bufferUsage, memoryProperty, size)
+{
+}
+
+Result UniformBuffer::allocate(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    try(buffer->map(context, 0, size, data));
+    return Result::Continue;
 }
 } // namespace vk

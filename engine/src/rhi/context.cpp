@@ -18,7 +18,8 @@ Context* Context::createRHIContext(rhi::List rhi)
     }
 }
 
-Context::Context() : platform::Context(), vertexScratchBuffer(nullptr), indexScratchBuffer(nullptr)
+Context::Context()
+    : platform::Context(), vertexScratchBuffer(nullptr), indexScratchBuffer(nullptr), uniformScratchBuffer(nullptr)
 {
 }
 
@@ -38,14 +39,22 @@ Result Context::initRHI(platform::Window* window)
         indexScratchBuffer->init(this);
     }
 
+    if (uniformScratchBuffer == nullptr)
+    {
+        uniformScratchBuffer = new UniformScratchBuffer();
+        uniformScratchBuffer->init(this);
+    }
+
     return Result::Continue;
 }
 
 void Context::terminateRHI()
 {
     waitIdle();
+
     TERMINATE(vertexScratchBuffer, this);
     TERMINATE(indexScratchBuffer, this);
+    TERMINATE(uniformScratchBuffer, this);
 
     for (auto shaderContainer : shaderContainers)
     {

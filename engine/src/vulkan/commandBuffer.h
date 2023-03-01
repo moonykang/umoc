@@ -109,6 +109,16 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         ASSERT(valid());
         vkCmdBindIndexBuffer(mHandle, buffer, offset, indexType);
     }
+
+    inline void bindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout pipelineLayout,
+                                   uint32_t firstSet, uint32_t descriptorSetCount,
+                                   const VkDescriptorSet* pDescriptorSets, uint32_t dynamicOffsetCount,
+                                   const uint32_t* pDynamicOffsets)
+    {
+        ASSERT(valid());
+        vkCmdBindDescriptorSets(mHandle, pipelineBindPoint, pipelineLayout, firstSet, descriptorSetCount,
+                                pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+    }
     /*
     End of command functions
     */

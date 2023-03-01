@@ -10,8 +10,11 @@ namespace rhi
 class Image;
 class VertexScratchBuffer;
 class IndexScratchBuffer;
+class UniformScratchBuffer;
+
 class Buffer;
 class DescriptorSetLayout;
+class DescriptorSet;
 class ShaderContainer;
 
 class Context : public platform::Context
@@ -50,16 +53,22 @@ class Context : public platform::Context
                              uint32_t firstInstance) = 0;
 
   public:
-    VertexScratchBuffer* getVertexScratchBuffer()
+    inline VertexScratchBuffer* getVertexScratchBuffer()
     {
         ASSERT(vertexScratchBuffer);
         return vertexScratchBuffer;
     }
 
-    IndexScratchBuffer* getIndexScratchBuffer()
+    inline IndexScratchBuffer* getIndexScratchBuffer()
     {
         ASSERT(indexScratchBuffer);
         return indexScratchBuffer;
+    }
+
+    inline UniformScratchBuffer* getUniformScratchBuffer()
+    {
+        ASSERT(uniformScratchBuffer);
+        return uniformScratchBuffer;
     }
 
     void registerShaderContainer(ShaderContainer* shaderContainer);
@@ -70,9 +79,12 @@ class Context : public platform::Context
 
     virtual DescriptorSetLayout* allocateDescriptorSetLayout() = 0;
 
+    virtual DescriptorSet* allocateDescriptorSet() = 0;
+
   private:
     VertexScratchBuffer* vertexScratchBuffer;
     IndexScratchBuffer* indexScratchBuffer;
+    UniformScratchBuffer* uniformScratchBuffer;
     std::vector<ShaderContainer*> shaderContainers;
 };
 } // namespace rhi

@@ -46,10 +46,13 @@ class Buffer : public rhi::Buffer
 
     void terminate(rhi::Context* context) override;
 
-    Result allocate(rhi::Context* context, size_t offset, size_t size, void* data) override;
+    virtual Result allocate(rhi::Context* context, size_t offset, size_t size, void* data) override;
+
+    VkWriteDescriptorSet getWriteDescriptorSet();
 
   protected:
     RealBuffer* buffer;
+    VkDescriptorBufferInfo bufferInfo;
 };
 
 class VertexBuffer : public Buffer
@@ -68,5 +71,18 @@ class IndexBuffer : public Buffer
                 rhi::MemoryPropertyFlags memoryProperty, size_t size);
 
     virtual void bind(rhi::Context* context, size_t offset) override;
+};
+
+class UniformBuffer : public Buffer
+{
+  public:
+    UniformBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
+                  rhi::MemoryPropertyFlags memoryProperty, size_t size);
+
+    virtual void bind(rhi::Context* context, size_t offset) override
+    {
+    }
+
+    Result allocate(rhi::Context* context, size_t offset, size_t size, void* data) override final;
 };
 } // namespace vk

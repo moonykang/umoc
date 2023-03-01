@@ -868,6 +868,7 @@ class DescriptorInfo
     DescriptorType type;
 };
 using DescriptorInfoList = std::vector<DescriptorInfo>;
+using DescriptorInfoListSet = std::vector<DescriptorInfoList>;
 
 class Descriptor
 {
@@ -883,7 +884,9 @@ class Descriptor
         return type;
     }
 
-  private:
+  protected:
     DescriptorType type;
 };
+using DescriptorList = std::vector<std::pair<DescriptorInfo, Descriptor*>>;
+using DescriptorListSet = std::vector<DescriptorList>;
 } // namespace rhi

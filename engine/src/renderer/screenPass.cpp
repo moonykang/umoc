@@ -1,7 +1,9 @@
 #include "screenPass.h"
 #include "model/vertexInput.h"
+#include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/defines.h"
+#include "rhi/descriptor.h"
 #include "rhi/rendertarget.h"
 #include "rhi/resources.h"
 #include "rhi/shader.h"
@@ -46,17 +48,43 @@ class TriangleShaderContainer : public rhi::ShaderContainer
         this->pixelShader = pixelShader;
     }
 
-    std::vector<rhi::DescriptorInfoList> getDescriptorListSet()
+    rhi::DescriptorInfoListSet getDescriptorListSet()
     {
-        uint32_t numSets = 1;
-        std::vector<rhi::DescriptorInfoList> descriptorInfoLists;
-        descriptorInfoLists.reserve(numSets);
-
-        rhi::DescriptorInfoList& descriptorInfoList = descriptorInfoLists[0];
-        descriptorInfoList.push_back({0, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-
-        return descriptorInfoLists;
+        return TriangleShaderParameters::getDescriptorInfos();
     }
+
+    class TriangleShaderParameters : public ShaderParameters
+    {
+      public:
+        TriangleShaderParameters() : globalDescriptor(nullptr)
+        {
+        }
+
+        static rhi::DescriptorInfoListSet getDescriptorInfos()
+        {
+            rhi::DescriptorInfoListSet descriptorInfos(numSets);
+
+            fillDescriptorInfo(descriptorInfos, 0, 0, rhi::ShaderStage::Vertex,
+                               rhi::DescriptorType::Uniform_Buffer_Dynamic);
+
+            return descriptorInfos;
+        };
+
+        rhi::DescriptorListSet getDescriptors()
+        {
+            rhi::DescriptorListSet descriptors(numSets);
+
+            fillDescriptor(descriptors, 0, 0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic,
+                           globalDescriptor);
+            return descriptors;
+        }
+
+      public:
+        static const uint32_t numSets = 1;
+        rhi::Descriptor* globalDescriptor;
+    };
+
+    // set: # binding # type # stage # descriptor*
 };
 
 TriangleVertexShader triangleVertexShader;
@@ -68,10 +96,16 @@ ScreenPassVertexShader screenPassVertexShader;
 Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = platformContext->getRHI();
+    scene::TestScene* testScene = reinterpret_cast<scene::TestScene*>(sceneInfo);
 
-    // screenPassVertexShader.loadShader(context->getRHI());
+    static bool oneTimeRun = false; // TODO
 
-    triangleShaderContainer.init(context->getRHI());
+    if (!oneTimeRun)
+    {
+        oneTimeRun = true;
+        triangleShaderContainer.init(context->getRHI());
+        testScene->descriptorSet->init(context, triangleShaderContainer.getDescriptorLayout(0));
+    }
 
     rhi::RenderPassInfo renderpassInfo;
     rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
@@ -83,6 +117,10 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
 
     try(context->beginRenderpass(renderpassInfo));
 
+    TriangleShaderContainer::TriangleShaderParameters params;
+    params.globalDescriptor = testScene->uniformBuffer->getDescriptor();
+    testScene->descriptorSet->update(context, params.getDescriptors()[0]);
+
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.shaderContainer = &triangleShaderContainer;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
@@ -90,7 +128,7 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
     context->createGfxPipeline(graphicsPipelineState);
 
-    scene::TestScene* testScene = reinterpret_cast<scene::TestScene*>(sceneInfo);
+    testScene->descriptorSet->bind(context, 0);
     testScene->quad->draw(context);
 
     try(context->endRenderpass());

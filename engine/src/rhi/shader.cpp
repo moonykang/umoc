@@ -71,7 +71,7 @@ Result ShaderContainer::init(Context* context)
 
     for (auto& descriptorInfoList : descriptorInfoListSets)
     {
-        DescriptorSetLayout* descriptorSetLayout = descriptorSetLayouts.emplace_back();
+        auto& descriptorSetLayout = descriptorSetLayouts.emplace_back();
         descriptorSetLayout = context->allocateDescriptorSetLayout();
         descriptorSetLayout->init(context, descriptorInfoList);
     }
@@ -100,4 +100,5 @@ PixelShaderBase* ShaderContainer::getPixelShader()
 {
     return pixelShader;
 }
+
 } // namespace rhi
