@@ -60,8 +60,10 @@ class Context : public rhi::Context
                      uint32_t firstInstance) override;
     // factory
   public:
-    rhi::Buffer* createBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
-                              size_t size) override;
+    rhi::Buffer* allocateBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
+                                rhi::MemoryPropertyFlags memoryProperty, size_t size) override;
+
+    rhi::DescriptorSetLayout* allocateDescriptorSetLayout() override;
 
   public:
     Instance* getInstance() const;

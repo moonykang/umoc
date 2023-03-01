@@ -8,10 +8,11 @@
 namespace rhi
 {
 class Image;
-class Renderpass;
 class VertexScratchBuffer;
 class IndexScratchBuffer;
 class Buffer;
+class DescriptorSetLayout;
+class ShaderContainer;
 
 class Context : public platform::Context
 {
@@ -60,12 +61,18 @@ class Context : public platform::Context
         ASSERT(indexScratchBuffer);
         return indexScratchBuffer;
     }
+
+    void registerShaderContainer(ShaderContainer* shaderContainer);
     // factory
   public:
-    virtual Buffer* createBuffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size) = 0;
+    virtual Buffer* allocateBuffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage,
+                                   MemoryPropertyFlags memoryProperty, size_t size) = 0;
+
+    virtual DescriptorSetLayout* allocateDescriptorSetLayout() = 0;
 
   private:
     VertexScratchBuffer* vertexScratchBuffer;
     IndexScratchBuffer* indexScratchBuffer;
+    std::vector<ShaderContainer*> shaderContainers;
 };
 } // namespace rhi

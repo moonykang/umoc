@@ -1,12 +1,18 @@
 #include "shader.h"
 #include "common/hash.h"
 #include "context.h"
+#include "descriptor.h"
 #include "platform/asset.h"
 #include "platform/context.h"
 
 namespace rhi
 {
-Result ShaderBase::loadShader(Context* context)
+void Context::registerShaderContainer(ShaderContainer* shaderContainer)
+{
+    shaderContainers.push_back(shaderContainer);
+}
+
+Result ShaderBase::init(Context* context)
 {
     if (!loaded)
     {
@@ -36,5 +42,62 @@ Result ShaderBase::loadShader(Context* context)
 size_t GraphicsPipelineState::getHash()
 {
     return util::computeGenericHash(this, ((PipelineStateHashSize + 3) / 4) * 4);
+}
+
+ShaderContainer::ShaderContainer()
+    : initialized(false), hash(0), vertexShader(nullptr), pixelShader(nullptr), descriptorSetLayouts()
+{
+}
+
+Result ShaderContainer::init(Context* context)
+{
+    std::lock_guard<std::mutex> scopeLock(lock);
+    if (initialized)
+    {
+        return Result::Continue;
+    }
+
+    if (vertexShader)
+    {
+        vertexShader->init(context);
+    }
+
+    if (pixelShader)
+    {
+        pixelShader->init(context);
+    }
+
+    std::vector<rhi::DescriptorInfoList> descriptorInfoListSets = getDescriptorListSet();
+
+    for (auto& descriptorInfoList : descriptorInfoListSets)
+    {
+        DescriptorSetLayout* descriptorSetLayout = descriptorSetLayouts.emplace_back();
+        descriptorSetLayout = context->allocateDescriptorSetLayout();
+        descriptorSetLayout->init(context, descriptorInfoList);
+    }
+
+    initialized = true;
+    context->registerShaderContainer(this);
+
+    return Result::Continue;
+};
+
+void ShaderContainer::terminate(Context* context)
+{
+    for (auto descriptorSetLayout : descriptorSetLayouts)
+    {
+        TERMINATE(descriptorSetLayout, context);
+    }
+    descriptorSetLayouts.clear();
+}
+
+VertexShaderBase* ShaderContainer::getVertexShader()
+{
+    return vertexShader;
+}
+
+PixelShaderBase* ShaderContainer::getPixelShader()
+{
+    return pixelShader;
 }
 } // namespace rhi

@@ -805,6 +805,7 @@ class ColorBlendState
 class ShaderBase;
 class VertexShaderBase;
 class PixelShaderBase;
+class ShaderContainer;
 
 constexpr size_t PipelineStateHashSize = sizeof(AssemblyState) + sizeof(RasterizationState) +
                                          sizeof(TessellationState) + sizeof(MultisampleState) +
@@ -812,7 +813,7 @@ constexpr size_t PipelineStateHashSize = sizeof(AssemblyState) + sizeof(Rasteriz
 class GraphicsPipelineState
 {
   public:
-    GraphicsPipelineState()
+    GraphicsPipelineState() : shaderContainer(nullptr)
     {
     }
 
@@ -828,12 +829,61 @@ class GraphicsPipelineState
     uint8_t padding1 = 0;
     uint8_t padding2 = 0;
 
-    VertexShaderBase* vertexShader = nullptr;
-    PixelShaderBase* pixelShader = nullptr;
+    ShaderContainer* shaderContainer;
     /*
     - shader
     - vertex input
     * pipeline layout (push constants) <> descriptorset layout
     */
+};
+
+class DescriptorInfo
+{
+  public:
+    DescriptorInfo(uint32_t binding, ShaderStageFlags shaderStage, DescriptorType type)
+        : binding(binding), shaderStage(shaderStage), type(type)
+    {
+    }
+
+    ~DescriptorInfo() = default;
+
+    uint32_t getBinding()
+    {
+        return binding;
+    }
+
+    ShaderStageFlags getShaderStage()
+    {
+        return shaderStage;
+    }
+
+    DescriptorType getType()
+    {
+        return type;
+    }
+
+  private:
+    uint32_t binding;
+    ShaderStageFlags shaderStage;
+    DescriptorType type;
+};
+using DescriptorInfoList = std::vector<DescriptorInfo>;
+
+class Descriptor
+{
+  public:
+    Descriptor(DescriptorType type) : type(type)
+    {
+    }
+
+    virtual ~Descriptor() = default;
+
+    DescriptorType getType()
+    {
+        return type;
+    }
+
+  private:
+    DescriptorType type;
 };
 } // namespace rhi

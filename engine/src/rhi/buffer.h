@@ -1,7 +1,9 @@
 #pragma once
 #include "common/memorybuffer.h"
 #include "common/util.h"
+#include "resources.h"
 #include "rhi/defines.h"
+#include <cstdlib>
 #include <unordered_map>
 #include <vector>
 
@@ -69,6 +71,8 @@ class SubAllocatedBuffer
 
     void bind(Context* context);
 
+    Descriptor* getDescriptor();
+
   private:
     ScratchBuffer* buffer;
     size_t offset;
@@ -87,11 +91,17 @@ class IndexBuffer : public SubAllocatedBuffer
     IndexBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
 };
 
-class Buffer
+class UniformBuffer : public SubAllocatedBuffer
 {
   public:
-    Buffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size)
-        : bufferUsage(bufferUsage), memoryProperty(memoryProperty), size(size)
+    UniformBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
+};
+
+class Buffer : public Descriptor
+{
+  public:
+    Buffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size)
+        : Descriptor(descriptorType), bufferUsage(bufferUsage), memoryProperty(memoryProperty), size(size)
     {
     }
 
@@ -130,6 +140,12 @@ class ScratchBuffer
         buffer->bind(context, offset);
     }
 
+    Descriptor* getDescriptor()
+    {
+        ASSERT(buffer);
+        return buffer;
+    }
+
   protected:
     Buffer* buffer;
     size_t offset;
@@ -150,5 +166,23 @@ class IndexScratchBuffer : public ScratchBuffer
     Result init(Context* context) override;
 
     SubAllocatedBuffer* subAllocate(Context* context, size_t size, void* data) override;
+};
+
+class UniformScratchBuffer : public ScratchBuffer
+{
+  public:
+    Result init(Context* context) override;
+
+    SubAllocatedBuffer* subAllocate(Context* context, size_t size, void* data) override;
+};
+
+class UniformScratchBufferList
+{
+  public:
+    UniformScratchBufferList(uint32_t count);
+
+  private:
+    const uint32_t count;
+    // std::dynarray<UniformScratchBuffer, count> uniformScratchBufferList;
 };
 } // namespace rhi

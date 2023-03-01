@@ -9,31 +9,30 @@
 namespace vk
 {
 
-rhi::Buffer* Context::createBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
-                                   size_t size)
+rhi::Buffer* Context::allocateBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
+                                     rhi::MemoryPropertyFlags memoryProperty, size_t size)
 {
     if ((bufferUsage & rhi::BufferUsage::VERTEX_BUFFER) != 0)
     {
-        return new VertexBuffer(bufferUsage, memoryProperty, size);
+        return new VertexBuffer(descriptorType, bufferUsage, memoryProperty, size);
     }
 
     if ((bufferUsage & rhi::BufferUsage::INDEX_BUFFER) != 0)
     {
-        return new IndexBuffer(bufferUsage, memoryProperty, size);
+        return new IndexBuffer(descriptorType, bufferUsage, memoryProperty, size);
     }
 
-    return new Buffer(bufferUsage, memoryProperty, size);
+    UNREACHABLE();
+    return nullptr;
 }
 
-Buffer::Buffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : rhi::Buffer(bufferUsage, memoryProperty, size)
+RealBuffer::RealBuffer() : deviceMemory(nullptr)
 {
 }
 
-Result Buffer::init(rhi::Context* rhiContext)
+Result RealBuffer::init(Context* context, rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
+                        size_t size)
 {
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-
     VkBufferCreateInfo bufferCreateInfo = {};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferCreateInfo.pNext = nullptr;
@@ -49,16 +48,14 @@ Result Buffer::init(rhi::Context* rhiContext)
     const VkMemoryRequirements memoryRequirements = getMemoryRequirements(context->getDevice()->getHandle());
 
     deviceMemory = new DeviceMemory();
-    try(deviceMemory->init(context, memoryRequirements, static_cast<VkMemoryPropertyFlags>(memoryProperty)));
+    try(deviceMemory->init(context, memoryRequirements, memoryProperty));
     vk_try(bindMemory(context->getDevice()->getHandle()));
 
     return Result::Continue;
 }
 
-void Buffer::terminate(rhi::Context* rhiContext)
+void RealBuffer::terminate(Context* context)
 {
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-
     if (valid())
     {
         context->addGarbage(vk::HandleType::Buffer, mHandle);
@@ -68,30 +65,7 @@ void Buffer::terminate(rhi::Context* rhiContext)
     TERMINATE(deviceMemory, context);
 }
 
-Result Buffer::allocate(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
-{
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-
-    Buffer* stagingBuffer =
-        new Buffer(rhi::BufferUsage::TRANSFER_SRC,
-                   rhi::MemoryProperty::HOST_COHERENT | rhi::MemoryProperty::HOST_VISIBLE, this->size);
-
-    try(stagingBuffer->init(rhiContext));
-    try(stagingBuffer->map(context, 0, size, data));
-    try(copy(context, stagingBuffer, offset, size));
-
-    TERMINATE(stagingBuffer, rhiContext);
-
-    return Result::Continue;
-}
-
-void Buffer::bind(rhi::Context* rhiContext, size_t offset)
-{
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-    // context->getActiveCommandBuffer()
-}
-
-Result Buffer::map(Context* context, size_t offset, size_t size, void* mapData)
+Result RealBuffer::map(Context* context, size_t offset, size_t size, void* mapData)
 {
     void* data = nullptr;
     try(deviceMemory->map(context, offset, size, 0, &data));
@@ -101,7 +75,7 @@ Result Buffer::map(Context* context, size_t offset, size_t size, void* mapData)
     return Result::Continue;
 }
 
-Result Buffer::copy(Context* context, Buffer* srcBuffer, VkDeviceSize offset, VkDeviceSize size)
+Result RealBuffer::copy(Context* context, RealBuffer* srcBuffer, VkDeviceSize offset, VkDeviceSize size)
 {
     VkBufferCopy copyRegion = {};
     copyRegion.srcOffset = 0;
@@ -114,19 +88,19 @@ Result Buffer::copy(Context* context, Buffer* srcBuffer, VkDeviceSize offset, Vk
     return context->submitUploadCommandBuffer();
 }
 
-VkResult Buffer::create(VkDevice device, const VkBufferCreateInfo& createInfo)
+VkResult RealBuffer::create(VkDevice device, const VkBufferCreateInfo& createInfo)
 {
     ASSERT(!valid());
     return vkCreateBuffer(device, &createInfo, nullptr, &mHandle);
 }
 
-VkResult Buffer::bindMemory(VkDevice device)
+VkResult RealBuffer::bindMemory(VkDevice device)
 {
     ASSERT(valid() && deviceMemory->valid());
     return vkBindBufferMemory(device, mHandle, deviceMemory->getHandle(), 0);
 }
 
-const VkMemoryRequirements Buffer::getMemoryRequirements(VkDevice device)
+const VkMemoryRequirements RealBuffer::getMemoryRequirements(VkDevice device)
 {
     ASSERT(valid());
     VkMemoryRequirements memoryRequirements;
@@ -134,8 +108,48 @@ const VkMemoryRequirements Buffer::getMemoryRequirements(VkDevice device)
     return memoryRequirements;
 }
 
-VertexBuffer::VertexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(bufferUsage, memoryProperty, size)
+Buffer::Buffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
+               rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : rhi::Buffer(descriptorType, bufferUsage, memoryProperty, size)
+{
+}
+
+Result Buffer::init(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+
+    buffer = new RealBuffer();
+    try(buffer->init(context, bufferUsage, memoryProperty, size));
+
+    return Result::Continue;
+}
+
+void Buffer::terminate(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+
+    TERMINATE(buffer, context);
+}
+
+Result Buffer::allocate(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+
+    RealBuffer* stagingBuffer = new RealBuffer();
+
+    try(stagingBuffer->init(context, rhi::BufferUsage::TRANSFER_SRC,
+                            rhi::MemoryProperty::HOST_COHERENT | rhi::MemoryProperty::HOST_VISIBLE, this->size));
+    try(stagingBuffer->map(context, 0, size, data));
+    try(buffer->copy(context, stagingBuffer, offset, size));
+
+    TERMINATE(stagingBuffer, context);
+
+    return Result::Continue;
+}
+
+VertexBuffer::VertexBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
+                           rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(descriptorType, bufferUsage, memoryProperty, size)
 {
 }
 
@@ -143,11 +157,12 @@ void VertexBuffer::bind(rhi::Context* rhiContext, size_t offset)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
     CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
-    commandBuffer->bindVertexBuffers(mHandle, offset);
+    commandBuffer->bindVertexBuffers(buffer->getHandle(), offset);
 }
 
-IndexBuffer::IndexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(bufferUsage, memoryProperty, size)
+IndexBuffer::IndexBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
+                         rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(descriptorType, bufferUsage, memoryProperty, size)
 {
 }
 
@@ -155,6 +170,6 @@ void IndexBuffer::bind(rhi::Context* rhiContext, size_t offset)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
     CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
-    commandBuffer->bindIndexBuffers(mHandle, offset, VK_INDEX_TYPE_UINT32);
+    commandBuffer->bindIndexBuffers(buffer->getHandle(), offset, VK_INDEX_TYPE_UINT32);
 }
 } // namespace vk

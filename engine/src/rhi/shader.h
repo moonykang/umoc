@@ -1,6 +1,8 @@
 #pragma once
 #include "common/memorybuffer.h"
 #include "defines.h"
+#include "resources.h"
+#include <mutex>
 #include <string>
 #include <unordered_map>
 
@@ -10,7 +12,7 @@ class Context;
 class ShaderBase
 {
   public:
-    ShaderBase(std::string name, ShaderStage shaderStage) : name(name), shaderStage(shaderStage), loaded(false)
+    ShaderBase(std::string name, ShaderStageFlags shaderStage) : name(name), shaderStage(shaderStage), loaded(false)
     {
     }
 
@@ -21,7 +23,7 @@ class ShaderBase
         return hash;
     }
 
-    Result loadShader(Context* context);
+    Result init(Context* context);
 
     size_t size()
     {
@@ -35,7 +37,7 @@ class ShaderBase
         return code.data();
     }
 
-    ShaderStage getShaderStage()
+    ShaderStageFlags getShaderStage()
     {
         return shaderStage;
     }
@@ -45,14 +47,12 @@ class ShaderBase
     /*
     name
     attribute layout (pos / normal / uv / color / ...)
-    ub layout
-    out layout
      */
 
     size_t hash;
     util::MemoryBuffer code;
     bool loaded;
-    ShaderStage shaderStage;
+    ShaderStageFlags shaderStage;
 };
 
 class VertexShaderBase : public ShaderBase
@@ -78,5 +78,35 @@ class PixelShaderBase : public ShaderBase
     PixelShaderBase(std::string name) : ShaderBase(name, ShaderStage::Pixel)
     {
     }
+};
+
+class DescriptorSetLayout;
+class ShaderContainer
+{
+  public:
+    ShaderContainer();
+
+    virtual ~ShaderContainer() = default;
+
+    Result init(Context* context);
+
+    void terminate(Context* context);
+
+    virtual std::vector<DescriptorInfoList> getDescriptorListSet() = 0;
+
+  public:
+    VertexShaderBase* getVertexShader();
+
+    PixelShaderBase* getPixelShader();
+
+  private:
+    bool initialized;
+    std::mutex lock;
+    size_t hash;
+
+  protected:
+    VertexShaderBase* vertexShader;
+    PixelShaderBase* pixelShader;
+    std::vector<DescriptorSetLayout*> descriptorSetLayouts;
 };
 } // namespace rhi

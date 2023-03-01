@@ -250,8 +250,9 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
 {
     PipelineHashStruct pipelineHashStruct;
     pipelineHashStruct.pipelineStateHash = gfxPipelineState.getHash();
-    pipelineHashStruct.vertexShaderHash = gfxPipelineState.vertexShader->getHash();
-    pipelineHashStruct.pixelShaderHash = gfxPipelineState.pixelShader->getHash();
+    // TODO
+    pipelineHashStruct.vertexShaderHash = gfxPipelineState.shaderContainer->getVertexShader()->getHash();
+    pipelineHashStruct.pixelShaderHash = gfxPipelineState.shaderContainer->getPixelShader()->getHash();
     pipelineHashStruct.renderpassHash = context->getCurrentRenderpassHash();
 
     size_t pipelineHash = pipelineHashStruct.getHash();
@@ -265,8 +266,8 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
 
     try
     {
-        Shader* vertexShader = context->getShader(gfxPipelineState.vertexShader);
-        Shader* pixelShader = context->getShader(gfxPipelineState.pixelShader);
+        Shader* vertexShader = context->getShader(gfxPipelineState.shaderContainer->getVertexShader());
+        Shader* pixelShader = context->getShader(gfxPipelineState.shaderContainer->getPixelShader());
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderStageInfos;
         shaderStageInfos.push_back(vertexShader->getPipelineShaderStageCreateInfo());
@@ -285,7 +286,8 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
         std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions =
-            generateVertexInputDescription(gfxPipelineState.vertexShader->getVertexChannelFlags());
+            generateVertexInputDescription(
+                gfxPipelineState.shaderContainer->getVertexShader()->getVertexChannelFlags());
 
         VkPipelineVertexInputStateCreateInfo vertexInputState = {};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

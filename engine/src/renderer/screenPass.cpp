@@ -36,8 +36,32 @@ class TriangleFragmentShader : public rhi::PixelShaderBase
     }
 };
 
+class TriangleShaderContainer : public rhi::ShaderContainer
+{
+  public:
+    TriangleShaderContainer(rhi::VertexShaderBase* vertexShader, rhi::PixelShaderBase* pixelShader)
+        : rhi::ShaderContainer()
+    {
+        this->vertexShader = vertexShader;
+        this->pixelShader = pixelShader;
+    }
+
+    std::vector<rhi::DescriptorInfoList> getDescriptorListSet()
+    {
+        uint32_t numSets = 1;
+        std::vector<rhi::DescriptorInfoList> descriptorInfoLists;
+        descriptorInfoLists.reserve(numSets);
+
+        rhi::DescriptorInfoList& descriptorInfoList = descriptorInfoLists[0];
+        descriptorInfoList.push_back({0, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
+
+        return descriptorInfoLists;
+    }
+};
+
 TriangleVertexShader triangleVertexShader;
 TriangleFragmentShader trianglePixelShader;
+TriangleShaderContainer triangleShaderContainer(&triangleVertexShader, &trianglePixelShader);
 
 ScreenPassVertexShader screenPassVertexShader;
 
@@ -45,9 +69,9 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
 {
     rhi::Context* context = platformContext->getRHI();
 
-    screenPassVertexShader.loadShader(context->getRHI());
-    triangleVertexShader.loadShader(context->getRHI());
-    trianglePixelShader.loadShader(context->getRHI());
+    // screenPassVertexShader.loadShader(context->getRHI());
+
+    triangleShaderContainer.init(context->getRHI());
 
     rhi::RenderPassInfo renderpassInfo;
     rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
@@ -60,8 +84,7 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
     try(context->beginRenderpass(renderpassInfo));
 
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.vertexShader = &triangleVertexShader;
-    graphicsPipelineState.pixelShader = &trianglePixelShader;
+    graphicsPipelineState.shaderContainer = &triangleShaderContainer;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;

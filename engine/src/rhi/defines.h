@@ -331,10 +331,36 @@ class Vertex
     glm::vec4 tangent;
 };
 
-enum class ShaderStage
+using ShaderStageFlags = uint32_t;
+class ShaderStage
 {
-    Vertex,
-    Pixel
+  public:
+    enum Value : uint32_t
+    {
+        Vertex = 0x00000001,
+        Geometry = 0x00000002,
+        TessellationControl = 0x00000004,
+        TessellationEvaluation = 0x00000008,
+        Pixel = 0x00000010,
+        Compute = 0x00000020,
+        RayGen = 0x00000040,
+        RayMiss = 0x00000080,
+        ClosestHit = 0x00000100,
+    };
+
+    ShaderStage() = default;
+
+    constexpr ShaderStage(Value value) : value(value)
+    {
+    }
+
+    constexpr ShaderStageFlags operator|(ShaderStage& other) const
+    {
+        return value | other.value;
+    }
+
+  private:
+    Value value;
 };
 
 using MemoryPropertyFlags = uint32_t;
@@ -411,5 +437,21 @@ class BufferUsage
 
   private:
     Value value;
+};
+
+enum class DescriptorType : uint32_t
+{
+    Sampler = 0,
+    Combined_Image_Sampler = 1,
+    Sampled_Image = 2,
+    Storage_Image = 3,
+    Uniform_Texel_Buffer = 4,
+    Storage_Texel_Buffer = 5,
+    Uniform_Buffer = 6,
+    Storage_Buffer = 7,
+    Uniform_Buffer_Dynamic = 8,
+    Storage_Buffer_Dynamic = 9,
+    Input_Attachment = 10,
+    Acceleration_structure = 11,
 };
 } // namespace rhi

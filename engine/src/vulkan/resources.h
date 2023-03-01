@@ -274,13 +274,49 @@ inline VkLogicOp convertToVkLogicOp(rhi::LogicOp logicOp)
     }
 }
 
-inline VkShaderStageFlags convertToVkShaderStage(rhi::ShaderStage shaderStage)
+inline VkShaderStageFlags convertToVkShaderStage(rhi::ShaderStageFlags shaderStage)
 {
-    switch (shaderStage)
+    VkShaderStageFlags shaderStageFlags = 0;
+    if ((shaderStage & rhi::ShaderStage::Vertex) != 0)
     {
-    case rhi::ShaderStage::Vertex:
         return VK_SHADER_STAGE_VERTEX_BIT;
-    case rhi::ShaderStage::Pixel:
+    }
+
+    if ((shaderStage & rhi::ShaderStage::Pixel) != 0)
+    {
         return VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
+
+    return shaderStageFlags;
+}
+
+inline VkDescriptorType convertToVkDescriptorType(rhi::DescriptorType descriptorType)
+{
+    switch (descriptorType)
+    {
+    case rhi::DescriptorType::Sampler:
+        return VK_DESCRIPTOR_TYPE_SAMPLER;
+    case rhi::DescriptorType::Combined_Image_Sampler:
+        return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    case rhi::DescriptorType::Sampled_Image:
+        return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    case rhi::DescriptorType::Storage_Image:
+        return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    case rhi::DescriptorType::Uniform_Texel_Buffer:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+    case rhi::DescriptorType::Storage_Texel_Buffer:
+        return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+    case rhi::DescriptorType::Uniform_Buffer:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    case rhi::DescriptorType::Storage_Buffer:
+        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    case rhi::DescriptorType::Uniform_Buffer_Dynamic:
+        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+    case rhi::DescriptorType::Storage_Buffer_Dynamic:
+        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+    case rhi::DescriptorType::Input_Attachment:
+        return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+    case rhi::DescriptorType::Acceleration_structure:
+        return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     }
 }
