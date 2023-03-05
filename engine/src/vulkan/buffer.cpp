@@ -140,7 +140,7 @@ void Buffer::terminate(rhi::Context* rhiContext)
     TERMINATE(buffer, context);
 }
 
-Result Buffer::allocate(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
+Result Buffer::update(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
 
@@ -188,10 +188,10 @@ UniformBuffer::UniformBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsag
 {
 }
 
-Result UniformBuffer::allocate(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
+Result UniformBuffer::update(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
-    try(buffer->map(context, 0, size, data));
+    try(buffer->map(context, offset, size, data));
     return Result::Continue;
 }
 } // namespace vk

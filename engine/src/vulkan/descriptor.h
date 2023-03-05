@@ -6,13 +6,12 @@ namespace vk
 {
 class Context;
 
-class DescriptorSetLayout final : public rhi::DescriptorSetLayout,
-                                  public WrappedObject<DescriptorSetLayout, VkDescriptorSetLayout>
+class DescriptorSetLayout final : public WrappedObject<DescriptorSetLayout, VkDescriptorSetLayout>
 {
   public:
-    Result init(rhi::Context* context, rhi::DescriptorInfoList& descriptorInfoList) override;
+    Result init(Context* context, rhi::DescriptorInfoList& descriptorInfoList);
 
-    void terminate(rhi::Context* context) override;
+    void terminate(Context* context);
 
   private:
     VkResult create(VkDevice device, const VkDescriptorSetLayoutCreateInfo& createInfo);
@@ -21,7 +20,9 @@ class DescriptorSetLayout final : public rhi::DescriptorSetLayout,
 class DescriptorSet final : public rhi::DescriptorSet, public WrappedObject<DescriptorSet, VkDescriptorSet>
 {
   public:
-    Result init(rhi::Context* context, rhi::DescriptorSetLayout* descriptorSetLayout) override;
+    DescriptorSet();
+
+    Result init(rhi::Context* context, rhi::DescriptorInfoList& descriptorInfoList) override;
 
     void terminate(rhi::Context* context) override;
 
@@ -29,7 +30,10 @@ class DescriptorSet final : public rhi::DescriptorSet, public WrappedObject<Desc
 
     void bind(rhi::Context* context, uint32_t binding) override;
 
+    DescriptorSetLayout* getLayout();
+
   private:
+    DescriptorSetLayout* layout;
 };
 
 class DescriptorPool final : public WrappedObject<DescriptorPool, VkDescriptorPool>

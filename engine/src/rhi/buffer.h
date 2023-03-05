@@ -71,6 +71,8 @@ class SubAllocatedBuffer
 
     void bind(Context* context);
 
+    Result update(Context* context, size_t size, void* data);
+
     Descriptor* getDescriptor();
 
   private:
@@ -111,7 +113,7 @@ class Buffer : public Descriptor
 
     virtual void terminate(Context* context) = 0;
 
-    virtual Result allocate(Context* context, size_t offset, size_t size, void* data) = 0;
+    virtual Result update(Context* context, size_t offset, size_t size, void* data) = 0;
 
     virtual void bind(Context* context, size_t offset) = 0;
 
@@ -131,6 +133,8 @@ class ScratchBuffer
     virtual Result init(Context* context) = 0;
 
     virtual SubAllocatedBuffer* subAllocate(Context* context, size_t size, void* data) = 0;
+
+    Result update(Context* context, size_t offset, size_t size, void* data);
 
     void terminate(Context* context);
 

@@ -7,6 +7,24 @@ const size_t VERTEX_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
 const size_t INDEX_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
 const size_t UNIFORM_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
 
+VertexBuffer* Context::allocateVertexBuffer(size_t size, void* data)
+{
+    ASSERT(vertexScratchBuffer);
+    return reinterpret_cast<rhi::VertexBuffer*>(vertexScratchBuffer->subAllocate(this, size, data));
+}
+
+IndexBuffer* Context::allocateIndexBuffer(size_t size, void* data)
+{
+    ASSERT(indexScratchBuffer);
+    return reinterpret_cast<rhi::IndexBuffer*>(indexScratchBuffer->subAllocate(this, size, data));
+}
+
+UniformBuffer* Context::allocateUniformBuffer(size_t size, void* data)
+{
+    ASSERT(uniformScratchBuffer);
+    return reinterpret_cast<rhi::UniformBuffer*>(uniformScratchBuffer->subAllocate(this, size, data));
+}
+
 SubAllocatedBuffer::SubAllocatedBuffer(ScratchBuffer* buffer, size_t offset, size_t size)
     : buffer(buffer), offset(offset), size(size)
 {
@@ -20,6 +38,13 @@ void SubAllocatedBuffer::bind(Context* context)
 {
     ASSERT(buffer);
     buffer->bind(context, offset);
+}
+
+Result SubAllocatedBuffer::update(Context* context, size_t size, void* data)
+{
+    ASSERT(buffer && this->size >= size);
+    buffer->update(context, offset, size, data);
+    return Result::Continue;
 }
 
 Descriptor* SubAllocatedBuffer::getDescriptor()
@@ -55,6 +80,13 @@ void ScratchBuffer::terminate(Context* context)
     TERMINATE(buffer, context);
 }
 
+Result ScratchBuffer::update(Context* context, size_t offset, size_t size, void* data)
+{
+    try(buffer->update(context, offset, size, data));
+
+    return Result::Continue;
+}
+
 Result VertexScratchBuffer::init(Context* context)
 {
     buffer =
@@ -72,7 +104,7 @@ SubAllocatedBuffer* VertexScratchBuffer::subAllocate(Context* context, size_t si
 
     // TODO
     size_t aligned_size = ((size + 3) / 4) * 4;
-    if (buffer->allocate(context, offset, size, data) != Result::Continue)
+    if (buffer->update(context, offset, size, data) != Result::Continue)
     {
         ASSERT(true);
         return nullptr;
@@ -90,7 +122,7 @@ SubAllocatedBuffer* IndexScratchBuffer::subAllocate(Context* context, size_t siz
 
     // TODO
     size_t aligned_size = ((size + 3) / 4) * 4;
-    if (buffer->allocate(context, offset, size, data) != Result::Continue)
+    if (buffer->update(context, offset, size, data) != Result::Continue)
     {
         ASSERT(true);
         return nullptr;
@@ -117,7 +149,7 @@ SubAllocatedBuffer* UniformScratchBuffer::subAllocate(Context* context, size_t s
 
     // TODO
     size_t aligned_size = ((size + 3) / 4) * 4;
-    if (buffer->allocate(context, offset, size, data) != Result::Continue)
+    if (buffer->update(context, offset, size, data) != Result::Continue)
     {
         ASSERT(true);
         return nullptr;

@@ -46,8 +46,8 @@ Result Quad::load(platform::Context* platformContext, rhi::VertexChannelFlags ve
         // vertexDataBuffer.insert(std::move(vertex));
     }
 
-    vertexBuffer = reinterpret_cast<rhi::VertexBuffer*>(
-        context->getVertexScratchBuffer()->subAllocate(context, sizeof(rhi::Vertex) * vertexDataBuffer.size(), vertexDataBuffer.data()));
+    vertexBuffer =
+        context->allocateVertexBuffer(sizeof(rhi::Vertex) * vertexDataBuffer.size(), vertexDataBuffer.data());
 
     const uint32_t num_indices = 6;
 
@@ -68,8 +68,7 @@ Result Quad::load(platform::Context* platformContext, rhi::VertexChannelFlags ve
     indexDataBuffer.push_back(1);
     indexDataBuffer.push_back(3);
 
-    indexBuffer = reinterpret_cast<rhi::IndexBuffer*>(
-        context->getIndexScratchBuffer()->subAllocate(context, sizeof(uint32_t) * indexDataBuffer.size(), indexDataBuffer.data()));
+    indexBuffer = context->allocateIndexBuffer(sizeof(uint32_t) * indexDataBuffer.size(), indexDataBuffer.data());
 
     return Result::Continue;
 }

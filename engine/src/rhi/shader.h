@@ -9,6 +9,8 @@
 namespace rhi
 {
 class Context;
+class DescriptorSet;
+
 class ShaderBase
 {
   public:
@@ -80,64 +82,22 @@ class PixelShaderBase : public ShaderBase
     }
 };
 
-class DescriptorSetLayout;
-class ShaderContainer
+class ShaderParameters
 {
   public:
-    ShaderContainer();
-
-    virtual ~ShaderContainer() = default;
-
-    Result init(Context* context);
-
-    void terminate(Context* context);
-
-    virtual DescriptorInfoListSet getDescriptorListSet() = 0;
-
-    class ShaderParameters
+    ShaderParameters() : vertexShader(nullptr), pixelShader(nullptr)
     {
-      public:
-        virtual ~ShaderParameters() = default;
+    }
 
-      protected:
-        static inline void fillDescriptorInfo(DescriptorInfoListSet& descriptorInfoSet, uint32_t set, uint32_t binding,
-                                              ShaderStageFlags stage, DescriptorType type)
-        {
-            ASSERT(descriptorInfoSet.size() >= set);
-            descriptorInfoSet[set].push_back({binding, stage, type});
-        }
+    virtual ~ShaderParameters() = default;
 
-        static inline void fillDescriptor(DescriptorListSet& descriptorInfoSet, uint32_t set, uint32_t binding,
-                                          ShaderStageFlags stage, DescriptorType type, Descriptor* descriptor)
-        {
-            ASSERT(descriptorInfoSet.size() >= set);
-            descriptorInfoSet[set].push_back({{binding, stage, type}, descriptor});
-        }
-    };
+    virtual std::vector<DescriptorSet*> getDescriptorSets()
+    {
+        return std::vector<DescriptorSet*>();
+    }
 
   public:
-    VertexShaderBase* getVertexShader();
-
-    PixelShaderBase* getPixelShader();
-
-    DescriptorSetLayout* getDescriptorLayout(uint32_t i)
-    {
-        return descriptorSetLayouts[i];
-    }
-
-    std::vector<DescriptorSetLayout*> getDescriptorLayouts()
-    {
-        return descriptorSetLayouts;
-    }
-
-  private:
-    bool initialized;
-    std::mutex lock;
-    size_t hash;
-
-  protected:
     VertexShaderBase* vertexShader;
     PixelShaderBase* pixelShader;
-    std::vector<DescriptorSetLayout*> descriptorSetLayouts;
 };
 } // namespace rhi

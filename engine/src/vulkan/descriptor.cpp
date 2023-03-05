@@ -21,15 +21,8 @@ VkWriteDescriptorSet Buffer::getWriteDescriptorSet()
     return writeDescriptorSet;
 }
 
-rhi::DescriptorSetLayout* Context::allocateDescriptorSetLayout()
+Result DescriptorSetLayout::init(Context* context, rhi::DescriptorInfoList& descriptorInfoList)
 {
-    return new DescriptorSetLayout();
-}
-
-Result DescriptorSetLayout::init(rhi::Context* rhiContext, rhi::DescriptorInfoList& descriptorInfoList)
-{
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
 
     for (auto& descriptorInfo : descriptorInfoList)
@@ -52,11 +45,10 @@ Result DescriptorSetLayout::init(rhi::Context* rhiContext, rhi::DescriptorInfoLi
     return Result::Continue;
 }
 
-void DescriptorSetLayout::terminate(rhi::Context* rhiContext)
+void DescriptorSetLayout::terminate(Context* context)
 {
     if (valid())
     {
-        Context* context = reinterpret_cast<Context*>(rhiContext);
         context->addGarbage(HandleType::DescriptorSetLayout, mHandle);
         mHandle = VK_NULL_HANDLE;
     }
@@ -67,13 +59,19 @@ rhi::DescriptorSet* Context::allocateDescriptorSet()
     return new DescriptorSet();
 }
 
-Result DescriptorSet::init(rhi::Context* rhiContext, rhi::DescriptorSetLayout* rhiDescriptorSetLayout)
+DescriptorSet::DescriptorSet() : layout(nullptr)
+{
+}
+
+Result DescriptorSet::init(rhi::Context* rhiContext, rhi::DescriptorInfoList& descriptorInfoList)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
-    DescriptorSetLayout* descriptorSetLayout = reinterpret_cast<DescriptorSetLayout*>(rhiDescriptorSetLayout);
+
+    layout = new DescriptorSetLayout();
+    layout->init(context, descriptorInfoList);
 
     const uint32_t descriptorSetCount = 1;
-    VkDescriptorSetLayout descriptorSetLayouts[descriptorSetCount] = {descriptorSetLayout->getHandle()};
+    VkDescriptorSetLayout descriptorSetLayouts[descriptorSetCount] = {layout->getHandle()};
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
     descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     descriptorSetAllocateInfo.descriptorSetCount = descriptorSetCount;
@@ -86,14 +84,17 @@ Result DescriptorSet::init(rhi::Context* rhiContext, rhi::DescriptorSetLayout* r
     return Result::Continue;
 }
 
-void DescriptorSet::terminate(rhi::Context* context)
+void DescriptorSet::terminate(rhi::Context* rhiContext)
 {
+    Context* context = reinterpret_cast<Context*>(rhiContext);
     if (valid())
     {
         mHandle = VK_NULL_HANDLE;
     }
+    TERMINATE(layout, context);
 }
 
+// TODO
 Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descriptors)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
@@ -140,6 +141,12 @@ void DescriptorSet::bind(rhi::Context* rhiContext, uint32_t binding)
     std::vector<uint32_t> offsets = {0};
     commandBuffer->bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout()->getHandle(), binding, 1,
                                       &mHandle, static_cast<uint32_t>(offsets.size()), offsets.data());
+}
+
+DescriptorSetLayout* DescriptorSet::getLayout()
+{
+    ASSERT(layout)
+    return layout;
 }
 
 VkResult DescriptorSetLayout::create(VkDevice device, const VkDescriptorSetLayoutCreateInfo& createInfo)

@@ -5,22 +5,12 @@
 
 namespace rhi
 {
-class DescriptorSetLayout
-{
-  public:
-    virtual ~DescriptorSetLayout() = default;
-
-    virtual Result init(Context* context, DescriptorInfoList& descriptorInfoList) = 0;
-
-    virtual void terminate(Context* context) = 0;
-};
-
 class DescriptorSet
 {
   public:
     virtual ~DescriptorSet() = default;
 
-    virtual Result init(Context* context, DescriptorSetLayout* descriptorSetLayout) = 0;
+    virtual Result init(Context* context, DescriptorInfoList& descriptorInfoList) = 0;
 
     virtual Result update(rhi::Context* context, DescriptorList descriptors) = 0;
 

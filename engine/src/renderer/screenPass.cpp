@@ -1,4 +1,5 @@
 #include "screenPass.h"
+#include "model/instance.h"
 #include "model/vertexInput.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
@@ -9,6 +10,7 @@
 #include "rhi/shader.h"
 #include "scene/scene.h"
 #include "scene/testScene.h"
+#include "scene/view.h"
 
 namespace renderer
 {
@@ -38,60 +40,23 @@ class TriangleFragmentShader : public rhi::PixelShaderBase
     }
 };
 
-class TriangleShaderContainer : public rhi::ShaderContainer
+class TriangleShaderParameters : public rhi::ShaderParameters
 {
   public:
-    TriangleShaderContainer(rhi::VertexShaderBase* vertexShader, rhi::PixelShaderBase* pixelShader)
-        : rhi::ShaderContainer()
+    TriangleShaderParameters() : ShaderParameters(), globalDescriptor(nullptr), localDescriptor(nullptr)
     {
-        this->vertexShader = vertexShader;
-        this->pixelShader = pixelShader;
     }
 
-    rhi::DescriptorInfoListSet getDescriptorListSet()
+    std::vector<rhi::DescriptorSet*> getDescriptorSets() override
     {
-        return TriangleShaderParameters::getDescriptorInfos();
+        return {globalDescriptor, localDescriptor};
     }
-
-    class TriangleShaderParameters : public ShaderParameters
-    {
-      public:
-        TriangleShaderParameters() : globalDescriptor(nullptr)
-        {
-        }
-
-        static rhi::DescriptorInfoListSet getDescriptorInfos()
-        {
-            rhi::DescriptorInfoListSet descriptorInfos(numSets);
-
-            fillDescriptorInfo(descriptorInfos, 0, 0, rhi::ShaderStage::Vertex,
-                               rhi::DescriptorType::Uniform_Buffer_Dynamic);
-
-            return descriptorInfos;
-        };
-
-        rhi::DescriptorListSet getDescriptors()
-        {
-            rhi::DescriptorListSet descriptors(numSets);
-
-            fillDescriptor(descriptors, 0, 0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic,
-                           globalDescriptor);
-            return descriptors;
-        }
-
-      public:
-        static const uint32_t numSets = 1;
-        rhi::Descriptor* globalDescriptor;
-    };
-
-    // set: # binding # type # stage # descriptor*
+    rhi::DescriptorSet* globalDescriptor;
+    rhi::DescriptorSet* localDescriptor;
 };
 
 TriangleVertexShader triangleVertexShader;
 TriangleFragmentShader trianglePixelShader;
-TriangleShaderContainer triangleShaderContainer(&triangleVertexShader, &trianglePixelShader);
-
-ScreenPassVertexShader screenPassVertexShader;
 
 Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
@@ -103,8 +68,8 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
     if (!oneTimeRun)
     {
         oneTimeRun = true;
-        triangleShaderContainer.init(context->getRHI());
-        testScene->descriptorSet->init(context, triangleShaderContainer.getDescriptorLayout(0));
+        triangleVertexShader.init(context);
+        trianglePixelShader.init(context);
     }
 
     rhi::RenderPassInfo renderpassInfo;
@@ -117,18 +82,21 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
 
     try(context->beginRenderpass(renderpassInfo));
 
-    TriangleShaderContainer::TriangleShaderParameters params;
-    params.globalDescriptor = testScene->uniformBuffer->getDescriptor();
-    testScene->descriptorSet->update(context, params.getDescriptors()[0]);
+    TriangleShaderParameters params;
+    params.vertexShader = &triangleVertexShader;
+    params.pixelShader = &trianglePixelShader;
+    params.globalDescriptor = sceneInfo->getView()->getDescriptorSet();
+    params.localDescriptor = testScene->instance->getDescriptorSet();
 
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.shaderContainer = &triangleShaderContainer;
+    graphicsPipelineState.shaderParameters = &params;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
     context->createGfxPipeline(graphicsPipelineState);
 
-    testScene->descriptorSet->bind(context, 0);
+    sceneInfo->getView()->getDescriptorSet()->bind(context, 0);
+    testScene->instance->getDescriptorSet()->bind(context, 1);
     testScene->quad->draw(context);
 
     try(context->endRenderpass());

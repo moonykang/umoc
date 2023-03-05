@@ -805,7 +805,7 @@ class ColorBlendState
 class ShaderBase;
 class VertexShaderBase;
 class PixelShaderBase;
-class ShaderContainer;
+class ShaderParameters;
 
 constexpr size_t PipelineStateHashSize = sizeof(AssemblyState) + sizeof(RasterizationState) +
                                          sizeof(TessellationState) + sizeof(MultisampleState) +
@@ -813,7 +813,7 @@ constexpr size_t PipelineStateHashSize = sizeof(AssemblyState) + sizeof(Rasteriz
 class GraphicsPipelineState
 {
   public:
-    GraphicsPipelineState() : shaderContainer(nullptr)
+    GraphicsPipelineState() : shaderParameters(nullptr)
     {
     }
 
@@ -829,7 +829,7 @@ class GraphicsPipelineState
     uint8_t padding1 = 0;
     uint8_t padding2 = 0;
 
-    ShaderContainer* shaderContainer;
+    ShaderParameters* shaderParameters;
     /*
     - shader
     - vertex input

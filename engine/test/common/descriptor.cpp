@@ -5,6 +5,7 @@
 
 using namespace rhi;
 
+/*
 class TestShaderContainer : public rhi::ShaderContainer
 {
   public:
@@ -43,3 +44,4 @@ TEST(DescriptorFixture, DescriptorInfoTest)
         EXPECT_EQ(DescriptorType::Combined_Image_Sampler, descriptorInfo.getType());
     }
 }
+*/

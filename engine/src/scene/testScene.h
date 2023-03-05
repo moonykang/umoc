@@ -4,7 +4,8 @@
 namespace model
 {
 class VertexInput;
-}
+class Instance;
+} // namespace model
 
 namespace rhi
 {
@@ -17,17 +18,18 @@ namespace scene
 class TestScene : public SceneInfo
 {
   public:
-    Result init(platform::Context* context) override;
+    Result postInit(platform::Context* context) override;
 
     Result load(platform::Context* context) override;
 
     Result udpate(platform::Context* context) override;
 
-    void terminate(platform::Context* context) override;
+    void preTerminate(platform::Context* context) override;
+
+    void postTerminate(platform::Context* context) override;
 
   public:
     model::VertexInput* quad;
-    rhi::UniformBuffer* uniformBuffer;
-    rhi::DescriptorSet* descriptorSet;
+    model::Instance* instance;
 };
 } // namespace scene

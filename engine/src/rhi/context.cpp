@@ -56,13 +56,6 @@ void Context::terminateRHI()
     TERMINATE(indexScratchBuffer, this);
     TERMINATE(uniformScratchBuffer, this);
 
-    for (auto shaderContainer : shaderContainers)
-    {
-        // Don't delete pointer
-        shaderContainer->terminate(this);
-    }
-    shaderContainers.clear();
-
     terminateRHIImplementation();
 }
 } // namespace rhi

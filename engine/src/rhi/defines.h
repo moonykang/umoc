@@ -454,4 +454,31 @@ enum class DescriptorType : uint32_t
     Input_Attachment = 10,
     Acceleration_structure = 11,
 };
+
+static constexpr uint32_t DescriptorSetTypeCount = 3;
+using DescriptorSetTypeFlags = uint8_t;
+class DescriptorSetType
+{
+  public:
+    enum Value : uint8_t
+    {
+        Global = 0x00000001,
+        Local = 0x00000002,
+        Material = 0x00000004,
+    };
+
+    DescriptorSetType() = default;
+
+    constexpr DescriptorSetType(Value value) : value(value)
+    {
+    }
+
+    constexpr DescriptorSetTypeFlags operator|(DescriptorSetType& other) const
+    {
+        return value | other.value;
+    }
+
+  private:
+    Value value;
+};
 } // namespace rhi

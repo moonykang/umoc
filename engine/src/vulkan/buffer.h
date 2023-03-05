@@ -46,7 +46,7 @@ class Buffer : public rhi::Buffer
 
     void terminate(rhi::Context* context) override;
 
-    virtual Result allocate(rhi::Context* context, size_t offset, size_t size, void* data) override;
+    virtual Result update(rhi::Context* context, size_t offset, size_t size, void* data) override;
 
     VkWriteDescriptorSet getWriteDescriptorSet();
 
@@ -83,6 +83,6 @@ class UniformBuffer : public Buffer
     {
     }
 
-    Result allocate(rhi::Context* context, size_t offset, size_t size, void* data) override final;
+    Result update(rhi::Context* context, size_t offset, size_t size, void* data) override final;
 };
 } // namespace vk

@@ -256,8 +256,8 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
     PipelineHashStruct pipelineHashStruct;
     pipelineHashStruct.pipelineStateHash = gfxPipelineState.getHash();
     // TODO
-    pipelineHashStruct.vertexShaderHash = gfxPipelineState.shaderContainer->getVertexShader()->getHash();
-    pipelineHashStruct.pixelShaderHash = gfxPipelineState.shaderContainer->getPixelShader()->getHash();
+    pipelineHashStruct.vertexShaderHash = gfxPipelineState.shaderParameters->vertexShader->getHash();
+    pipelineHashStruct.pixelShaderHash = gfxPipelineState.shaderParameters->pixelShader->getHash();
     pipelineHashStruct.renderpassHash = context->getCurrentRenderpassHash();
 
     size_t pipelineHash = pipelineHashStruct.getHash();
@@ -271,8 +271,8 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
 
     try
     {
-        Shader* vertexShader = context->getShader(gfxPipelineState.shaderContainer->getVertexShader());
-        Shader* pixelShader = context->getShader(gfxPipelineState.shaderContainer->getPixelShader());
+        Shader* vertexShader = context->getShader(gfxPipelineState.shaderParameters->vertexShader);
+        Shader* pixelShader = context->getShader(gfxPipelineState.shaderParameters->pixelShader);
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderStageInfos;
         shaderStageInfos.push_back(vertexShader->getPipelineShaderStageCreateInfo());
@@ -284,8 +284,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
         std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions =
-            generateVertexInputDescription(
-                gfxPipelineState.shaderContainer->getVertexShader()->getVertexChannelFlags());
+            generateVertexInputDescription(gfxPipelineState.shaderParameters->vertexShader->getVertexChannelFlags());
 
         VkPipelineVertexInputStateCreateInfo vertexInputState = {};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -405,12 +404,12 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStateList.size());
         dynamicState.pDynamicStates = dynamicStateList.data();
 
-        auto rhiDescriptorSetLayouts = gfxPipelineState.shaderContainer->getDescriptorLayouts();
+        auto rhiDescriptorSets = gfxPipelineState.shaderParameters->getDescriptorSets();
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
-        for (auto& rhiDescriptorSetLayout : rhiDescriptorSetLayouts)
+        for (auto rhiDescriptorSet : rhiDescriptorSets)
         {
-            DescriptorSetLayout* descriptorSetLayout = reinterpret_cast<DescriptorSetLayout*>(rhiDescriptorSetLayout);
-            descriptorSetLayouts.push_back(descriptorSetLayout->getHandle());
+            DescriptorSet* descriptorSet = reinterpret_cast<DescriptorSet*>(rhiDescriptorSet);
+            descriptorSetLayouts.push_back(descriptorSet->getLayout()->getHandle());
         }
 
         Pipeline* newPipeline = new Pipeline();
