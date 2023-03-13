@@ -2,6 +2,7 @@
 #include "commandBuffer.h"
 #include "commandPool.h"
 #include "queue.h"
+#include "resources.h"
 #include "util.h"
 #include "vulkan/context.h"
 #include "vulkan/device.h"
@@ -116,7 +117,7 @@ Result Swapchain::init(Context* context)
         vkDestroySwapchainKHR(device->getHandle(), oldSwapchain, nullptr);
     }
 
-    setupSwapchainImages(context, {surfaceFormat.format, VK_IMAGE_ASPECT_COLOR_BIT}, swapchainExtent);
+    setupSwapchainImages(context, surfaceFormat.format, swapchainExtent);
     setupSwapchainSemaphores(context);
 
     return Result::Continue;
@@ -185,7 +186,7 @@ VkResult Swapchain::create(VkDevice device, const VkSwapchainCreateInfoKHR& crea
     return vkCreateSwapchainKHR(device, &createInfo, nullptr, &mHandle);
 }
 
-Result Swapchain::setupSwapchainImages(Context* context, Format format, VkExtent2D extent)
+Result Swapchain::setupSwapchainImages(Context* context, VkFormat format, VkExtent2D extent)
 {
     ASSERT(imageCount == 0);
 
@@ -200,10 +201,10 @@ Result Swapchain::setupSwapchainImages(Context* context, Format format, VkExtent
 
     for (auto& image : images)
     {
-        Image* swapchainImage = new Image();
-        swapchainImage->init(context, image, format, VK_IMAGE_TYPE_2D, 1, 1, 1, {extent.width, extent.height, 1},
-                             VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
-        swapchainImage->initView(context);
+        Image* swapchainImage = new Image(rhi::DescriptorType::Combined_Image_Sampler);
+        try(swapchainImage->init(context, image, kReverseFormatMap[format], rhi::ImageType::IMAGE_2D,
+                                 rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_DST, 1, 1, 1,
+                                 {extent.width, extent.height, 1}));
         swapchainImages.push_back(swapchainImage);
     }
 

@@ -3,6 +3,7 @@
 #include "commandBuffer.h"
 #include "context.h"
 #include "device.h"
+#include "image.h"
 #include "pendingState.h"
 #include "pipeline.h"
 #include "resources.h"
@@ -17,6 +18,18 @@ VkWriteDescriptorSet Buffer::getWriteDescriptorSet()
     writeDescriptorSet.descriptorType = convertToVkDescriptorType(type);
     writeDescriptorSet.descriptorCount = 1;
     writeDescriptorSet.pBufferInfo = &bufferInfo;
+
+    return writeDescriptorSet;
+}
+
+VkWriteDescriptorSet Image::getWriteDescriptorSet()
+{
+    VkWriteDescriptorSet writeDescriptorSet = {};
+    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSet.dstArrayElement = 0;
+    writeDescriptorSet.descriptorType = convertToVkDescriptorType(type);
+    writeDescriptorSet.descriptorCount = 1;
+    writeDescriptorSet.pImageInfo = &imageInfo;
 
     return writeDescriptorSet;
 }
@@ -95,6 +108,20 @@ void DescriptorSet::terminate(rhi::Context* rhiContext)
 }
 
 // TODO
+/*
+    Sampler = 0,
+    Combined_Image_Sampler = 1,
+    Sampled_Image = 2,
+    Storage_Image = 3,
+    Uniform_Texel_Buffer = 4,
+    Storage_Texel_Buffer = 5,
+    Uniform_Buffer = 6,
+    Storage_Buffer = 7,
+    Uniform_Buffer_Dynamic = 8,
+    Storage_Buffer_Dynamic = 9,
+    Input_Attachment = 10,
+    Acceleration_structure = 11,
+*/
 Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descriptors)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
@@ -109,8 +136,9 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
         switch (type)
         {
         case rhi::DescriptorType::Uniform_Buffer:
+        case rhi::DescriptorType::Storage_Buffer:
         case rhi::DescriptorType::Uniform_Buffer_Dynamic:
-        case rhi::DescriptorType::Storage_Buffer_Dynamic:
+        case rhi::DescriptorType::Storage_Buffer_Dynamic: {
             Buffer* buffer = reinterpret_cast<Buffer*>(descriptor);
             writeDescriptorSets.push_back(buffer->getWriteDescriptorSet());
 
@@ -118,6 +146,16 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
             writeDescriptorSet.dstSet = mHandle;
             writeDescriptorSet.dstBinding = descriptorInfo.getBinding();
             writeDescriptorSet.descriptorCount = 1;
+            break;
+        }
+        case rhi::DescriptorType::Sampler:
+        case rhi::DescriptorType::Combined_Image_Sampler:
+        case rhi::DescriptorType::Sampled_Image:
+        case rhi::DescriptorType::Storage_Image:
+        case rhi::DescriptorType::Uniform_Texel_Buffer:
+        case rhi::DescriptorType::Storage_Texel_Buffer:
+        case rhi::DescriptorType::Input_Attachment:
+        case rhi::DescriptorType::Acceleration_structure:
             break;
         }
     }

@@ -11,6 +11,7 @@ namespace rhi
 {
 class UniformBuffer;
 class DescriptorSet;
+class Texture;
 } // namespace rhi
 
 namespace scene
@@ -27,9 +28,5 @@ class TestScene : public SceneInfo
     void preTerminate(platform::Context* context) override;
 
     void postTerminate(platform::Context* context) override;
-
-  public:
-    model::VertexInput* quad;
-    model::Instance* instance;
 };
 } // namespace scene

@@ -1,5 +1,6 @@
 #include "screenPass.h"
 #include "model/instance.h"
+#include "model/object.h"
 #include "model/vertexInput.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
@@ -86,18 +87,29 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
     params.vertexShader = &triangleVertexShader;
     params.pixelShader = &trianglePixelShader;
     params.globalDescriptor = sceneInfo->getView()->getDescriptorSet();
-    params.localDescriptor = testScene->instance->getDescriptorSet();
 
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.shaderParameters = &params;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
-    context->createGfxPipeline(graphicsPipelineState);
 
-    sceneInfo->getView()->getDescriptorSet()->bind(context, 0);
-    testScene->instance->getDescriptorSet()->bind(context, 1);
-    testScene->quad->draw(context);
+    for (auto& model : testScene->getModels())
+    {
+        for (auto& instance : model->getInstances())
+        {
+            params.localDescriptor = instance->getDescriptorSet();
+            context->createGfxPipeline(graphicsPipelineState);
+
+            sceneInfo->getView()->getDescriptorSet()->bind(context, 0);
+            instance->getDescriptorSet()->bind(context, 1);
+
+            model->draw(context);
+            instance->draw(context);
+
+            // testScene->quad->draw(context);
+        }
+    }
 
     try(context->endRenderpass());
 

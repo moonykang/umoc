@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "model/object.h"
 #include "view.h"
 
 namespace scene
@@ -21,11 +22,16 @@ void SceneInfo::terminate(platform::Context* context)
 
     TERMINATE(view, context);
 
+    for (auto& model : models)
+    {
+        TERMINATE(model, context);
+    }
+
     postTerminate(context);
 }
 
-model::VertexInput* SceneInfo::registerObject(platform::Context* context, model::VertexInput* object)
+void SceneInfo::registerObject(platform::Context* context, model::Object* object)
 {
-    return nullptr;
+    models.push_back(object);
 }
 } // namespace scene

@@ -227,13 +227,13 @@ std::vector<VkVertexInputAttributeDescription> generateVertexInputDescription(
     if ((vertexChannelFlags & rhi::VertexChannel::Tangent) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, tangent)});
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, tangent)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Bitangent) != 0)
     {
         vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, tangent)});
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, tangent)});
     }
 
     if ((vertexChannelFlags & rhi::VertexChannel::Joint0) != 0)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/transform.h"
+#include "common/tree.h"
 #include "common/util.h"
 #include <mutex>
 #include <vector>
@@ -19,15 +20,17 @@ class Context;
 
 namespace model
 {
-class VertexInput;
+class Object;
+
 class Instance
 {
   public:
-    Instance();
+    Instance(Object* object, Instance* instance, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
+             uint32_t vertexCount, glm::mat4 transform);
 
     virtual ~Instance() = default;
 
-    Result init(platform::Context* context, VertexInput* vertexInput);
+    Result init(platform::Context* context);
 
     void terminate(platform::Context* context);
 
@@ -38,7 +41,17 @@ class Instance
 
     Result updateUniformBuffer(platform::Context* context);
 
+    void draw(platform::Context* context);
+
   private:
+    Object* object;
+    Instance* prevInstance;
+
+    uint32_t firstIndex;
+    uint32_t indexCount;
+    uint32_t firstVertex;
+    uint32_t vertexCount;
+
     struct UniformBufferObject
     {
         glm::mat4 transform;
@@ -48,7 +61,6 @@ class Instance
 
     rhi::UniformBuffer* uniformBuffer;
     rhi::DescriptorSet* descriptorSet;
-    VertexInput* vertexInput;
 
     std::mutex mutex;
     bool initialized;

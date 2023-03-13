@@ -23,11 +23,13 @@ class VertexInput
 
     virtual ~VertexInput() = default;
 
-    virtual Result load(platform::Context* context, rhi::VertexChannelFlags vertexChannels) = 0;
-
     void terminate(platform::Context* context);
 
-    virtual void draw(rhi::Context* context) = 0;
+    Result loadVertexBuffer(platform::Context* context, std::vector<rhi::Vertex>& vertices);
+
+    Result loadIndexBuffer(platform::Context* context, std::vector<uint32_t>& indices);
+
+    void bind(platform::Context* context);
 
   protected:
     rhi::VertexBuffer* vertexBuffer;

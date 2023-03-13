@@ -10,7 +10,7 @@ class Context;
 
 namespace model
 {
-class VertexInput;
+class Object;
 }
 
 namespace scene
@@ -37,7 +37,7 @@ class SceneInfo
 
     virtual void postTerminate(platform::Context* context) = 0;
 
-    std::vector<model::VertexInput*>& getModels()
+    std::vector<model::Object*>& getModels()
     {
         return models;
     }
@@ -48,10 +48,10 @@ class SceneInfo
     }
 
   protected:
-    model::VertexInput* registerObject(platform::Context* context, model::VertexInput* object);
+    void registerObject(platform::Context* context, model::Object* object);
 
   protected:
-    std::vector<model::VertexInput*> models;
+    std::vector<model::Object*> models;
     View* view;
 };
 } // namespace scene

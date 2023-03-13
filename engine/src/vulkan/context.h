@@ -66,6 +66,8 @@ class Context : public rhi::Context
     rhi::Buffer* allocateBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
                                 rhi::MemoryPropertyFlags memoryProperty, size_t size) override;
 
+    rhi::Image* allocateImage(rhi::DescriptorType descriptorType) override;
+
     rhi::DescriptorSet* allocateDescriptorSet() override;
 
   public:

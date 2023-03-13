@@ -21,7 +21,7 @@ class Framebuffer final : public WrappedObject<Framebuffer, VkFramebuffer>
 
     bool match(size_t hash);
 
-    inline VkExtent3D getExtent() 
+    inline rhi::Extent3D getExtent()
     {
         return extent;
     }
@@ -31,6 +31,6 @@ class Framebuffer final : public WrappedObject<Framebuffer, VkFramebuffer>
 
   private:
     size_t framebufferHash;
-    VkExtent3D extent;
+    rhi::Extent3D extent;
 };
 } // namespace vk

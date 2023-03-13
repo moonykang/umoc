@@ -8,19 +8,20 @@
 
 namespace model
 {
-Instance::Instance() : vertexInput(nullptr), uniformBuffer(nullptr), initialized(false)
+Instance::Instance(Object* object, Instance* instance, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
+                   uint32_t vertexCount, glm::mat4 transform)
+    : object(object), prevInstance(instance), firstIndex(firstIndex), indexCount(indexCount), firstVertex(firstVertex),
+      vertexCount(vertexCount), ubo({transform}), uniformBuffer(nullptr), descriptorSet(nullptr), initialized(false)
 {
 }
 
-Result Instance::init(platform::Context* platformContext, VertexInput* vertexInput)
+Result Instance::init(platform::Context* platformContext)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
     if (!initialized)
     {
         rhi::Context* context = platformContext->getRHI();
-
-        this->vertexInput = vertexInput;
 
         uniformBuffer = context->allocateUniformBuffer(sizeof(UniformBufferObject), &ubo);
 
@@ -42,8 +43,11 @@ void Instance::terminate(platform::Context* platformContext)
 
     TERMINATE(descriptorSet, context);
 
-    uniformBuffer = nullptr;
-    vertexInput = nullptr;
+    RELEASE(object);
+    RELEASE(uniformBuffer);
+
+    TERMINATE(prevInstance, platformContext);
+
     initialized = false;
 }
 
@@ -63,5 +67,17 @@ Result Instance::updateUniformBuffer(platform::Context* platformContext)
     }
 
     return Result::Continue;
+}
+
+void Instance::draw(platform::Context* platformContext)
+{
+    rhi::Context* context = platformContext->getRHI();
+
+    context->drawIndexed(indexCount, 1, firstIndex, 0, 0);
+
+    if (prevInstance != nullptr)
+    {
+        prevInstance->draw(context);
+    }
 }
 } // namespace model

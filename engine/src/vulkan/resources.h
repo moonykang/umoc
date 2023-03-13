@@ -320,3 +320,19 @@ inline VkDescriptorType convertToVkDescriptorType(rhi::DescriptorType descriptor
         return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     }
 }
+
+inline VkImageType convertToVkImageType(rhi::ImageType imageType)
+{
+    switch (imageType)
+    {
+    case rhi::ImageType::IMAGE_1D:
+        return VK_IMAGE_TYPE_1D;
+    case rhi::ImageType::IMAGE_2D:
+        return VK_IMAGE_TYPE_2D;
+    case rhi::ImageType::IMAGE_3D:
+        return VK_IMAGE_TYPE_3D;
+    default:
+        UNREACHABLE();
+        return VK_IMAGE_TYPE_1D;
+    }
+}

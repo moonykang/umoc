@@ -131,7 +131,7 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
         clearValues.push_back(clearValue);
     }
 
-    VkExtent3D frameBufferExtent = framebuffer->getExtent();
+    rhi::Extent3D frameBufferExtent = framebuffer->getExtent();
 
     VkRenderPassBeginInfo renderpassBeginInfo = {};
     renderpassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

@@ -41,7 +41,7 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
   private:
     VkResult create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
 
-    Result setupSwapchainImages(Context* context, Format format, VkExtent2D extent);
+    Result setupSwapchainImages(Context* context, VkFormat format, VkExtent2D extent);
 
     void releaseSwapchainImages(Context* context);
 

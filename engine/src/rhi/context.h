@@ -65,6 +65,8 @@ class Context : public platform::Context
     virtual Buffer* allocateBuffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage,
                                    MemoryPropertyFlags memoryProperty, size_t size) = 0;
 
+    virtual Image* allocateImage(DescriptorType descriptorType) = 0;
+
     virtual DescriptorSet* allocateDescriptorSet() = 0;
 
   private:

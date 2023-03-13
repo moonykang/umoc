@@ -2,8 +2,8 @@
 
 #include "external.h"
 #include "log.h"
-#include <vector>
 #include <stdint.h>
+#include <vector>
 
 class NonCopyable
 {
@@ -111,13 +111,22 @@ template <typename DerivedT, typename HandleT> class WrappedObjectList : NonCopy
     std::vector<HandleT> mList;
 };
 
-#define TERMINATE(obj, ...)                                                                                               \
+#define DELETE(obj)                                                                                                    \
+    if (obj)                                                                                                           \
+    {                                                                                                                  \
+        delete obj;                                                                                                    \
+        obj = nullptr;                                                                                                 \
+    }
+
+#define TERMINATE(obj, ...)                                                                                            \
     if (obj)                                                                                                           \
     {                                                                                                                  \
         obj->terminate(__VA_ARGS__);                                                                                   \
         delete obj;                                                                                                    \
         obj = nullptr;                                                                                                 \
     }
+
+#define RELEASE(obj) obj = nullptr;
 
 enum class Result
 {
@@ -130,4 +139,10 @@ enum class Result
     {                                                                                                                  \
         LOGE("Failed to call: {" #expr "}");                                                                           \
         return Result::Fail;                                                                                           \
+    }
+
+#define try_call(expr)                                                                                                 \
+    if ((expr) == Result::Fail)                                                                                        \
+    {                                                                                                                  \
+        LOGE("Failed to call: {" #expr "}");                                                                           \
     }

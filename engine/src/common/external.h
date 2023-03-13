@@ -16,3 +16,9 @@
 #endif
 
 #include <GLFW/glfw3native.h>
+
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+#ifdef PLATFORM_ANDROID
+#define TINYGLTF_ANDROID_LOAD_FROM_ASSETS
+#endif
+#include "tiny_gltf.h"

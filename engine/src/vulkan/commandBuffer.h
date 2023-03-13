@@ -96,6 +96,12 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         vkCmdCopyBuffer(mHandle, srcBuffer, dstBuffer, 1, &copyRegion);
     }
 
+    inline void copyBufferToImage(VkBuffer srcBuffer, VkImage dstImage, const VkBufferImageCopy& copyRegion)
+    {
+        ASSERT(valid());
+        vkCmdCopyBufferToImage(mHandle, srcBuffer, dstImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
+    }
+
     inline void bindVertexBuffers(VkBuffer buffer, VkDeviceSize offset)
     {
         ASSERT(valid());

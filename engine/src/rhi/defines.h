@@ -328,7 +328,8 @@ class Vertex
     glm::vec4 color;
     glm::vec4 joint0;
     glm::vec4 weight0;
-    glm::vec4 tangent;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
 };
 
 using ShaderStageFlags = uint32_t;
@@ -480,5 +481,63 @@ class DescriptorSetType
 
   private:
     Value value;
+};
+
+using ImageUsageFlags = uint32_t;
+class ImageUsage
+{
+  public:
+    enum Value : uint32_t
+    {
+        NONE = 0,
+        TRANSFER_SRC = 0x00000001,
+        TRANSFER_DST = 0x00000002,
+        SAMPLED = 0x00000004,
+        STORAGE = 0x00000008,
+        COLOR_ATTACHMENT = 0x00000010,
+        DEPTH_STENCIL_ATTACHMENT = 0x00000020,
+        TRANSIENT_ATTACHMENT = 0x00000040,
+        INPUT_ATTACHMENT = 0x00000080,
+        FRAGMENT_DENSITY_MAP = 0x00000200,
+        FRAGMENT_SHADING_RATE_ATTACHMENT = 0x00000100,
+        ATTACHMENT_FEEDBACK_LOOP = 0x00080000,
+        INVOCATION_MASK = 0x00040000,
+        SAMPLE_WEIGHT = 0x00100000,
+        SAMPLE_BLOCK_MATCH = 0x00200000,
+    };
+
+    ImageUsage() = default;
+
+    constexpr ImageUsage(Value value) : value(value)
+    {
+    }
+
+    constexpr ImageUsageFlags operator|(ImageUsage& other) const
+    {
+        return value | other.value;
+    }
+
+  private:
+    Value value;
+};
+
+enum class ImageType
+{
+    IMAGE_1D = 0,
+    IMAGE_2D = 1,
+    IMAGE_3D = 2
+};
+
+struct Extent2D
+{
+    uint32_t width;
+    uint32_t height;
+};
+
+struct Extent3D
+{
+    uint32_t width;
+    uint32_t height;
+    uint32_t depth;
 };
 } // namespace rhi
