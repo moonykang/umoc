@@ -8,7 +8,7 @@
 namespace model
 {
 Material::MaterialUniformBlock::MaterialUniformBlock()
-    : alphaMode(AlphaMode::OPAQUE), materialFactors(glm::vec4(1.f)), baseColorFactor(glm::vec4(1.f))
+    : alphaMode(AlphaMode::Opaque), materialFactors(glm::vec4(1.f)), baseColorFactor(glm::vec4(1.f))
 {
 }
 

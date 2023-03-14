@@ -25,7 +25,11 @@ Node::Node(Node* parent)
 
 void Node::terminate()
 {
-    DELETE(mesh);
+    if (mesh)
+    {
+        delete mesh;
+        mesh = nullptr;
+    }
 
     for (auto& child : children)
     {

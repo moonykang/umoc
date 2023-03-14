@@ -129,6 +129,9 @@ inline VkCompareOp convertToVkCompareOp(rhi::CompareOp sompareOp)
         return VK_COMPARE_OP_GREATER_OR_EQUAL;
     case rhi::CompareOp::ALWAYS:
         return VK_COMPARE_OP_ALWAYS;
+    default:
+        UNREACHABLE();
+        return VK_COMPARE_OP_NEVER;
     }
 }
 
@@ -152,6 +155,9 @@ inline VkStencilOp convertToVkStencilOp(rhi::StencilOp stencilOp)
         return VK_STENCIL_OP_INCREMENT_AND_WRAP;
     case rhi::StencilOp::DECREMENT_AND_WRAP:
         return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+    default:
+        UNREACHABLE();
+        return VK_STENCIL_OP_KEEP;
     }
 }
 
@@ -197,6 +203,9 @@ inline VkBlendFactor convertToVkBlendFactor(rhi::BlendFactor blendFactor)
         return VK_BLEND_FACTOR_SRC1_ALPHA;
     case rhi::BlendFactor::ONE_MINUS_SRC1_ALPHA:
         return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+    default:
+        UNREACHABLE();
+        return VK_BLEND_FACTOR_ZERO;
     }
 }
 
@@ -214,27 +223,12 @@ inline VkBlendOp convertToVkBlendFOp(rhi::BlendOp blendOp)
         return VK_BLEND_OP_MIN;
     case rhi::BlendOp::MAX:
         return VK_BLEND_OP_MAX;
+    default:
+        UNREACHABLE();
+        return VK_BLEND_OP_ADD;
     }
 }
-/*
-typedef enum VkLogicOp {
-    VK_LOGIC_OP_CLEAR = 0,
-    VK_LOGIC_OP_AND = 1,
-    VK_LOGIC_OP_AND_REVERSE = 2,
-    VK_LOGIC_OP_COPY = 3,
-    VK_LOGIC_OP_AND_INVERTED = 4,
-    VK_LOGIC_OP_NO_OP = 5,
-    VK_LOGIC_OP_XOR = 6,
-    VK_LOGIC_OP_OR = 7,
-    VK_LOGIC_OP_NOR = 8,
-    VK_LOGIC_OP_EQUIVALENT = 9,
-    VK_LOGIC_OP_INVERT = 10,
-    VK_LOGIC_OP_OR_REVERSE = 11,
-    VK_LOGIC_OP_COPY_INVERTED = 12,
-    VK_LOGIC_OP_OR_INVERTED = 13,
-    VK_LOGIC_OP_NAND = 14,
-    VK_LOGIC_OP_SET = 15,
-*/
+
 inline VkLogicOp convertToVkLogicOp(rhi::LogicOp logicOp)
 {
     switch (logicOp)
@@ -271,6 +265,9 @@ inline VkLogicOp convertToVkLogicOp(rhi::LogicOp logicOp)
         return VK_LOGIC_OP_NAND;
     case rhi::LogicOp::SET:
         return VK_LOGIC_OP_SET;
+    default:
+        UNREACHABLE();
+        return VK_LOGIC_OP_CLEAR;
     }
 }
 

@@ -111,13 +111,6 @@ template <typename DerivedT, typename HandleT> class WrappedObjectList : NonCopy
     std::vector<HandleT> mList;
 };
 
-#define DELETE(obj)                                                                                                    \
-    if (obj)                                                                                                           \
-    {                                                                                                                  \
-        delete obj;                                                                                                    \
-        obj = nullptr;                                                                                                 \
-    }
-
 #define TERMINATE(obj, ...)                                                                                            \
     if (obj)                                                                                                           \
     {                                                                                                                  \

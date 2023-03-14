@@ -73,10 +73,11 @@ class GltfLoadingFlag
     Value value;
 };
 
-enum class AlphaMode
+enum AlphaMode
 {
-    OPAQUE,
-    MASK,
-    BLEND
+    Mask,
+    Blend,
+    Opaque,
 };
+
 } // namespace model

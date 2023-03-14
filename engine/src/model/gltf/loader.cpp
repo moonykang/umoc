@@ -167,11 +167,11 @@ Result Loader::loadMaterials(platform::Context* context, Object* object)
             tinygltf::Parameter param = mat.additionalValues["alphaMode"];
             if (param.string_value == "BLEND")
             {
-                material->setAlphaMode(AlphaMode::BLEND);
+                material->setAlphaMode(AlphaMode::Blend);
             }
             if (param.string_value == "MASK")
             {
-                material->setAlphaMode(AlphaMode::MASK);
+                material->setAlphaMode(AlphaMode::Mask);
             }
         }
 
