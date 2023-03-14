@@ -94,7 +94,7 @@ Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent3D& extent
         ktxTexture_CreateFromNamedFile(filename.c_str(), KTX_TEXTURE_CREATE_LOAD_IMAGE_DATA_BIT, &ktxTexture);
 
     ASSERT(result == KTX_SUCCESS);
-    ktx_size_t ktxSize = ktxTexture_GetDataSize(ktxTexture);
+    ktx_size_t ktxSize = ktxTexture_GetSize(ktxTexture);
     ktx_uint8_t* ktxImage = ktxTexture_GetData(ktxTexture);
 
     extent.width = static_cast<uint32_t>(ktxTexture->baseWidth);
