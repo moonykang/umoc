@@ -37,4 +37,4 @@ android/app/assets
 .svace-dir
 output
 
-external
+.DS_Store
