@@ -17,7 +17,8 @@ class MaterialFlag
         OcclusionTexture = 0x00000008,
         EmissiveTexture = 0x00000010,
         SpecularGlossinessTexture = 0x00000020,
-        DiffuseTexture = 0x00000040
+        DiffuseTexture = 0x00000040,
+        All = 0xFFFFFFFF
     };
 
     MaterialFlag() = default;

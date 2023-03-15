@@ -53,10 +53,9 @@ Object* Loader::load(platform::Context* platformContext)
 
     std::string error, warning;
 
-    std::string gltfFileName = path + fileName;
+    std::string gltfFileName = platformContext->getAssetManager()->getAssetPath() + "/" + path + fileName;
 
-    bool fileLoaded = gltfContext.LoadASCIIFromFile(
-        &gltfModel, &error, &warning, platformContext->getAssetManager()->getAssetPath() + "/" + gltfFileName);
+    bool fileLoaded = gltfContext.LoadASCIIFromFile(&gltfModel, &error, &warning, gltfFileName);
 
     ASSERT(fileLoaded);
 

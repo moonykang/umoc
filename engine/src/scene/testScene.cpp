@@ -20,10 +20,13 @@ Result TestScene::postInit(platform::Context* context)
 
 Result TestScene::load(platform::Context* context)
 {
-    auto loader = model::gltf::Loader::Builder().setPath("").setFileName("sphere.gltf").build();
+    auto loader = model::gltf::Loader::Builder()
+                      .setPath("sponza/")
+                      .setFileName("sponza.gltf")
+                      .setMaterialFlags(model::MaterialFlag::BaseColorTexture)
+                      .build();
 
-    // model::predefined::Loader predefinedLoader;
-    model::Object* object = loader->load(context); // predefinedLoader.load(context);
+    model::Object* object = loader->load(context);
     registerObject(context, object);
 
     object->instantiate(context, glm::mat4(1.0f));
