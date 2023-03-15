@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model/loader.h"
+#include <memory>
 
 namespace platform
 {
@@ -25,7 +26,7 @@ class Loader : public model::Loader
 
         Builder& setMaterialFlags(MaterialFlags materialFlags);
 
-        Loader* build();
+        std::shared_ptr<Loader> build();
 
       private:
         std::string path;

@@ -1,5 +1,6 @@
 #include "testScene.h"
 #include "common/util.h"
+#include "model/gltf/loader.h"
 #include "model/instance.h"
 #include "model/object.h"
 #include "model/predefined/loader.h"
@@ -19,8 +20,10 @@ Result TestScene::postInit(platform::Context* context)
 
 Result TestScene::load(platform::Context* context)
 {
-    model::predefined::Loader predefinedLoader;
-    model::Object* object = predefinedLoader.load(context);
+    auto loader = model::gltf::Loader::Builder().setPath("").setFileName("sphere.gltf").build();
+
+    // model::predefined::Loader predefinedLoader;
+    model::Object* object = loader->load(context); // predefinedLoader.load(context);
     registerObject(context, object);
 
     object->instantiate(context, glm::mat4(1.0f));

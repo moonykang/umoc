@@ -3,6 +3,7 @@
 #include "model/material.h"
 #include "model/node.h"
 #include "model/object.h"
+#include "model/vertexInput.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/image.h"
@@ -35,9 +36,9 @@ Loader::Builder& Loader::Builder::setMaterialFlags(MaterialFlags materialFlags)
     return *this;
 }
 
-Loader* Loader::Builder::build()
+std::shared_ptr<Loader> Loader::Builder::build()
 {
-    return new Loader(path, fileName, gltfLoadingFlags, materialFlags);
+    return std::make_shared<Loader>(path, fileName, gltfLoadingFlags, materialFlags);
 }
 
 Loader::Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags)
@@ -48,6 +49,7 @@ Loader::Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoad
 Object* Loader::load(platform::Context* platformContext)
 {
     Object* newObject = new Object();
+    try_call(newObject->init(platformContext));
 
     std::string error, warning;
 
@@ -71,6 +73,9 @@ Object* Loader::load(platform::Context* platformContext)
         const tinygltf::Node node = gltfModel.nodes[scene.nodes[i]];
         try_call(loadNode(nullptr, node, scene.nodes[i], 1.f, newObject));
     }
+
+    try_call(newObject->getVertexInput()->loadVertexBuffer(platformContext, vertices));
+    try_call(newObject->getVertexInput()->loadIndexBuffer(platformContext, indices));
 
     return newObject;
 }
