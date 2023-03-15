@@ -48,7 +48,7 @@ Object* Loader::load(platform::Context* context)
     }
 
     const uint32_t indexCount = 6;
-    std::vector<uint32_t> indices(indexCount);
+    std::vector<uint32_t> indices;
     indices.push_back(0);
     indices.push_back(1);
     indices.push_back(2);
