@@ -50,8 +50,8 @@ Result Asset::loadShader(std::string path, util::MemoryBuffer& buffer)
     return Result::Continue;
 }
 
-Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent3D& extent,
-                    std::vector<std::pair<uint32_t, size_t>>& mipOffsets, util::MemoryBuffer& buffer)
+Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent3D& extent, std::vector<size_t>& mipOffsets,
+                    util::MemoryBuffer& buffer)
 {
     std::string assetPath = std::string(TEXTURE_PATH);
 
@@ -69,7 +69,7 @@ Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent3D& extent
     extent.width = static_cast<uint32_t>(texWidth);
     extent.height = static_cast<uint32_t>(texHeight);
     extent.depth = 1;
-    mipOffsets.push_back(std::make_pair(0, 0));
+    mipOffsets.push_back(0);
 
     size_t fileSize = (extent.width) * (extent.height) * STBI_rgb_alpha;
 
@@ -82,8 +82,8 @@ Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent3D& extent
     return Result::Continue;
 }
 
-Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent3D& extent,
-                    std::vector<std::pair<uint32_t, size_t>>& mipOffsets, util::MemoryBuffer& buffer)
+Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent3D& extent, std::vector<size_t>& mipOffsets,
+                    util::MemoryBuffer& buffer)
 {
     std::string assetPath = std::string(TEXTURE_PATH);
 
@@ -109,7 +109,7 @@ Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent3D& extent
         ktx_size_t offset;
         KTX_error_code result = ktxTexture_GetImageOffset(ktxTexture, i, 0, 0, &offset);
         assert(result == KTX_SUCCESS);
-        mipOffsets.push_back(std::make_pair(i, offset));
+        mipOffsets.push_back(offset);
     }
 
     // TODO
@@ -121,7 +121,7 @@ Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent3D& extent
 }
 
 Result Asset::loadImage(ImageLoader loader, std::string path, rhi::Format& format, rhi::Extent3D& extent,
-                        std::vector<std::pair<uint32_t, size_t>>& mipOffsets, util::MemoryBuffer& buffer)
+                        std::vector<size_t>& mipOffsets, util::MemoryBuffer& buffer)
 {
     switch (loader)
     {

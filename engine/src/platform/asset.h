@@ -22,6 +22,6 @@ class Asset
     virtual Result loadShader(std::string path, util::MemoryBuffer& buffer) = 0;
 
     virtual Result loadImage(ImageLoader loader, std::string path, rhi::Format& format, rhi::Extent3D& extent,
-                             std::vector<std::pair<uint32_t, size_t>>& mipOffsets, util::MemoryBuffer& buffer) = 0;
+                             std::vector<size_t>& mipOffsets, util::MemoryBuffer& buffer) = 0;
 };
 } // namespace platform

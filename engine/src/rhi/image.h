@@ -19,7 +19,7 @@ class Image : public Descriptor
                         MemoryPropertyFlags memoryProperty, uint32_t mipLevels, uint32_t layers, uint32_t samples,
                         Extent3D extent) = 0;
 
-    virtual Result update(Context* context, size_t size, void* data) = 0;
+    virtual Result update(Context* context, size_t size, void* data, std::vector<size_t>& mipOffsets) = 0;
 
     virtual void terminate(Context* context) = 0;
 

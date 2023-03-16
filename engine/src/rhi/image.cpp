@@ -19,7 +19,7 @@ Result Texture::init(Context* context, std::string path, platform::ImageLoader i
 {
     rhi::Extent3D extent;
     util::MemoryBuffer buffer;
-    std::vector<std::pair<uint32_t, size_t>> mipOffsets;
+    std::vector<size_t> mipOffsets;
     rhi::Format format;
 
     try(context->getAssetManager()->loadImage(imageLoader, path, format, extent, mipOffsets, buffer));
@@ -29,7 +29,7 @@ Result Texture::init(Context* context, std::string path, platform::ImageLoader i
     try(image->init(context, format, rhi::ImageType::IMAGE_2D, rhi::ImageUsage::SAMPLED | rhi::ImageUsage::TRANSFER_DST,
                     rhi::MemoryProperty::DEVICE_LOCAL, extent.depth, 1, 1, {extent.width, extent.height, 1}));
 
-    try(image->update(context, buffer.size(), buffer.data()));
+    try(image->update(context, buffer.size(), buffer.data(), mipOffsets));
 
     return Result::Continue;
 }

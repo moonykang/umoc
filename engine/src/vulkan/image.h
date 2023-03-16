@@ -59,7 +59,7 @@ class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
 
     void release(Context* context); // Only for swapchain images
 
-    Result update(rhi::Context* context, size_t size, void* data) override;
+    Result update(rhi::Context* context, size_t size, void* data, std::vector<size_t>& mipOffsets) override;
 
     Result copy(Context* context, RealBuffer* srcBuffer, VkExtent3D extent, uint32_t mipLevel, uint32_t layer,
                 size_t offset);

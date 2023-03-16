@@ -177,7 +177,7 @@ void Image::release(Context* context)
     mHandle = VK_NULL_HANDLE;
 }
 
-Result Image::update(rhi::Context* rhiContext, size_t size, void* data)
+Result Image::update(rhi::Context* rhiContext, size_t size, void* data, std::vector<size_t>& mipOffsets)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
 
@@ -195,14 +195,16 @@ Result Image::update(rhi::Context* rhiContext, size_t size, void* data)
         commandBuffer->flushTransitions();
 
         uint32_t mipLevel = 0;
-        size_t bufferOffset = 0;
 
-        VkExtent3D copyExtent;
-        copyExtent.width = extent.width >> mipLevel;
-        copyExtent.height = extent.height >> mipLevel;
-        copyExtent.depth = extent.depth;
+        for (auto& offset : mipOffsets)
+        {
+            VkExtent3D copyExtent;
+            copyExtent.width = extent.width >> mipLevel;
+            copyExtent.height = extent.height >> mipLevel;
+            copyExtent.depth = extent.depth;
 
-        try(copy(context, stagingBuffer, copyExtent, mipLevel, 0, bufferOffset));
+            try(copy(context, stagingBuffer, copyExtent, mipLevel++, 0, offset));
+        }
 
         commandBuffer->addTransition(updateImageLayoutAndBarrier(rhi::ImageLayout::FragmentShaderReadOnly));
     }
