@@ -15,14 +15,14 @@ Texture::Texture() : image(nullptr)
 {
 }
 
-Result Texture::init(Context* context, std::string path)
+Result Texture::init(Context* context, std::string path, platform::ImageLoader imageLoader)
 {
     rhi::Extent3D extent;
     util::MemoryBuffer buffer;
     std::vector<std::pair<uint32_t, size_t>> mipOffsets;
     rhi::Format format;
 
-    try(context->getAssetManager()->loadImage(platform::ImageLoader::STB, path, format, extent, mipOffsets, buffer));
+    try(context->getAssetManager()->loadImage(imageLoader, path, format, extent, mipOffsets, buffer));
 
     image = context->allocateImage(rhi::DescriptorType::Combined_Image_Sampler);
 

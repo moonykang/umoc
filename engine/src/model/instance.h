@@ -21,12 +21,13 @@ class Context;
 namespace model
 {
 class Object;
+class Material;
 
 class Instance
 {
   public:
-    Instance(Object* object, Instance* instance, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
-             uint32_t vertexCount, glm::mat4 transform);
+    Instance(Object* object, Instance* instance, Material* material, uint32_t firstIndex, uint32_t indexCount,
+             uint32_t firstVertex, uint32_t vertexCount, glm::mat4 transform);
 
     virtual ~Instance() = default;
 
@@ -43,8 +44,11 @@ class Instance
 
     void draw(platform::Context* context);
 
+    Material* getMaterial();
+
   private:
     Object* object;
+    Material* material;
     Instance* prevInstance;
 
     uint32_t firstIndex;

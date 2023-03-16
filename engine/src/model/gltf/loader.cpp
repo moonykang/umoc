@@ -4,6 +4,7 @@
 #include "model/node.h"
 #include "model/object.h"
 #include "model/vertexInput.h"
+#include "platform/defines.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/image.h"
@@ -12,6 +13,13 @@ namespace model
 {
 namespace gltf
 {
+bool loadImageDataFuncEmpty(tinygltf::Image* image, const int imageIndex, std::string* error, std::string* warning,
+                            int req_width, int req_height, const unsigned char* bytes, int size, void* userData)
+{
+    // This function will be used for samples that don't require images to be loaded
+    return true;
+}
+
 Loader::Builder& Loader::Builder::setPath(std::string path)
 {
     this->path = path;
@@ -51,6 +59,7 @@ Object* Loader::load(platform::Context* platformContext)
     Object* newObject = new Object();
     try_call(newObject->init(platformContext));
 
+    gltfContext.SetImageLoader(loadImageDataFuncEmpty, nullptr);
     std::string error, warning;
 
     std::string gltfFileName = platformContext->getAssetManager()->getAssetPath() + "/" + path + fileName;
@@ -97,7 +106,7 @@ Result Loader::loadTextures(platform::Context* platformContext, Object* object)
         if (isKtx)
         {
             rhi::Texture* texture = new rhi::Texture();
-            try(texture->init(context, path + image.uri));
+            try(texture->init(context, path + image.uri, platform::ImageLoader::KTX));
 
             object->addTexture(texture);
         }

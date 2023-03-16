@@ -1,5 +1,6 @@
 #include "screenPass.h"
 #include "model/instance.h"
+#include "model/material.h"
 #include "model/object.h"
 #include "model/vertexInput.h"
 #include "rhi/buffer.h"
@@ -28,7 +29,8 @@ class TriangleVertexShader : public rhi::VertexShaderBase
 {
   public:
     TriangleVertexShader()
-        : rhi::VertexShaderBase("triangle.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Color)
+        : rhi::VertexShaderBase("triangle.vert.spv",
+                                rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal)
     {
     }
 };
@@ -44,16 +46,18 @@ class TriangleFragmentShader : public rhi::PixelShaderBase
 class TriangleShaderParameters : public rhi::ShaderParameters
 {
   public:
-    TriangleShaderParameters() : ShaderParameters(), globalDescriptor(nullptr), localDescriptor(nullptr)
+    TriangleShaderParameters()
+        : ShaderParameters(), globalDescriptor(nullptr), localDescriptor(nullptr), materialDescriptor(nullptr)
     {
     }
 
     std::vector<rhi::DescriptorSet*> getDescriptorSets() override
     {
-        return {globalDescriptor, localDescriptor};
+        return {globalDescriptor, localDescriptor, materialDescriptor};
     }
     rhi::DescriptorSet* globalDescriptor;
     rhi::DescriptorSet* localDescriptor;
+    rhi::DescriptorSet* materialDescriptor;
 };
 
 TriangleVertexShader triangleVertexShader;
@@ -98,16 +102,18 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
     {
         for (auto& instance : model->getInstances())
         {
+            auto materialDescriptor = instance->getMaterial()->getDescriptorSet();
+
+            params.materialDescriptor = materialDescriptor;
             params.localDescriptor = instance->getDescriptorSet();
             context->createGfxPipeline(graphicsPipelineState);
 
             sceneInfo->getView()->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);
+            materialDescriptor->bind(context, 2);
 
             model->draw(context);
             instance->draw(context);
-
-            // testScene->quad->draw(context);
         }
     }
 

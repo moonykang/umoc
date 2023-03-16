@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/util.h"
+#include "platform/defines.h"
 #include "resources.h"
 #include <string>
 
@@ -37,7 +38,7 @@ class Texture
 
     virtual ~Texture() = default;
 
-    Result init(Context* context, std::string path);
+    Result init(Context* context, std::string path, platform::ImageLoader imageLoader);
 
     void terminate(Context* context);
 

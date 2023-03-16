@@ -118,6 +118,8 @@ Result Material::update(platform::Context* platformContext)
     }
 
     try(descriptorSet->init(context, descriptorInfoList));
+    try(descriptorSet->update(context, descriptorList));
+
     return Result::Continue;
 }
 

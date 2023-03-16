@@ -1,5 +1,6 @@
 #include "instance.h"
 
+#include "material.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
@@ -8,10 +9,11 @@
 
 namespace model
 {
-Instance::Instance(Object* object, Instance* instance, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
-                   uint32_t vertexCount, glm::mat4 transform)
-    : object(object), prevInstance(instance), firstIndex(firstIndex), indexCount(indexCount), firstVertex(firstVertex),
-      vertexCount(vertexCount), ubo({transform}), uniformBuffer(nullptr), descriptorSet(nullptr), initialized(false)
+Instance::Instance(Object* object, Instance* instance, Material* material, uint32_t firstIndex, uint32_t indexCount,
+                   uint32_t firstVertex, uint32_t vertexCount, glm::mat4 transform)
+    : object(object), prevInstance(instance), material(material), firstIndex(firstIndex), indexCount(indexCount),
+      firstVertex(firstVertex), vertexCount(vertexCount), ubo({transform}), uniformBuffer(nullptr),
+      descriptorSet(nullptr), initialized(false)
 {
 }
 
@@ -79,5 +81,10 @@ void Instance::draw(platform::Context* platformContext)
     {
         prevInstance->draw(context);
     }
+}
+
+Material* Instance::getMaterial()
+{
+    return material;
 }
 } // namespace model

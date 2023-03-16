@@ -127,7 +127,7 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
         commandBuffer->addTransition(image->updateImageLayoutAndBarrier(rhi::ImageLayout::ColorAttachment));
 
         VkClearValue clearValue = {};
-        clearValue.color = {0.0f, 0.0f, 0.0f, 0.0f};
+        clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
         clearValues.push_back(clearValue);
     }
 

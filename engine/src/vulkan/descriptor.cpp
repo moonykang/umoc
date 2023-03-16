@@ -156,6 +156,12 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
         case rhi::DescriptorType::Storage_Texel_Buffer:
         case rhi::DescriptorType::Input_Attachment:
         case rhi::DescriptorType::Acceleration_structure:
+            Image* image = reinterpret_cast<Image*>(descriptor);
+            writeDescriptorSets.push_back(image->getWriteDescriptorSet());
+
+            auto& writeDescriptorSet = writeDescriptorSets.back();
+            writeDescriptorSet.dstSet = mHandle;
+            writeDescriptorSet.dstBinding = descriptorInfo.getBinding();
             break;
         }
     }

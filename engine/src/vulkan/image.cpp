@@ -80,6 +80,8 @@ Result Image::init(rhi::Context* rhiContext, rhi::Format format, rhi::ImageType 
     vk_try(bindMemory(context->getDevice()->getHandle()));
 
     VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
+    // TODO
+    /*
     if (extent.depth > 1)
     {
         viewType = VK_IMAGE_VIEW_TYPE_3D;
@@ -87,7 +89,7 @@ Result Image::init(rhi::Context* rhiContext, rhi::Format format, rhi::ImageType 
     else if (layers > 1)
     {
         viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-    }
+    }*/
 
     VkComponentMapping components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
                                      VK_COMPONENT_SWIZZLE_A};
@@ -123,6 +125,9 @@ Result Image::init(Context* context, VkImage image, rhi::Format format, rhi::Ima
     this->mHandle = image;
 
     VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
+
+    // TODO
+    /*
     if (extent.depth > 1)
     {
         viewType = VK_IMAGE_VIEW_TYPE_3D;
@@ -130,7 +135,7 @@ Result Image::init(Context* context, VkImage image, rhi::Format format, rhi::Ima
     else if (layers > 1)
     {
         viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-    }
+    }*/
 
     VkComponentMapping components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
                                      VK_COMPONENT_SWIZZLE_A};
@@ -296,6 +301,8 @@ Result Image::initView(Context* context, VkComponentMapping components, VkImageS
 
     VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
 
+    // TODO
+    /*
     switch (imageType)
     {
     case rhi::ImageType::IMAGE_1D:
@@ -309,7 +316,7 @@ Result Image::initView(Context* context, VkComponentMapping components, VkImageS
         break;
     default:
         UNREACHABLE();
-    }
+    }*/
 
     view = new ImageView();
     return view->init(context, mHandle, {getFormat(), getAspectFlags()}, components, subresourceRange, viewType);

@@ -97,8 +97,9 @@ Instance* Object::instantiate(platform::Context* context, glm::mat4 transform)
 
             for (Primitive* primitive : node->getPrimitives())
             {
-                Instance* newInstance = new Instance(this, prevInstance, primitive->firstIndex, primitive->indexCount,
-                                                     primitive->firstVertex, primitive->vertexCount, localMatrix);
+                Instance* newInstance =
+                    new Instance(this, prevInstance, primitive->material, primitive->firstIndex, primitive->indexCount,
+                                 primitive->firstVertex, primitive->vertexCount, localMatrix);
                 prevInstance = newInstance;
                 try_call(newInstance->init(context));
 
