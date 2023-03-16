@@ -63,6 +63,15 @@ class TriangleShaderParameters : public rhi::ShaderParameters
 TriangleVertexShader triangleVertexShader;
 TriangleFragmentShader trianglePixelShader;
 
+Result ScreenPass::init(platform::Context* context)
+{
+    return Result::Continue;
+}
+
+void ScreenPass::terminate(platform::Context* context)
+{
+}
+
 Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = platformContext->getRHI();

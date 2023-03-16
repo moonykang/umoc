@@ -7,6 +7,11 @@ namespace scene
 class SceneInfo;
 }
 
+namespace renderer
+{
+class BaseRenderPass;
+}
+
 namespace platform
 {
 class Context;
@@ -25,5 +30,6 @@ class Application
 
   private:
     scene::SceneInfo* sceneInfo;
+    renderer::BaseRenderPass* baseRenderpass;
 };
 } // namespace platform
