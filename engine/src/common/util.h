@@ -139,3 +139,11 @@ enum class Result
     {                                                                                                                  \
         LOGE("Failed to call: {" #expr "}");                                                                           \
     }
+
+#if defined(_MSC_VER)
+#define ALIGNED(x) __declspec(align(x))
+#else
+#if defined(__GNUC__) || defined(__clang__)
+#define ALIGNED(x) __attribute__((aligned(x)))
+#endif
+#endif

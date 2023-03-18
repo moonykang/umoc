@@ -40,8 +40,6 @@ void View::setView(glm::vec3 position, glm::vec3 rotation)
 {
     this->position = position;
     this->rotation = rotation;
-
-    updateViewMatrix();
 }
 
 void View::updateView()
@@ -84,12 +82,20 @@ void View::updateView()
 
 void View::updateViewMatrix()
 {
+    LOGD("");
     glm::mat4 rotM = glm::mat4(1.0f);
     rotM = glm::rotate(rotM, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     rotM = glm::rotate(rotM, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     rotM = glm::rotate(rotM, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    ubo.view = rotM * glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 view = rotM * glm::translate(glm::mat4(1.0f), position);
+
+    ubo.view_inverse = glm::inverse(view);
+    ubo.proj_inverse = glm::inverse(projection);
+    ubo.view_proj = projection * view;
+    ubo.view_proj_inverse = glm::inverse(ubo.view_proj);
+    ubo.prev_view_proj = glm::mat4(1.f);
+    ubo.view_pos = glm::vec4(position, 1.f);
 
     {
         std::lock_guard<std::mutex> lock(mutex);
@@ -99,8 +105,8 @@ void View::updateViewMatrix()
 
 void View::setPerspective(float fov, float ratio, float minDepth, float maxDepth)
 {
-    ubo.perspective = glm::perspective(glm::radians(fov), ratio, minDepth, maxDepth);
-    ubo.perspective[1][1] *= -1;
+    projection = glm::perspective(glm::radians(fov), ratio, minDepth, maxDepth);
+    projection[1][1] *= -1;
 
     // lock
     {

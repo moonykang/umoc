@@ -33,6 +33,7 @@ Result TestScene::load(platform::Context* context)
 
     view->setView(glm::vec3(1.0f, 0.75f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 10.f);
+    view->updateViewMatrix();
 
     try(view->updateUniformBuffer(context));
     try(view->updateDescriptor(context));

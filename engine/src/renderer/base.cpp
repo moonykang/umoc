@@ -1,4 +1,5 @@
 #include "base.h"
+#include "forward.h"
 #include "platform/context.h"
 #include "rhi/context.h"
 #include "rhi/rendertarget.h"
@@ -9,10 +10,11 @@ namespace renderer
 {
 Result BaseRenderPass::init(platform::Context* context)
 {
-    passes.push_back(new ScreenPass());
+    passes.push_back(new Forward());
 
     for (auto& pass : passes)
     {
+        try(pass->init(context));
         // delete pass;
     }
 

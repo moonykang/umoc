@@ -51,8 +51,18 @@ class View
     bool dirty;
     struct UniformBufferObject
     {
-        glm::mat4 view;
-        glm::mat4 perspective;
+        ALIGNED(16)
+        glm::mat4 view_inverse;
+        ALIGNED(16)
+        glm::mat4 proj_inverse;
+        ALIGNED(16)
+        glm::mat4 view_proj_inverse;
+        ALIGNED(16)
+        glm::mat4 prev_view_proj;
+        ALIGNED(16)
+        glm::mat4 view_proj;
+        ALIGNED(16)
+        glm::vec4 view_pos;
     } ubo;
 
     rhi::UniformBuffer* uniformBuffer;
@@ -63,6 +73,7 @@ class View
     // input
     glm::vec3 position;
     glm::vec3 rotation;
+    glm::mat4 projection;
 
   public:
     void handle_key_W(bool pressed);
