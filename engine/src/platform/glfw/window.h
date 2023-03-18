@@ -17,10 +17,12 @@ class Window : public platform::Window
 
     bool valid() override;
 
+    platform::Input* getInput() override;
+
     GLFWwindow* getWindow();
 
   private:
     GLFWwindow* window;
 };
-} // namespace mac
+} // namespace glfw
 } // namespace platform

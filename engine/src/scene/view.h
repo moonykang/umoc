@@ -32,11 +32,19 @@ class View
         return descriptorSet;
     }
 
-    void setView(glm::vec3 position, glm::vec3 lookAt, glm::vec3 headUp);
+    void setView(glm::vec3 position, glm::vec3 rotation);
+
+    void updateView();
+
+    void updateViewMatrix();
 
     void setPerspective(float fov, float ratio, float minDepth, float maxDepth);
 
     Result updateUniformBuffer(platform::Context* context);
+
+    Result updateDescriptor(platform::Context* context);
+
+    void rotate(glm::vec3 delta);
 
   private:
     std::mutex mutex;
@@ -51,5 +59,40 @@ class View
     rhi::DescriptorSet* descriptorSet;
 
     static constexpr size_t uniformDataSize = sizeof(UniformBufferObject);
+
+    // input
+    glm::vec3 position;
+    glm::vec3 rotation;
+
+  public:
+    void handle_key_W(bool pressed);
+    void handle_key_S(bool pressed);
+    void handle_key_A(bool pressed);
+    void handle_key_D(bool pressed);
+
+    void handle_mouse_move(float x, float y);
+    void handle_mouse_LB(bool pressed);
+
+  private:
+    struct
+    {
+        bool left = false;
+        bool right = false;
+        bool up = false;
+        bool down = false;
+
+        bool any()
+        {
+            return left || right || up || down;
+        }
+    } keyInput;
+
+    glm::vec2 mouseCursorPos;
+    struct
+    {
+        bool left = false;
+        bool right = false;
+        bool middle = false;
+    } mouseButtonInput;
 };
 } // namespace scene

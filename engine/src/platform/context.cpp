@@ -43,4 +43,9 @@ Asset* Context::getAssetManager()
     ASSERT(asset);
     return asset;
 }
+
+Window* Context::getWindow()
+{
+    return window;
+}
 } // namespace platform

@@ -21,7 +21,7 @@ Result BaseRenderPass::init(platform::Context* context)
 
 void BaseRenderPass::terminate(platform::Context* context)
 {
-    for (auto& pass : passes)
+    for (auto pass : passes)
     {
         delete pass;
     }
@@ -31,6 +31,9 @@ void BaseRenderPass::terminate(platform::Context* context)
 Result BaseRenderPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
+
+    // scene update
+    try(sceneInfo->udpate(platformContext));
 
     for (auto& pass : passes)
     {

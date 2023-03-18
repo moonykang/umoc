@@ -17,6 +17,8 @@ namespace renderer
 class Base
 {
   public:
+    virtual ~Base() = default;
+
     virtual Result init(platform::Context* context) = 0;
 
     virtual void terminate(platform::Context* context) = 0;

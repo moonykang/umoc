@@ -1,4 +1,5 @@
 #include "platform/glfw/window.h"
+#include "input.h"
 
 // TODO
 #define WIDTH 1024
@@ -27,6 +28,8 @@ void Window::init()
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
     window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+
+    Input::GetInstance()->setEvent(window);
 }
 
 void Window::terminate()
@@ -46,10 +49,15 @@ bool Window::valid()
     return !glfwWindowShouldClose(window);
 }
 
+platform::Input* Window::getInput()
+{
+    return Input::GetInstance();
+}
+
 GLFWwindow* Window::getWindow()
 {
     ASSERT(window != nullptr);
     return window;
 }
-} // namespace mac
+} // namespace glfw
 } // namespace platform

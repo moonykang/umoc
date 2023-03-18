@@ -1,5 +1,8 @@
 #include "scene.h"
 #include "model/object.h"
+#include "platform/context.h"
+#include "platform/input.h"
+#include "platform/window.h"
 #include "view.h"
 
 namespace scene
@@ -13,12 +16,15 @@ Result SceneInfo::init(platform::Context* context)
     view = new View();
     try(view->init(context));
 
+    try(context->getWindow()->getInput()->attach(view));
+
     return postInit(context);
 }
 
 void SceneInfo::terminate(platform::Context* context)
 {
     preTerminate(context);
+    context->getWindow()->getInput()->dettach();
 
     TERMINATE(view, context);
 

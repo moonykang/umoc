@@ -1,7 +1,6 @@
 #pragma once
 
 #include "common/util.h"
-#include "input.h"
 
 /*
 platform::Window
@@ -10,11 +9,10 @@ platform::Window
 */
 namespace platform
 {
+class Input;
 class Window
 {
   public:
-    Window();
-
     virtual ~Window() = default;
 
     virtual void init() = 0;
@@ -23,10 +21,9 @@ class Window
 
     virtual bool valid() = 0;
 
+    virtual Input* getInput() = 0;
+
   public:
     static Window* createPlatformWindow();
-
-  private:
-    Input* input;
 };
 } // namespace platform

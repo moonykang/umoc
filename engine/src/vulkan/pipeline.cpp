@@ -262,7 +262,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
 
     size_t pipelineHash = pipelineHashStruct.getHash();
 
-    LOGD("pipelineHash %zu pipelineMap size %zu", pipelineHash, pipelineMap.size());
+    // LOGD("pipelineHash %zu pipelineMap size %zu", pipelineHash, pipelineMap.size());
 
     if (auto search = pipelineMap.find(pipelineHash); search != pipelineMap.end())
     {

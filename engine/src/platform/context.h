@@ -31,6 +31,8 @@ class Context
 
     Asset* getAssetManager();
 
+    Window* getWindow();
+
   protected:
     Window* window;
     Asset* asset;

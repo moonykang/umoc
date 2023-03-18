@@ -30,7 +30,7 @@ void Application::loop(Context* context)
     size_t debug_loop_count = 0;
     try
     {
-        while (context->loop() == Result::Continue && debug_loop_count++ < 120)
+        while (context->loop() == Result::Continue) // && debug_loop_count++ < 360)
         {
             try_call(baseRenderpass->render(context, sceneInfo));
         }
