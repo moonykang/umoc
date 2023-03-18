@@ -44,11 +44,8 @@ void View::setView(glm::vec3 position, glm::vec3 rotation)
 
 void View::updateView()
 {
-    std::lock_guard<std::mutex> lock(mutex);
-
     if (keyInput.any())
     {
-        float speed = 0.01;
 
         glm::vec3 camFront;
         camFront.x = -cos(glm::radians(rotation.x)) * sin(glm::radians(rotation.y));
@@ -58,22 +55,22 @@ void View::updateView()
 
         if (keyInput.up)
         {
-            position += camFront * speed;
+            position += camFront * moveSpped;
         }
 
         if (keyInput.down)
         {
-            position -= camFront * speed;
+            position -= camFront * moveSpped;
         }
 
         if (keyInput.left)
         {
-            position -= glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
+            position -= glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * moveSpped;
         }
 
         if (keyInput.left)
         {
-            position += glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * speed;
+            position += glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * moveSpped;
         }
 
         updateViewMatrix();
@@ -82,7 +79,6 @@ void View::updateView()
 
 void View::updateViewMatrix()
 {
-    LOGD("");
     glm::mat4 rotM = glm::mat4(1.0f);
     rotM = glm::rotate(rotM, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
     rotM = glm::rotate(rotM, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -96,6 +92,15 @@ void View::updateViewMatrix()
     ubo.view_proj_inverse = glm::inverse(ubo.view_proj);
     ubo.prev_view_proj = glm::mat4(1.f);
     ubo.view_pos = glm::vec4(position, 1.f);
+    
+    LOGD("Update view_proj");
+    LOGD("%f %f %f %f", ubo.view_proj[0][0], ubo.view_proj[0][1], ubo.view_proj[0][2], ubo.view_proj[0][3]);
+    LOGD("%f %f %f %f", ubo.view_proj[1][0], ubo.view_proj[1][1], ubo.view_proj[1][2], ubo.view_proj[1][3]);
+    LOGD("%f %f %f %f", ubo.view_proj[2][0], ubo.view_proj[2][1], ubo.view_proj[2][2], ubo.view_proj[2][3]);
+    LOGD("%f %f %f %f", ubo.view_proj[3][0], ubo.view_proj[3][1], ubo.view_proj[3][2], ubo.view_proj[3][3]);
+
+    LOGD("position %f %f %f", position.x, position.y, position.z);
+    LOGD("rotation %f %f %f", rotation.x, rotation.y, rotation.z);
 
     {
         std::lock_guard<std::mutex> lock(mutex);
@@ -123,8 +128,10 @@ Result View::updateUniformBuffer(platform::Context* platformContext)
 
     if (dirty)
     {
+        LOGD("Update scene view ubo");
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
         try(uniformBuffer->update(context, uniformDataSize, &ubo));
+        dirty = false;
     }
 
     return Result::Continue;
@@ -167,11 +174,8 @@ void View::handle_key_D(bool pressed)
 
 void View::handle_mouse_move(float x, float y)
 {
-
     int32_t dx = (int32_t)mouseCursorPos.x - x;
     int32_t dy = (int32_t)mouseCursorPos.y - y;
-
-    float rotationSpeed = 1.0f;
 
     if (mouseButtonInput.left)
     {

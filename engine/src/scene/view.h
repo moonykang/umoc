@@ -85,6 +85,9 @@ class View
     void handle_mouse_LB(bool pressed);
 
   private:
+    float rotationSpeed = 0.3f;
+    float moveSpped = 0.3f;
+
     struct
     {
         bool left = false;

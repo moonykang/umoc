@@ -190,6 +190,7 @@ UniformBuffer::UniformBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsag
 
 Result UniformBuffer::update(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
 {
+    LOGD("Update ubo");
     Context* context = reinterpret_cast<Context*>(rhiContext);
     try(buffer->map(context, offset, size, data));
     return Result::Continue;
