@@ -52,6 +52,11 @@ Descriptor* SubAllocatedBuffer::getDescriptor()
     return buffer->getDescriptor();
 }
 
+size_t SubAllocatedBuffer::getOffset()
+{
+    return offset;
+}
+
 VertexBuffer::VertexBuffer(ScratchBuffer* buffer, size_t offset, size_t size) : SubAllocatedBuffer(buffer, offset, size)
 {
 }
@@ -63,6 +68,17 @@ IndexBuffer::IndexBuffer(ScratchBuffer* buffer, size_t offset, size_t size) : Su
 UniformBuffer::UniformBuffer(ScratchBuffer* buffer, size_t offset, size_t size)
     : SubAllocatedBuffer(buffer, offset, size)
 {
+}
+
+Buffer::Buffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty,
+               size_t size)
+    : Descriptor(descriptorType), bufferUsage(bufferUsage), memoryProperty(memoryProperty), size(size), alignmentSize(1)
+{
+}
+
+size_t Buffer::getAlignmentSize()
+{
+    return alignmentSize;
 }
 
 ScratchBuffer::ScratchBuffer() : buffer(nullptr)
@@ -103,7 +119,9 @@ SubAllocatedBuffer* VertexScratchBuffer::subAllocate(Context* context, size_t si
     subAllocatedBuffers.push_back(subAllocatedBuffer);
 
     // TODO
-    size_t aligned_size = ((size + 3) / 4) * 4;
+    size_t alignmentSize = buffer->getAlignmentSize();
+    size_t aligned_size = ((size + alignmentSize - 1) / alignmentSize) * alignmentSize;
+
     if (buffer->update(context, offset, size, data) != Result::Continue)
     {
         ASSERT(true);
@@ -121,7 +139,9 @@ SubAllocatedBuffer* IndexScratchBuffer::subAllocate(Context* context, size_t siz
     subAllocatedBuffers.push_back(subAllocatedBuffer);
 
     // TODO
-    size_t aligned_size = ((size + 3) / 4) * 4;
+    size_t alignmentSize = buffer->getAlignmentSize();
+    size_t aligned_size = ((size + alignmentSize - 1) / alignmentSize) * alignmentSize;
+
     if (buffer->update(context, offset, size, data) != Result::Continue)
     {
         ASSERT(true);
@@ -148,7 +168,9 @@ SubAllocatedBuffer* UniformScratchBuffer::subAllocate(Context* context, size_t s
     subAllocatedBuffers.push_back(subAllocatedBuffer);
 
     // TODO
-    size_t aligned_size = ((size + 3) / 4) * 4;
+    size_t alignmentSize = buffer->getAlignmentSize();
+    size_t aligned_size = ((size + alignmentSize - 1) / alignmentSize) * alignmentSize;
+
     if (buffer->update(context, offset, size, data) != Result::Continue)
     {
         ASSERT(true);

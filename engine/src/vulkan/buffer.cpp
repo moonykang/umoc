@@ -3,6 +3,7 @@
 #include "context.h"
 #include "device.h"
 #include "memory.h"
+#include "physicalDevice.h"
 #include "queue.h"
 #include "util.h"
 
@@ -130,6 +131,8 @@ Result Buffer::init(rhi::Context* rhiContext)
     bufferInfo.offset = 0;
     bufferInfo.range = VK_WHOLE_SIZE;
 
+    updateAlignmentSize(context);
+
     return Result::Continue;
 }
 
@@ -190,9 +193,24 @@ UniformBuffer::UniformBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsag
 
 Result UniformBuffer::update(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
 {
-    LOGD("Update ubo");
+    LOGD("buffer%p offset %zu size %zu data %p", buffer->getHandle(), offset, size, data);
     Context* context = reinterpret_cast<Context*>(rhiContext);
     try(buffer->map(context, offset, size, data));
     return Result::Continue;
+}
+
+void VertexBuffer::updateAlignmentSize(Context* context)
+{
+    alignmentSize = 4;
+}
+
+void IndexBuffer::updateAlignmentSize(Context* context)
+{
+    alignmentSize = 4;
+}
+
+void UniformBuffer::updateAlignmentSize(Context* context)
+{
+    alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minUniformBufferOffsetAlignment;
 }
 } // namespace vk

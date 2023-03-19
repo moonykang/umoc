@@ -43,7 +43,12 @@ class PhysicalDevice final : public WrappedObject<PhysicalDevice, VkPhysicalDevi
   private:
     VkPhysicalDeviceProperties physicalDeviceProperties;
     VkPhysicalDeviceProperties2 physicalDeviceProperties2;
+    VkPhysicalDeviceLimits physicalDeviceLimit;
     VkPhysicalDeviceFeatures2 physicalDeviceFeatures2;
     std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+
+    // Limit
+  public:
+    VkPhysicalDeviceLimits getPhysicalDeviceLimits();
 };
 } // namespace vk

@@ -1,10 +1,11 @@
+#include "vulkan/physicalDevice.h"
 #include "vulkan/context.h"
 #include "vulkan/instance.h"
-#include "vulkan/physicalDevice.h"
 
 namespace vk
 {
-PhysicalDevice::PhysicalDevice() : physicalDeviceFeatures2(), physicalDeviceProperties2(), physicalDeviceProperties()
+PhysicalDevice::PhysicalDevice()
+    : physicalDeviceFeatures2(), physicalDeviceProperties2(), physicalDeviceProperties(), physicalDeviceLimit()
 {
 }
 
@@ -44,6 +45,7 @@ Result PhysicalDevice::init(Context* context)
     setHandle(physicalDevices[selectedDevice]);
     vkGetPhysicalDeviceProperties(getHandle(), &physicalDeviceProperties);
     vkGetPhysicalDeviceFeatures(getHandle(), &physicalDeviceFeatures2.features);
+    physicalDeviceLimit = physicalDeviceProperties.limits;
 
     return Result::Continue;
 }
@@ -76,5 +78,11 @@ uint32_t PhysicalDevice::getPhysicalDeviceMemoryTypeIndex(const uint32_t memoryT
 
     UNREACHABLE();
     return 0;
+}
+
+// Limits
+VkPhysicalDeviceLimits PhysicalDevice::getPhysicalDeviceLimits()
+{
+    return physicalDeviceLimit;
 }
 } // namespace vk

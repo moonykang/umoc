@@ -12,7 +12,7 @@ class DescriptorSet
 
     virtual Result init(Context* context, DescriptorInfoList& descriptorInfoList) = 0;
 
-    virtual Result update(rhi::Context* context, DescriptorList descriptors) = 0;
+    virtual Result update(rhi::Context* context, DescriptorList descriptors, std::vector<uint32_t>& offsets) = 0;
 
     virtual void terminate(Context* context) = 0;
 

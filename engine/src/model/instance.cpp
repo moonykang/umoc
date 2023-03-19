@@ -59,13 +59,15 @@ Result Instance::updateUniformBuffer(platform::Context* platformContext)
 
     // if (dirty)
     {
+        std::vector<uint32_t> offsets;
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
         try(uniformBuffer->update(context, sizeof(UniformBufferObject), &ubo));
+        offsets.push_back(uniformBuffer->getOffset());
 
         rhi::DescriptorList descriptorList;
         descriptorList.push_back({{0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic},
                                   uniformBuffer->getDescriptor()});
-        try(descriptorSet->update(context, descriptorList));
+        try(descriptorSet->update(context, descriptorList, offsets));
     }
 
     return Result::Continue;

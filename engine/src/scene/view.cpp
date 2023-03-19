@@ -92,12 +92,6 @@ void View::updateViewMatrix()
     ubo.view_proj_inverse = glm::inverse(ubo.view_proj);
     ubo.prev_view_proj = glm::mat4(1.f);
     ubo.view_pos = glm::vec4(position, 1.f);
-    
-    LOGD("Update view_proj");
-    LOGD("%f %f %f %f", ubo.view_proj[0][0], ubo.view_proj[0][1], ubo.view_proj[0][2], ubo.view_proj[0][3]);
-    LOGD("%f %f %f %f", ubo.view_proj[1][0], ubo.view_proj[1][1], ubo.view_proj[1][2], ubo.view_proj[1][3]);
-    LOGD("%f %f %f %f", ubo.view_proj[2][0], ubo.view_proj[2][1], ubo.view_proj[2][2], ubo.view_proj[2][3]);
-    LOGD("%f %f %f %f", ubo.view_proj[3][0], ubo.view_proj[3][1], ubo.view_proj[3][2], ubo.view_proj[3][3]);
 
     LOGD("position %f %f %f", position.x, position.y, position.z);
     LOGD("rotation %f %f %f", rotation.x, rotation.y, rotation.z);
@@ -141,10 +135,13 @@ Result View::updateDescriptor(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
+    std::vector<uint32_t> offsets;
+    offsets.push_back(uniformBuffer->getOffset());
+
     rhi::DescriptorList descriptorList;
     descriptorList.push_back(
         {{0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic}, uniformBuffer->getDescriptor()});
-    try(descriptorSet->update(context, descriptorList));
+    try(descriptorSet->update(context, descriptorList, offsets));
 
     return Result::Continue;
 }
@@ -177,9 +174,9 @@ void View::handle_mouse_move(float x, float y)
     int32_t dx = (int32_t)mouseCursorPos.x - x;
     int32_t dy = (int32_t)mouseCursorPos.y - y;
 
-    if (mouseButtonInput.left)
+    if (mouseButtonInput.right)
     {
-        rotate(glm::vec3(dy * rotationSpeed, -dx * rotationSpeed, 0.f));
+        rotate(glm::vec3(-dy * rotationSpeed, -dx * rotationSpeed, 0.f));
     }
 
     mouseCursorPos = glm::vec2(x, y);
@@ -188,5 +185,10 @@ void View::handle_mouse_move(float x, float y)
 void View::handle_mouse_LB(bool pressed)
 {
     mouseButtonInput.left = pressed;
+}
+
+void View::handle_mouse_RB(bool pressed)
+{
+    mouseButtonInput.right = pressed;
 }
 } // namespace scene

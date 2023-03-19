@@ -75,6 +75,8 @@ class SubAllocatedBuffer
 
     Descriptor* getDescriptor();
 
+    size_t getOffset();
+
   private:
     ScratchBuffer* buffer;
     size_t offset;
@@ -102,10 +104,8 @@ class UniformBuffer : public SubAllocatedBuffer
 class Buffer : public Descriptor
 {
   public:
-    Buffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size)
-        : Descriptor(descriptorType), bufferUsage(bufferUsage), memoryProperty(memoryProperty), size(size)
-    {
-    }
+    Buffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty,
+           size_t size);
 
     virtual ~Buffer() = default;
 
@@ -117,10 +117,13 @@ class Buffer : public Descriptor
 
     virtual void bind(Context* context, size_t offset) = 0;
 
+    size_t getAlignmentSize();
+
   protected:
     BufferUsageFlags bufferUsage;
     MemoryPropertyFlags memoryProperty;
     size_t size;
+    size_t alignmentSize;
 };
 
 class ScratchBuffer

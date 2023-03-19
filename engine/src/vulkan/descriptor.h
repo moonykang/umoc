@@ -26,7 +26,7 @@ class DescriptorSet final : public rhi::DescriptorSet, public WrappedObject<Desc
 
     void terminate(rhi::Context* context) override;
 
-    Result update(rhi::Context* context, rhi::DescriptorList descriptors) override;
+    Result update(rhi::Context* context, rhi::DescriptorList descriptors, std::vector<uint32_t>& offsets) override;
 
     void bind(rhi::Context* context, uint32_t binding) override;
 
@@ -34,6 +34,7 @@ class DescriptorSet final : public rhi::DescriptorSet, public WrappedObject<Desc
 
   private:
     DescriptorSetLayout* layout;
+    std::vector<uint32_t> dynamicOffsets;
 };
 
 class DescriptorPool final : public WrappedObject<DescriptorPool, VkDescriptorPool>

@@ -83,6 +83,7 @@ class View
 
     void handle_mouse_move(float x, float y);
     void handle_mouse_LB(bool pressed);
+    void handle_mouse_RB(bool pressed);
 
   private:
     float rotationSpeed = 0.3f;

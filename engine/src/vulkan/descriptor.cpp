@@ -122,10 +122,13 @@ void DescriptorSet::terminate(rhi::Context* rhiContext)
     Input_Attachment = 10,
     Acceleration_structure = 11,
 */
-Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descriptors)
+Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descriptors, std::vector<uint32_t>& offsets)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
     std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+
+    dynamicOffsets = std::move(offsets);
+
     for (auto& descriptorPair : descriptors)
     {
         auto& descriptorInfo = descriptorPair.first;
@@ -181,10 +184,9 @@ void DescriptorSet::bind(rhi::Context* rhiContext, uint32_t binding)
 
     CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
 
-    // TODO
-    std::vector<uint32_t> offsets = {0};
+    // minUniformBufferOffsetAlignment
     commandBuffer->bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout()->getHandle(), binding, 1,
-                                      &mHandle, static_cast<uint32_t>(offsets.size()), offsets.data());
+                                      &mHandle, static_cast<uint32_t>(dynamicOffsets.size()), dynamicOffsets.data());
 }
 
 DescriptorSetLayout* DescriptorSet::getLayout()

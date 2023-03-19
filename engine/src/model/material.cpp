@@ -60,7 +60,9 @@ Result Material::update(platform::Context* platformContext)
     uint32_t binding = 0;
     rhi::DescriptorInfoList descriptorInfoList;
 
+    std::vector<uint32_t> offsets;
     try(uniformBuffer->update(context, sizeof(MaterialUniformBlock), &ubo));
+    offsets.push_back(uniformBuffer->getOffset());
 
     rhi::DescriptorList descriptorList;
 
@@ -118,7 +120,7 @@ Result Material::update(platform::Context* platformContext)
     }
 
     try(descriptorSet->init(context, descriptorInfoList));
-    try(descriptorSet->update(context, descriptorList));
+    try(descriptorSet->update(context, descriptorList, offsets));
 
     return Result::Continue;
 }
