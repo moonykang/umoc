@@ -1,5 +1,6 @@
 #include "buffer.h"
 #include "context.h"
+#include "descriptor.h"
 
 namespace rhi
 {
@@ -47,11 +48,6 @@ Result SubAllocatedBuffer::update(Context* context, size_t size, void* data)
     return Result::Continue;
 }
 
-Descriptor* SubAllocatedBuffer::getDescriptor()
-{
-    return buffer->getDescriptor();
-}
-
 size_t SubAllocatedBuffer::getOffset()
 {
     return offset;
@@ -70,9 +66,13 @@ UniformBuffer::UniformBuffer(ScratchBuffer* buffer, size_t offset, size_t size)
 {
 }
 
-Buffer::Buffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty,
-               size_t size)
-    : Descriptor(descriptorType), bufferUsage(bufferUsage), memoryProperty(memoryProperty), size(size), alignmentSize(1)
+BufferDescriptor* UniformBuffer::getBufferDescriptor()
+{
+    return new BufferDescriptor(rhi::DescriptorType::Uniform_Buffer_Dynamic, buffer->getBuffer(), offset, size);
+}
+
+Buffer::Buffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size)
+    : bufferUsage(bufferUsage), memoryProperty(memoryProperty), size(size), alignmentSize(1)
 {
 }
 
@@ -105,9 +105,8 @@ Result ScratchBuffer::update(Context* context, size_t offset, size_t size, void*
 
 Result VertexScratchBuffer::init(Context* context)
 {
-    buffer =
-        context->allocateBuffer(DescriptorType::Uniform_Buffer, BufferUsage::VERTEX_BUFFER | BufferUsage::TRANSFER_DST,
-                                MemoryProperty::DEVICE_LOCAL, VERTEX_SCRATCH_BUFFER_SIZE);
+    buffer = context->allocateBuffer(BufferUsage::VERTEX_BUFFER | BufferUsage::TRANSFER_DST,
+                                     MemoryProperty::DEVICE_LOCAL, VERTEX_SCRATCH_BUFFER_SIZE);
 
     try(buffer->init(context));
     return Result::Continue;
@@ -154,9 +153,8 @@ SubAllocatedBuffer* IndexScratchBuffer::subAllocate(Context* context, size_t siz
 
 Result IndexScratchBuffer::init(Context* context)
 {
-    buffer =
-        context->allocateBuffer(DescriptorType::Uniform_Buffer, BufferUsage::INDEX_BUFFER | BufferUsage::TRANSFER_DST,
-                                MemoryProperty::DEVICE_LOCAL, INDEX_SCRATCH_BUFFER_SIZE);
+    buffer = context->allocateBuffer(BufferUsage::INDEX_BUFFER | BufferUsage::TRANSFER_DST,
+                                     MemoryProperty::DEVICE_LOCAL, INDEX_SCRATCH_BUFFER_SIZE);
 
     try(buffer->init(context));
     return Result::Continue;
@@ -183,9 +181,9 @@ SubAllocatedBuffer* UniformScratchBuffer::subAllocate(Context* context, size_t s
 
 Result UniformScratchBuffer::init(Context* context)
 {
-    buffer = context->allocateBuffer(
-        DescriptorType::Uniform_Buffer_Dynamic, BufferUsage::UNIFORM_BUFFER | BufferUsage::TRANSFER_DST,
-        MemoryProperty::HOST_COHERENT | MemoryProperty::HOST_VISIBLE, UNIFORM_SCRATCH_BUFFER_SIZE);
+    buffer = context->allocateBuffer(BufferUsage::UNIFORM_BUFFER | BufferUsage::TRANSFER_DST,
+                                     MemoryProperty::HOST_COHERENT | MemoryProperty::HOST_VISIBLE,
+                                     UNIFORM_SCRATCH_BUFFER_SIZE);
 
     try(buffer->init(context));
     return Result::Continue;

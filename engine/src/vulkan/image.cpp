@@ -342,6 +342,12 @@ VkImageView Image::getView()
     return view->getHandle();
 }
 
+VkSampler Image::getSampler()
+{
+    ASSERT(valid() && sampler->valid());
+    return sampler->getHandle();
+}
+
 uint32_t Image::getSamples()
 {
     ASSERT(valid());

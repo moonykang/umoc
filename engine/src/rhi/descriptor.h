@@ -5,6 +5,37 @@
 
 namespace rhi
 {
+class Buffer;
+class Image;
+
+class BufferDescriptor : public Descriptor
+{
+  public:
+    BufferDescriptor(rhi::DescriptorType type, Buffer* buffer, size_t offset, size_t range);
+
+    Buffer* getBuffer();
+
+    size_t getOffset();
+
+    size_t getRange();
+
+  private:
+    Buffer* buffer;
+    size_t offset;
+    size_t range;
+};
+
+class ImageDescriptor : public Descriptor
+{
+  public:
+    ImageDescriptor(rhi::DescriptorType type, Image* image);
+
+    Image* getImage();
+
+  private:
+    Image* image;
+};
+
 class DescriptorSet
 {
   public:

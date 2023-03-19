@@ -66,57 +66,60 @@ Result Material::update(platform::Context* platformContext)
 
     rhi::DescriptorList descriptorList;
 
+    auto bufferDescriptor = uniformBuffer->getBufferDescriptor();
+
     descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic});
-    descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic},
-                              uniformBuffer->getDescriptor()});
+    descriptorList.push_back(
+        {{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic}, bufferDescriptor});
 
     if (baseColorTexture)
     {
         descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
         descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  baseColorTexture->getDescriptor()});
+                                  baseColorTexture->getImageDescriptor()});
     }
 
     if (metallicRoughnessTexture)
     {
         descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
         descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  metallicRoughnessTexture->getDescriptor()});
+                                  metallicRoughnessTexture->getImageDescriptor()});
     }
 
     if (normalTexture)
     {
         descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
         descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  normalTexture->getDescriptor()});
+                                  normalTexture->getImageDescriptor()});
     }
 
     if (occlusionTexture)
     {
         descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
         descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  occlusionTexture->getDescriptor()});
+                                  occlusionTexture->getImageDescriptor()});
     }
 
-    if (emissiveTexture)
-    {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  uniformBuffer->getDescriptor()});
-    }
-
+    /*
+        if (emissiveTexture)
+        {
+            descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel,
+       rhi::DescriptorType::Combined_Image_Sampler}); descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel,
+       rhi::DescriptorType::Combined_Image_Sampler}, uniformBuffer->getImageDescriptor()});
+        }
+    */
     if (specularGlossinessTexture)
     {
         descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
         descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  specularGlossinessTexture->getDescriptor()});
+                                  specularGlossinessTexture->getImageDescriptor()});
     }
 
     if (diffuseTexture)
     {
         descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
         descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  diffuseTexture->getDescriptor()});
+                                  diffuseTexture->getImageDescriptor()});
     }
 
     try(descriptorSet->init(context, descriptorInfoList));

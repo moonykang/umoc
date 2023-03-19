@@ -10,22 +10,22 @@
 namespace vk
 {
 
-rhi::Buffer* Context::allocateBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-                                     rhi::MemoryPropertyFlags memoryProperty, size_t size)
+rhi::Buffer* Context::allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
+                                     size_t size)
 {
     if ((bufferUsage & rhi::BufferUsage::VERTEX_BUFFER) != 0)
     {
-        return new VertexBuffer(descriptorType, bufferUsage, memoryProperty, size);
+        return new VertexBuffer(bufferUsage, memoryProperty, size);
     }
 
     if ((bufferUsage & rhi::BufferUsage::INDEX_BUFFER) != 0)
     {
-        return new IndexBuffer(descriptorType, bufferUsage, memoryProperty, size);
+        return new IndexBuffer(bufferUsage, memoryProperty, size);
     }
 
     if ((bufferUsage & rhi::BufferUsage::UNIFORM_BUFFER) != 0)
     {
-        return new UniformBuffer(descriptorType, bufferUsage, memoryProperty, size);
+        return new UniformBuffer(bufferUsage, memoryProperty, size);
     }
 
     UNREACHABLE();
@@ -114,9 +114,8 @@ const VkMemoryRequirements RealBuffer::getMemoryRequirements(VkDevice device)
     return memoryRequirements;
 }
 
-Buffer::Buffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-               rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : rhi::Buffer(descriptorType, bufferUsage, memoryProperty, size), bufferInfo()
+Buffer::Buffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : rhi::Buffer(bufferUsage, memoryProperty, size), bufferInfo()
 {
 }
 
@@ -159,9 +158,13 @@ Result Buffer::update(rhi::Context* rhiContext, size_t offset, size_t size, void
     return Result::Continue;
 }
 
-VertexBuffer::VertexBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-                           rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(descriptorType, bufferUsage, memoryProperty, size)
+VkBuffer Buffer::getHandle()
+{
+    return buffer->getHandle();
+}
+
+VertexBuffer::VertexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(bufferUsage, memoryProperty, size)
 {
 }
 
@@ -172,9 +175,8 @@ void VertexBuffer::bind(rhi::Context* rhiContext, size_t offset)
     commandBuffer->bindVertexBuffers(buffer->getHandle(), offset);
 }
 
-IndexBuffer::IndexBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-                         rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(descriptorType, bufferUsage, memoryProperty, size)
+IndexBuffer::IndexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(bufferUsage, memoryProperty, size)
 {
 }
 
@@ -185,9 +187,8 @@ void IndexBuffer::bind(rhi::Context* rhiContext, size_t offset)
     commandBuffer->bindIndexBuffers(buffer->getHandle(), offset, VK_INDEX_TYPE_UINT32);
 }
 
-UniformBuffer::UniformBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-                             rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(descriptorType, bufferUsage, memoryProperty, size)
+UniformBuffer::UniformBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(bufferUsage, memoryProperty, size)
 {
 }
 

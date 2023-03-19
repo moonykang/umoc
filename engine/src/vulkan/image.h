@@ -68,8 +68,6 @@ class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
 
     VkImageSubresourceRange getWholeImageSubresourceRange();
 
-    VkWriteDescriptorSet getWriteDescriptorSet();
-
   private:
     Result initImage(Context* context);
 
@@ -85,6 +83,8 @@ class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
     VkImageAspectFlags getAspectFlags();
 
     VkImageView getView();
+
+    VkSampler getSampler();
 
     uint32_t getSamples();
 

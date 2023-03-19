@@ -1,5 +1,6 @@
 #include "image.h"
 #include "context.h"
+#include "descriptor.h"
 #include "platform/asset.h"
 #include "platform/defines.h"
 
@@ -37,5 +38,10 @@ Result Texture::init(Context* context, std::string path, platform::ImageLoader i
 void Texture::terminate(Context* context)
 {
     TERMINATE(image, context);
+}
+
+ImageDescriptor* Texture::getImageDescriptor()
+{
+    return new ImageDescriptor(rhi::DescriptorType::Combined_Image_Sampler, image);
 }
 } // namespace rhi

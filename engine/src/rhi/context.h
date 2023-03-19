@@ -62,8 +62,7 @@ class Context : public platform::Context
     UniformBuffer* allocateUniformBuffer(size_t size, void* data);
     // factory
   public:
-    virtual Buffer* allocateBuffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage,
-                                   MemoryPropertyFlags memoryProperty, size_t size) = 0;
+    virtual Buffer* allocateBuffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size) = 0;
 
     virtual Image* allocateImage(DescriptorType descriptorType) = 0;
 

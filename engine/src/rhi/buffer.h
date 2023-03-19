@@ -73,11 +73,9 @@ class SubAllocatedBuffer
 
     Result update(Context* context, size_t size, void* data);
 
-    Descriptor* getDescriptor();
-
     size_t getOffset();
 
-  private:
+  protected:
     ScratchBuffer* buffer;
     size_t offset;
     size_t size;
@@ -95,17 +93,19 @@ class IndexBuffer : public SubAllocatedBuffer
     IndexBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
 };
 
+class BufferDescriptor;
 class UniformBuffer : public SubAllocatedBuffer
 {
   public:
     UniformBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
+
+    BufferDescriptor* getBufferDescriptor();
 };
 
-class Buffer : public Descriptor
+class Buffer
 {
   public:
-    Buffer(DescriptorType descriptorType, BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty,
-           size_t size);
+    Buffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size);
 
     virtual ~Buffer() = default;
 
@@ -147,7 +147,7 @@ class ScratchBuffer
         buffer->bind(context, offset);
     }
 
-    Descriptor* getDescriptor()
+    Buffer* getBuffer()
     {
         ASSERT(buffer);
         return buffer;

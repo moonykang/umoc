@@ -31,6 +31,7 @@ class Image : public Descriptor
     Extent3D extent;
 };
 
+class ImageDescriptor;
 class Texture
 {
   public:
@@ -42,11 +43,7 @@ class Texture
 
     void terminate(Context* context);
 
-    Descriptor* getDescriptor()
-    {
-        ASSERT(image);
-        return image;
-    }
+    ImageDescriptor* getImageDescriptor();
 
   private:
     Image* image;

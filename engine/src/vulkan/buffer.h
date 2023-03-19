@@ -39,8 +39,7 @@ class RealBuffer : public WrappedObject<RealBuffer, VkBuffer>
 class Buffer : public rhi::Buffer
 {
   public:
-    Buffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-           rhi::MemoryPropertyFlags memoryProperty, size_t size);
+    Buffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
 
     Result init(rhi::Context* context) override;
 
@@ -48,9 +47,9 @@ class Buffer : public rhi::Buffer
 
     virtual Result update(rhi::Context* context, size_t offset, size_t size, void* data) override;
 
-    VkWriteDescriptorSet getWriteDescriptorSet();
-
     virtual void updateAlignmentSize(Context* context) = 0;
+
+    VkBuffer getHandle();
 
   protected:
     RealBuffer* buffer;
@@ -60,8 +59,7 @@ class Buffer : public rhi::Buffer
 class VertexBuffer : public Buffer
 {
   public:
-    VertexBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-                 rhi::MemoryPropertyFlags memoryProperty, size_t size);
+    VertexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
 
     virtual void bind(rhi::Context* context, size_t offset) override;
 
@@ -71,8 +69,7 @@ class VertexBuffer : public Buffer
 class IndexBuffer : public Buffer
 {
   public:
-    IndexBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-                rhi::MemoryPropertyFlags memoryProperty, size_t size);
+    IndexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
 
     virtual void bind(rhi::Context* context, size_t offset) override;
 
@@ -82,8 +79,7 @@ class IndexBuffer : public Buffer
 class UniformBuffer : public Buffer
 {
   public:
-    UniformBuffer(rhi::DescriptorType descriptorType, rhi::BufferUsageFlags bufferUsage,
-                  rhi::MemoryPropertyFlags memoryProperty, size_t size);
+    UniformBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
 
     virtual void bind(rhi::Context* context, size_t offset) override
     {

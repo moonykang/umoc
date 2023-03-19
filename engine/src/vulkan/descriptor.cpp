@@ -10,30 +10,6 @@
 
 namespace vk
 {
-VkWriteDescriptorSet Buffer::getWriteDescriptorSet()
-{
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorType = convertToVkDescriptorType(type);
-    writeDescriptorSet.descriptorCount = 1;
-    writeDescriptorSet.pBufferInfo = &bufferInfo;
-
-    return writeDescriptorSet;
-}
-
-VkWriteDescriptorSet Image::getWriteDescriptorSet()
-{
-    VkWriteDescriptorSet writeDescriptorSet = {};
-    writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeDescriptorSet.dstArrayElement = 0;
-    writeDescriptorSet.descriptorType = convertToVkDescriptorType(type);
-    writeDescriptorSet.descriptorCount = 1;
-    writeDescriptorSet.pImageInfo = &imageInfo;
-
-    return writeDescriptorSet;
-}
-
 Result DescriptorSetLayout::init(Context* context, rhi::DescriptorInfoList& descriptorInfoList)
 {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
@@ -125,7 +101,23 @@ void DescriptorSet::terminate(rhi::Context* rhiContext)
 Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descriptors, std::vector<uint32_t>& offsets)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
+    /*
+    typedef struct VkWriteDescriptorSet {
+    VkStructureType                  sType;
+    const void*                      pNext;
+    VkDescriptorSet                  dstSet;
+    uint32_t                         dstBinding;
+    uint32_t                         dstArrayElement;
+    uint32_t                         descriptorCount;
+    VkDescriptorType                 descriptorType;
+    const VkDescriptorImageInfo*     pImageInfo;
+    const VkDescriptorBufferInfo*    pBufferInfo;
+    const VkBufferView*              pTexelBufferView;
+} VkWriteDescriptorSet;
+    */
     std::vector<VkWriteDescriptorSet> writeDescriptorSets;
+    std::vector<VkDescriptorBufferInfo> bufferInfos;
+    std::vector<VkDescriptorImageInfo> imageInfos;
 
     dynamicOffsets = std::move(offsets);
 
@@ -135,6 +127,12 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
         auto descriptor = descriptorPair.second;
 
         rhi::DescriptorType type = descriptorInfo.getType();
+        auto& writeDescriptorSet = writeDescriptorSets.emplace_back();
+        writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeDescriptorSet.dstSet = mHandle;
+        writeDescriptorSet.dstBinding = descriptorInfo.getBinding();
+        writeDescriptorSet.descriptorCount = 1;
+        writeDescriptorSet.descriptorType = convertToVkDescriptorType(type);
 
         switch (type)
         {
@@ -142,13 +140,18 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
         case rhi::DescriptorType::Storage_Buffer:
         case rhi::DescriptorType::Uniform_Buffer_Dynamic:
         case rhi::DescriptorType::Storage_Buffer_Dynamic: {
-            Buffer* buffer = reinterpret_cast<Buffer*>(descriptor);
-            writeDescriptorSets.push_back(buffer->getWriteDescriptorSet());
+            rhi::BufferDescriptor* bufferDescriptor = reinterpret_cast<rhi::BufferDescriptor*>(descriptor);
+            Buffer* buffer = reinterpret_cast<Buffer*>(bufferDescriptor->getBuffer());
 
-            auto& writeDescriptorSet = writeDescriptorSets.back();
-            writeDescriptorSet.dstSet = mHandle;
-            writeDescriptorSet.dstBinding = descriptorInfo.getBinding();
-            writeDescriptorSet.descriptorCount = 1;
+            auto& bufferInfo = bufferInfos.emplace_back();
+            bufferInfo.buffer = buffer->getHandle();
+            bufferInfo.offset = bufferDescriptor->getOffset();
+            bufferInfo.range = bufferDescriptor->getRange();
+            writeDescriptorSet.pBufferInfo = &bufferInfo;
+
+            delete bufferDescriptor;
+            LOGD("buffer %p offset %zu range %zu", bufferInfo.buffer, bufferInfo.offset, bufferInfo.range);
+
             break;
         }
         case rhi::DescriptorType::Sampler:
@@ -159,12 +162,16 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
         case rhi::DescriptorType::Storage_Texel_Buffer:
         case rhi::DescriptorType::Input_Attachment:
         case rhi::DescriptorType::Acceleration_structure:
-            Image* image = reinterpret_cast<Image*>(descriptor);
-            writeDescriptorSets.push_back(image->getWriteDescriptorSet());
+            rhi::ImageDescriptor* imageDescriptor = reinterpret_cast<rhi::ImageDescriptor*>(descriptor);
+            Image* image = reinterpret_cast<Image*>(imageDescriptor->getImage());
 
-            auto& writeDescriptorSet = writeDescriptorSets.back();
-            writeDescriptorSet.dstSet = mHandle;
-            writeDescriptorSet.dstBinding = descriptorInfo.getBinding();
+            auto& imageInfo = imageInfos.emplace_back();
+            imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageInfo.imageView = image->getView();
+            imageInfo.sampler = image->getSampler();
+            writeDescriptorSet.pImageInfo = &imageInfo;
+
+            delete imageDescriptor;
             break;
         }
     }

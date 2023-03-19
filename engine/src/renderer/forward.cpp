@@ -94,7 +94,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     graphicsPipelineState.shaderParameters = &params;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
+    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
 
     for (auto& model : testScene->getModels())
     {

@@ -62,8 +62,11 @@ Result Instance::updateUniformBuffer(platform::Context* platformContext)
         offsets.push_back(uniformBuffer->getOffset());
 
         rhi::DescriptorList descriptorList;
-        descriptorList.push_back({{0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic},
-                                  uniformBuffer->getDescriptor()});
+
+        auto bufferDescriptor = uniformBuffer->getBufferDescriptor();
+        descriptorList.push_back(
+            {{0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic}, bufferDescriptor});
+
         try(descriptorSet->update(context, descriptorList, offsets));
     }
 

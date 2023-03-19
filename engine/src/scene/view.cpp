@@ -139,8 +139,8 @@ Result View::updateDescriptor(platform::Context* platformContext)
     offsets.push_back(uniformBuffer->getOffset());
 
     rhi::DescriptorList descriptorList;
-    descriptorList.push_back(
-        {{0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic}, uniformBuffer->getDescriptor()});
+    descriptorList.push_back({{0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic},
+                              uniformBuffer->getBufferDescriptor()});
     try(descriptorSet->update(context, descriptorList, offsets));
 
     return Result::Continue;
