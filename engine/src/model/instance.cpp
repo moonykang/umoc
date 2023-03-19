@@ -9,11 +9,10 @@
 
 namespace model
 {
-Instance::Instance(Object* object, Instance* instance, Material* material, uint32_t firstIndex, uint32_t indexCount,
-                   uint32_t firstVertex, uint32_t vertexCount, glm::mat4 transform)
-    : object(object), prevInstance(instance), material(material), firstIndex(firstIndex), indexCount(indexCount),
-      firstVertex(firstVertex), vertexCount(vertexCount), ubo({transform}), uniformBuffer(nullptr),
-      descriptorSet(nullptr), initialized(false)
+Instance::Instance(Object* object, Material* material, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
+                   uint32_t vertexCount, glm::mat4 transform)
+    : object(object), material(material), firstIndex(firstIndex), indexCount(indexCount), firstVertex(firstVertex),
+      vertexCount(vertexCount), ubo({transform}), uniformBuffer(nullptr), descriptorSet(nullptr), initialized(false)
 {
 }
 
@@ -48,8 +47,6 @@ void Instance::terminate(platform::Context* platformContext)
     RELEASE(object);
     RELEASE(uniformBuffer);
 
-    TERMINATE(prevInstance, platformContext);
-
     initialized = false;
 }
 
@@ -79,10 +76,12 @@ void Instance::draw(platform::Context* platformContext)
 
     context->drawIndexed(indexCount, 1, firstIndex, 0, 0);
 
+    /*
     if (prevInstance != nullptr)
     {
         prevInstance->draw(context);
     }
+     */
 }
 
 Material* Instance::getMaterial()

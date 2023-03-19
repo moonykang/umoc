@@ -62,6 +62,6 @@ class Object
     std::vector<rhi::Texture*> textures;
     std::vector<Node*> nodes;
     std::vector<Node*> linearNodes;
-    std::vector<Instance*> instances;
+    std::vector<Instance*> linearInstances;
 };
 } // namespace model

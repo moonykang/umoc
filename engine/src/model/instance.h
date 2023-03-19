@@ -26,7 +26,7 @@ class Material;
 class Instance
 {
   public:
-    Instance(Object* object, Instance* instance, Material* material, uint32_t firstIndex, uint32_t indexCount,
+    Instance(Object* object, Material* material, uint32_t firstIndex, uint32_t indexCount,
              uint32_t firstVertex, uint32_t vertexCount, glm::mat4 transform);
 
     virtual ~Instance() = default;
@@ -49,7 +49,6 @@ class Instance
   private:
     Object* object;
     Material* material;
-    Instance* prevInstance;
 
     uint32_t firstIndex;
     uint32_t indexCount;

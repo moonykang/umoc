@@ -446,7 +446,8 @@ Result Loader::loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeI
                 }
             }
 
-            Primitive* newPrimitive = new Primitive(indexStart, indexCount, object->getMaterial(primitive.material));
+            Material* material = object->getMaterial(primitive.material);
+            Primitive* newPrimitive = new Primitive(indexStart, indexCount, material);
             newPrimitive->firstVertex = vertexStart;
             newPrimitive->vertexCount = vertexCount;
             newMesh->addPrimitive(newPrimitive);

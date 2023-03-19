@@ -35,7 +35,7 @@ void Object::terminate(platform::Context* platformContext)
         TERMINATE(texture, context);
     }
 
-    for (auto& instance : instances)
+    for (auto& instance : linearInstances)
     {
         TERMINATE(instance, platformContext);
     }
@@ -71,7 +71,6 @@ void Object::addMaterial(Material* material)
 Material* Object::getMaterial(int32_t index)
 {
     // ASSERT(materials.size() > index);
-
     return index > -1 ? materials[index] : materials.back();
 }
 
@@ -98,24 +97,24 @@ Instance* Object::instantiate(platform::Context* context, glm::mat4 transform)
             for (Primitive* primitive : node->getPrimitives())
             {
                 Instance* newInstance =
-                    new Instance(this, prevInstance, primitive->material, primitive->firstIndex, primitive->indexCount,
+                    new Instance(this, primitive->material, primitive->firstIndex, primitive->indexCount,
                                  primitive->firstVertex, primitive->vertexCount, localMatrix);
                 prevInstance = newInstance;
                 try_call(newInstance->init(context));
 
                 try_call(newInstance->updateUniformBuffer(context));
+
+                linearInstances.push_back(newInstance);
             }
         }
     }
 
     ASSERT(prevInstance != nullptr);
 
-    instances.push_back(prevInstance);
-
     return prevInstance;
 }
 std::vector<Instance*>& Object::getInstances()
 {
-    return instances;
+    return linearInstances;
 }
 } // namespace model

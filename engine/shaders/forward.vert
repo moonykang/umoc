@@ -29,13 +29,6 @@ void main() {
     outPos = world_pos.xyz;
     outUV = inUV;
 
-    vec4 temp = globalUBO.view_proj * world_pos;
-    mat4 temp2 = globalUBO.view_proj;
-    vec4 temp3 = globalUBO.view_inverse * world_pos;
-    vec4 temp4 = globalUBO.view_proj_inverse * world_pos;
-    vec4 temp5 = globalUBO.prev_view_proj * world_pos;
-    vec4 tmep6 = globalUBO.cam_pos;
-
     mat3 normal_mat = mat3(lubo.transform);
     outNormal    = normal_mat * inNormal;
 }
