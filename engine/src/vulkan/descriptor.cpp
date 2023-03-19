@@ -145,13 +145,11 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
 
             auto& bufferInfo = bufferInfos.emplace_back();
             bufferInfo.buffer = buffer->getHandle();
-            bufferInfo.offset = bufferDescriptor->getOffset();
+            bufferInfo.offset = 0;
             bufferInfo.range = bufferDescriptor->getRange();
             writeDescriptorSet.pBufferInfo = &bufferInfo;
 
             delete bufferDescriptor;
-            LOGD("buffer %p offset %zu range %zu", bufferInfo.buffer, bufferInfo.offset, bufferInfo.range);
-
             break;
         }
         case rhi::DescriptorType::Sampler:
@@ -191,7 +189,6 @@ void DescriptorSet::bind(rhi::Context* rhiContext, uint32_t binding)
 
     CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
 
-    // minUniformBufferOffsetAlignment
     commandBuffer->bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->getLayout()->getHandle(), binding, 1,
                                       &mHandle, static_cast<uint32_t>(dynamicOffsets.size()), dynamicOffsets.data());
 }
