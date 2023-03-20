@@ -16,6 +16,8 @@ class Object;
 namespace scene
 {
 class View;
+class RenderTargets;
+
 class SceneInfo
 {
   public:
@@ -47,11 +49,17 @@ class SceneInfo
         return view;
     }
 
+    RenderTargets* getRenderTargets()
+    {
+        return renderTargets;
+    }
+
   protected:
     void registerObject(platform::Context* context, model::Object* object);
 
   protected:
     std::vector<model::Object*> models;
     View* view;
+    RenderTargets* renderTargets;
 };
 } // namespace scene

@@ -39,11 +39,17 @@ class Texture
 
     virtual ~Texture() = default;
 
+    // For texture loading
     Result init(Context* context, std::string path, platform::ImageLoader imageLoader);
+
+    // For render targets
+    Result init(Context* context, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags);
 
     void terminate(Context* context);
 
     ImageDescriptor* getImageDescriptor();
+
+    Image* getImage();
 
   private:
     Image* image;

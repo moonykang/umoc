@@ -426,6 +426,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         graphicsPipelineCreateInfo.pViewportState = &viewportState;
         graphicsPipelineCreateInfo.pRasterizationState = &rasterizationState;
         graphicsPipelineCreateInfo.pMultisampleState = &multisampleState;
+        graphicsPipelineCreateInfo.pDepthStencilState = &pipelineDepthStencilState;
         graphicsPipelineCreateInfo.pColorBlendState = &colorBlendState;
         graphicsPipelineCreateInfo.pDynamicState = &dynamicState;
         graphicsPipelineCreateInfo.layout = newPipeline->getLayout()->getHandle();

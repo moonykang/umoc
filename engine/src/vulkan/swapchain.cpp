@@ -28,7 +28,7 @@ void SwapchainSemaphore::terminate(VkDevice device)
     presentSemaphore.terminate(device);
 }
 
-Swapchain::Swapchain() : imageCount(0), currentImageIndex(0)
+Swapchain::Swapchain() : imageCount(0), currentImageIndex(0), swapchainExtent({})
 {
 }
 
@@ -43,7 +43,7 @@ Result Swapchain::init(Context* context)
     VkSurfaceCapabilitiesKHR surfaceCapabilities = surface->getSurfaceCapabilities(physicalDevice->getHandle());
     std::vector<VkPresentModeKHR> presentModes = surface->getSurfacePresentModes(physicalDevice->getHandle());
 
-    VkExtent2D swapchainExtent = surfaceCapabilities.currentExtent;
+    swapchainExtent = surfaceCapabilities.currentExtent;
 
     uint32_t desiredNumberOfSwapchainImages = surfaceCapabilities.minImageCount + 1;
     if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount))
@@ -178,6 +178,11 @@ Image* Swapchain::getCurrentSurfaceImage()
     ASSERT(currentSwapchainImage->valid());
 
     return currentSwapchainImage;
+}
+
+VkExtent2D Swapchain::getSize()
+{
+    return swapchainExtent;
 }
 
 VkResult Swapchain::create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo)

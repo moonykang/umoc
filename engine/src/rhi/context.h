@@ -43,6 +43,8 @@ class Context : public platform::Context
 
     virtual Image* getCurrentSurfaceImage() = 0;
 
+    virtual Extent3D getSurfaceSize() = 0;
+
     virtual Result beginRenderpass(RenderPassInfo& renderpassInfo) = 0;
 
     virtual Result endRenderpass() = 0;
@@ -53,6 +55,8 @@ class Context : public platform::Context
 
     virtual void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
                              uint32_t firstInstance) = 0;
+
+    virtual Result addTransition(Image* image, ImageLayout layout) = 0;
 
   public:
     VertexBuffer* allocateVertexBuffer(size_t size, void* data);

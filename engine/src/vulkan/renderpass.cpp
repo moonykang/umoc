@@ -66,37 +66,41 @@ Result Renderpass::init(Context* context, rhi::RenderPassInfo& renderpassInfo, s
     // TODO: only 1 subpass for now
     // TODO: No input attachment for now
     std::vector<VkSubpassDescription> subpassDescriptions;
-    std::vector<std::vector<VkAttachmentReference>> AttachmentReferences;
+    std::vector<std::vector<VkAttachmentReference>> attachmentReferencesList;
+    attachmentReferencesList.reserve(8);
+
     for (auto& subpass : renderpassInfo.subpassDescriptions)
     {
-        auto& AttachmentReference = AttachmentReferences.emplace_back();
+        auto& attachmentReferences = attachmentReferencesList.emplace_back();
+        attachmentReferences.reserve(8);
+
+        VkSubpassDescription& subpassDescription = subpassDescriptions.emplace_back();
+        subpassDescription = {};
 
         for (auto& colorReference : subpass.colorAttachmentReference)
         {
-            AttachmentReference.push_back(
+            attachmentReferences.push_back(
                 {static_cast<uint32_t>(colorReference.id), convertImageLayout(colorReference.imageLayout)});
         }
-        VkSubpassDescription subpassDescription = {};
         subpassDescription.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpassDescription.colorAttachmentCount = static_cast<uint32_t>(AttachmentReference.size());
-        subpassDescription.pColorAttachments = AttachmentReference.data();
+        subpassDescription.colorAttachmentCount = static_cast<uint32_t>(attachmentReferences.size());
+        subpassDescription.pColorAttachments = attachmentReferences.data();
 
         if (subpass.resolveAttachmentReference.has_value())
         {
             auto& resolveAttachment = subpass.resolveAttachmentReference.value();
-            AttachmentReference.push_back(
+            attachmentReferences.push_back(
                 {static_cast<uint32_t>(resolveAttachment.id), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-            subpassDescription.pResolveAttachments = &AttachmentReference.back();
+            subpassDescription.pResolveAttachments = &attachmentReferences.back();
         }
 
         if (subpass.depthAttachmentReference.has_value())
         {
             auto& depthStencilAttachment = subpass.depthAttachmentReference.value();
-            AttachmentReference.push_back(
+            attachmentReferences.push_back(
                 {static_cast<uint32_t>(depthStencilAttachment.id), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
-            subpassDescription.pDepthStencilAttachment = &AttachmentReference.back();
+            subpassDescription.pDepthStencilAttachment = &attachmentReferences.back();
         }
-        subpassDescriptions.push_back(subpassDescription);
     }
     // TODO: only 1 subpass for now
     std::vector<VkSubpassDependency> subpassDependency;

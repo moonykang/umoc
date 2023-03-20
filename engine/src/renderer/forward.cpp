@@ -7,9 +7,11 @@
 #include "rhi/context.h"
 #include "rhi/defines.h"
 #include "rhi/descriptor.h"
+#include "rhi/image.h"
 #include "rhi/rendertarget.h"
 #include "rhi/resources.h"
 #include "rhi/shader.h"
+#include "scene/rendertargets.h"
 #include "scene/scene.h"
 #include "scene/testScene.h"
 #include "scene/view.h"
@@ -80,8 +82,18 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
         {context->getCurrentSurfaceImage(), rhi::AttachmentLoadOp::Clear, rhi::AttachmentStoreOp::Store, 1,
          rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
 
+    rhi::AttachmentId depthAttachmentId = renderpassInfo.registerDepthStencilAttachment(
+        {sceneInfo->getRenderTargets()->getSceneDepth()->getImage(), rhi::AttachmentLoadOp::Clear,
+         rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::DepthStencilAttachment,
+         rhi::ImageLayout::DepthStencilAttachment});
+
     auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
+    subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
+
+    try(context->addTransition(context->getCurrentSurfaceImage(), rhi::ImageLayout::ColorAttachment));
+    try(context->addTransition(sceneInfo->getRenderTargets()->getSceneDepth()->getImage(),
+                               rhi::ImageLayout::DepthStencilAttachment));
 
     try(context->beginRenderpass(renderpassInfo));
 
@@ -95,6 +107,8 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
+    graphicsPipelineState.depthStencilState.depthTestEnable = true;
+    graphicsPipelineState.depthStencilState.depthWriteEnable = true;
 
     for (auto& model : testScene->getModels())
     {

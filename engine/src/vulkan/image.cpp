@@ -14,6 +14,17 @@ rhi::Image* Context::allocateImage(rhi::DescriptorType descriptorType)
     return new Image(descriptorType);
 }
 
+Result Context::addTransition(rhi::Image* rhiImage, rhi::ImageLayout layout)
+{
+    Image* image = reinterpret_cast<Image*>(rhiImage);
+
+    CommandBuffer* commandBuffer = getUploadCommandBuffer();
+
+    commandBuffer->addTransition(image->updateImageLayoutAndBarrier(layout));
+
+    return Result::Continue;
+}
+
 Result ImageView::init(Context* context, VkImage image, Format format, VkComponentMapping components,
                        VkImageSubresourceRange subresourceRange, VkImageViewType viewType)
 {

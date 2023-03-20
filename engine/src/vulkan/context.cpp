@@ -129,6 +129,12 @@ rhi::Image* Context::getCurrentSurfaceImage()
     return swapchain->getCurrentSurfaceImage();
 }
 
+rhi::Extent3D Context::getSurfaceSize()
+{
+    VkExtent2D extent = swapchain->getSize();
+    return {extent.width, extent.height, 1};
+}
+
 Instance* Context::getInstance() const
 {
     ASSERT(instance);

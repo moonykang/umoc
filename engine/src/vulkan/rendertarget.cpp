@@ -131,6 +131,26 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
         clearValues.push_back(clearValue);
     }
 
+    if (renderpassInfo.ResolveAttachmentDescription.has_value())
+    {
+        Image* image = reinterpret_cast<Image*>(renderpassInfo.ResolveAttachmentDescription.value().image);
+        commandBuffer->addTransition(image->updateImageLayoutAndBarrier(rhi::ImageLayout::ColorAttachment));
+
+        VkClearValue clearValue = {};
+        clearValue.color = {0.0f, 0.0f, 0.0f, 1.0f};
+        clearValues.push_back(clearValue);
+    }
+
+    if (renderpassInfo.DepthStencilAttachmentDescription.has_value())
+    {
+        Image* image = reinterpret_cast<Image*>(renderpassInfo.DepthStencilAttachmentDescription.value().image);
+        commandBuffer->addTransition(image->updateImageLayoutAndBarrier(rhi::ImageLayout::DepthStencilAttachment));
+
+        VkClearValue clearValue = {};
+        clearValue.depthStencil = {1.f, 0};
+        clearValues.push_back(clearValue);
+    }
+
     rhi::Extent3D frameBufferExtent = framebuffer->getExtent();
 
     VkRenderPassBeginInfo renderpassBeginInfo = {};

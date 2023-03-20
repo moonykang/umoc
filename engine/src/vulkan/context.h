@@ -45,6 +45,8 @@ class Context : public rhi::Context
 
     rhi::Image* getCurrentSurfaceImage() override;
 
+    rhi::Extent3D getSurfaceSize() override;
+
     Result flush() override;
 
     Result present() override;
@@ -61,6 +63,8 @@ class Context : public rhi::Context
 
     void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
                      uint32_t firstInstance) override;
+
+    Result addTransition(rhi::Image* image, rhi::ImageLayout layout) override;
     // factory
   public:
     rhi::Buffer* allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,

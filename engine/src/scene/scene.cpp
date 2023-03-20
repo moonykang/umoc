@@ -3,11 +3,12 @@
 #include "platform/context.h"
 #include "platform/input.h"
 #include "platform/window.h"
+#include "rendertargets.h"
 #include "view.h"
 
 namespace scene
 {
-SceneInfo::SceneInfo() : view(nullptr)
+SceneInfo::SceneInfo() : view(nullptr), renderTargets(nullptr)
 {
 }
 
@@ -18,6 +19,9 @@ Result SceneInfo::init(platform::Context* context)
 
     try(context->getWindow()->getInput()->attach(view));
 
+    renderTargets = new RenderTargets();
+    try(renderTargets->init(context));
+
     return postInit(context);
 }
 
@@ -27,6 +31,7 @@ void SceneInfo::terminate(platform::Context* context)
     context->getWindow()->getInput()->dettach();
 
     TERMINATE(view, context);
+    TERMINATE(renderTargets, context);
 
     for (auto& model : models)
     {

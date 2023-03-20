@@ -38,6 +38,8 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
 
     Image* getCurrentSurfaceImage();
 
+    VkExtent2D getSize();
+
   private:
     VkResult create(VkDevice device, const VkSwapchainCreateInfoKHR& createInfo);
 
@@ -54,5 +56,6 @@ class Swapchain : public WrappedObject<Swapchain, VkSwapchainKHR>
     std::vector<SwapchainSemaphore> semaphores;
     uint32_t imageCount;
     uint32_t currentImageIndex;
+    VkExtent2D swapchainExtent;
 };
 } // namespace vk
