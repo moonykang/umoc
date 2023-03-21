@@ -13,8 +13,14 @@ namespace model
 class Object;
 }
 
+namespace rhi
+{
+class DescriptorSet;
+}
+
 namespace scene
 {
+class Light;
 class View;
 class RenderTargets;
 
@@ -49,10 +55,19 @@ class SceneInfo
         return view;
     }
 
+    Light* getLight()
+    {
+        return light;
+    }
+
     RenderTargets* getRenderTargets()
     {
         return renderTargets;
     }
+
+    Result updateDescriptor(platform::Context* context);
+
+    rhi::DescriptorSet* getDescriptorSet();
 
   protected:
     void registerObject(platform::Context* context, model::Object* object);
@@ -60,6 +75,8 @@ class SceneInfo
   protected:
     std::vector<model::Object*> models;
     View* view;
+    Light* light;
     RenderTargets* renderTargets;
+    rhi::DescriptorSet* sceneDescriptorSet;
 };
 } // namespace scene

@@ -100,7 +100,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     ForwardShaderParameters params;
     params.vertexShader = &forwardVertexShader;
     params.pixelShader = &forwardPixelShader;
-    params.globalDescriptor = sceneInfo->getView()->getDescriptorSet();
+    params.globalDescriptor = sceneInfo->getDescriptorSet();
 
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.shaderParameters = &params;
@@ -120,7 +120,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
             params.localDescriptor = instance->getDescriptorSet();
             context->createGfxPipeline(graphicsPipelineState);
 
-            sceneInfo->getView()->getDescriptorSet()->bind(context, 0);
+            sceneInfo->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);
             materialDescriptor->bind(context, 2);
 

@@ -9,6 +9,7 @@
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
 #include "rhi/image.h"
+#include "scene/light.h"
 #include "scene/view.h"
 
 namespace scene
@@ -23,7 +24,8 @@ Result TestScene::load(platform::Context* context)
     auto loader = model::gltf::Loader::Builder()
                       .setPath("sponza/")
                       .setFileName("sponza.gltf")
-                      .setMaterialFlags(model::MaterialFlag::BaseColorTexture)
+                      //.setMaterialFlags(model::MaterialFlag::BaseColorTexture)
+                      .setMaterialFlags(model::MaterialFlag::All)
                       .build();
 
     model::Object* object = loader->load(context);
@@ -36,7 +38,12 @@ Result TestScene::load(platform::Context* context)
     view->updateViewMatrix();
 
     try(view->updateUniformBuffer(context));
-    try(view->updateDescriptor(context));
+
+    light->setLight(glm::vec4(-1.0f, -3.0f, 0.0f, 1.0f));
+
+    try(light->updateUniformBuffer(context));
+
+    try(updateDescriptor(context));
 
     return Result::Continue;
 }

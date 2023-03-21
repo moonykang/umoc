@@ -6,7 +6,7 @@
 
 namespace scene
 {
-View::View() : dirty(true), uniformBuffer(nullptr), descriptorSet(nullptr)
+View::View() : dirty(true), uniformBuffer(nullptr)
 {
 }
 
@@ -20,20 +20,11 @@ Result View::init(platform::Context* platformContext)
 
     uniformBuffer = context->allocateUniformBuffer(uniformDataSize, &ubo);
 
-    descriptorSet = context->allocateDescriptorSet();
-
-    rhi::DescriptorInfoList descriptorInfoList;
-    descriptorInfoList.push_back({0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic});
-
-    try(descriptorSet->init(context, descriptorInfoList));
-
     return Result::Continue;
 }
 
 void View::terminate(platform::Context* platformContext)
 {
-    rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-    TERMINATE(descriptorSet, context);
 }
 
 void View::setView(glm::vec3 position, glm::vec3 rotation)
@@ -68,7 +59,7 @@ void View::updateView()
             position -= glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * moveSpped;
         }
 
-        if (keyInput.left)
+        if (keyInput.right)
         {
             position += glm::normalize(glm::cross(camFront, glm::vec3(0.0f, 1.0f, 0.0f))) * moveSpped;
         }
@@ -131,19 +122,9 @@ Result View::updateUniformBuffer(platform::Context* platformContext)
     return Result::Continue;
 }
 
-Result View::updateDescriptor(platform::Context* platformContext)
+rhi::UniformBuffer* View::getUniformBuffer()
 {
-    rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-
-    std::vector<uint32_t> offsets;
-    offsets.push_back(uniformBuffer->getOffset());
-
-    rhi::DescriptorList descriptorList;
-    descriptorList.push_back({{0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic},
-                              uniformBuffer->getBufferDescriptor()});
-    try(descriptorSet->update(context, descriptorList, offsets));
-
-    return Result::Continue;
+    return uniformBuffer;
 }
 
 void View::rotate(glm::vec3 delta)

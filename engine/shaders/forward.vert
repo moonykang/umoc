@@ -1,6 +1,6 @@
 #version 450
 
-layout(set = 0, binding = 0) uniform PerFrameUBO
+layout(set = 0, binding = 0) uniform GlobalUBO_1
 {
     mat4  view_inverse;
     mat4  proj_inverse;
@@ -8,7 +8,13 @@ layout(set = 0, binding = 0) uniform PerFrameUBO
     mat4  prev_view_proj;
     mat4  view_proj;
     vec4  cam_pos;
-} globalUBO;
+} sceneView;
+
+layout(set = 0, binding = 1) uniform GlobalUBO_2
+{
+    vec4  lightPosition;
+} sceneLight;
+
 
 layout(set = 1, binding = 0) uniform LocalUniformBufferObject {
     mat4 transform;
@@ -25,7 +31,7 @@ layout (location = 2) out vec3 outNormal;
 void main() {
     vec4 world_pos = lubo.transform * vec4(inPosition, 1.0);
 
-    gl_Position = globalUBO.view_proj * world_pos;
+    gl_Position = sceneView.view_proj * world_pos;
     outPos = world_pos.xyz;
     outUV = inUV;
 

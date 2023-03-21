@@ -27,11 +27,6 @@ class View
 
     void terminate(platform::Context* context);
 
-    rhi::DescriptorSet* getDescriptorSet()
-    {
-        return descriptorSet;
-    }
-
     void setView(glm::vec3 position, glm::vec3 rotation);
 
     void updateView();
@@ -42,7 +37,7 @@ class View
 
     Result updateUniformBuffer(platform::Context* context);
 
-    Result updateDescriptor(platform::Context* context);
+    rhi::UniformBuffer* getUniformBuffer();
 
     void rotate(glm::vec3 delta);
 
@@ -66,7 +61,6 @@ class View
     } ubo;
 
     rhi::UniformBuffer* uniformBuffer;
-    rhi::DescriptorSet* descriptorSet;
 
     static constexpr size_t uniformDataSize = sizeof(UniformBufferObject);
 
@@ -87,7 +81,7 @@ class View
 
   private:
     float rotationSpeed = 0.3f;
-    float moveSpped = 0.3f;
+    float moveSpped = 0.1f;
 
     struct
     {

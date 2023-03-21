@@ -99,7 +99,7 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
     TriangleShaderParameters params;
     params.vertexShader = &triangleVertexShader;
     params.pixelShader = &trianglePixelShader;
-    params.globalDescriptor = sceneInfo->getView()->getDescriptorSet();
+    params.globalDescriptor = sceneInfo->getDescriptorSet();
 
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.shaderParameters = &params;
@@ -117,7 +117,7 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
             params.localDescriptor = instance->getDescriptorSet();
             context->createGfxPipeline(graphicsPipelineState);
 
-            sceneInfo->getView()->getDescriptorSet()->bind(context, 0);
+            sceneInfo->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);
             materialDescriptor->bind(context, 2);
 

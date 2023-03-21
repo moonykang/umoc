@@ -117,7 +117,9 @@ Result DescriptorSet::update(rhi::Context* rhiContext, rhi::DescriptorList descr
     */
     std::vector<VkWriteDescriptorSet> writeDescriptorSets;
     std::vector<VkDescriptorBufferInfo> bufferInfos;
+    bufferInfos.reserve(32);
     std::vector<VkDescriptorImageInfo> imageInfos;
+    imageInfos.reserve(32);
 
     dynamicOffsets = std::move(offsets);
 
