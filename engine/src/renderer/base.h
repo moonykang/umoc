@@ -19,7 +19,7 @@ class Base
   public:
     virtual ~Base() = default;
 
-    virtual Result init(platform::Context* context) = 0;
+    virtual Result init(platform::Context* context, scene::SceneInfo* sceneInfo) = 0;
 
     virtual void terminate(platform::Context* context) = 0;
 
@@ -29,7 +29,7 @@ class Base
 class BaseRenderPass
 {
   public:
-    Result init(platform::Context* context);
+    Result init(platform::Context* context, scene::SceneInfo* sceneInfo);
 
     void terminate(platform::Context* context);
 

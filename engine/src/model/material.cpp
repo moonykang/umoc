@@ -7,47 +7,16 @@
 
 namespace model
 {
-Material::MaterialUniformBlock::MaterialUniformBlock()
-    : alphaMode(AlphaMode::Opaque), materialFactors(glm::vec4(1.f)), baseColorFactor(glm::vec4(1.f))
-{
-}
-
-void Material::setAlphaCutoff(float alphaCutoff)
-{
-    ubo.materialFactors.x = alphaCutoff;
-}
-
-void Material::setMetallicFactor(float metallicFactor)
-{
-    ubo.materialFactors.y = metallicFactor;
-}
-
-void Material::setRoughnessFactor(float roughnessFactor)
-{
-    ubo.materialFactors.z = roughnessFactor;
-}
-
-void Material::setBaseColorFactor(glm::vec4 colorFactor)
-{
-    ubo.baseColorFactor = colorFactor;
-}
-
-void Material::setAlphaMode(AlphaMode alphaMode)
-{
-    ubo.alphaMode = alphaMode;
-}
-
 Material::Material()
-    : ubo(), baseColorTexture(nullptr), metallicRoughnessTexture(nullptr), normalTexture(nullptr),
-      occlusionTexture(nullptr), emissiveTexture(nullptr), specularGlossinessTexture(nullptr), diffuseTexture(nullptr),
-      uniformBuffer(nullptr), descriptorSet(nullptr)
+    : baseColorTexture(nullptr), metallicRoughnessTexture(nullptr), normalTexture(nullptr), occlusionTexture(nullptr),
+      emissiveTexture(nullptr), specularGlossinessTexture(nullptr), diffuseTexture(nullptr), uniformBuffer(nullptr),
+      descriptorSet(nullptr)
 {
 }
 
 Result Material::init(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-    uniformBuffer = context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo);
     descriptorSet = context->allocateDescriptorSet();
 
     return Result::Continue;
@@ -59,18 +28,18 @@ Result Material::update(platform::Context* platformContext)
 
     uint32_t binding = 0;
     rhi::DescriptorInfoList descriptorInfoList;
-
-    std::vector<uint32_t> offsets;
-    try(uniformBuffer->update(context, sizeof(MaterialUniformBlock), &ubo));
-    offsets.push_back(uniformBuffer->getOffset());
-
     rhi::DescriptorList descriptorList;
 
-    auto bufferDescriptor = uniformBuffer->getBufferDescriptor();
+    std::vector<uint32_t> offsets;
+    if (uniformBuffer)
+    {
+        offsets.push_back(uniformBuffer->getOffset());
+        auto bufferDescriptor = uniformBuffer->getBufferDescriptor();
 
-    descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic});
-    descriptorList.push_back(
-        {{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic}, bufferDescriptor});
+        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic});
+        descriptorList.push_back(
+            {{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic}, bufferDescriptor});
+    }
 
     if (baseColorTexture)
     {

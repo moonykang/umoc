@@ -24,9 +24,9 @@ class Material
 
     ~Material() = default;
 
-    Result init(platform::Context* context);
+    virtual Result init(platform::Context* context);
 
-    Result update(platform::Context* context);
+    virtual Result update(platform::Context* context);
 
     void terminate(platform::Context* context);
 
@@ -36,26 +36,7 @@ class Material
 
     rhi::DescriptorSet* getDescriptorSet();
 
-    void setAlphaCutoff(float v);
-
-    void setMetallicFactor(float v);
-
-    void setRoughnessFactor(float v);
-
-    void setBaseColorFactor(glm::vec4 colorFactor);
-
-    void setAlphaMode(AlphaMode alphaMode);
-
-  private:
-    struct MaterialUniformBlock
-    {
-        glm::vec4 materialFactors; // x: alphaCutoff, y: metallicFactor, z: roughnessFactor, w: reserved
-        glm::vec4 baseColorFactor;
-        AlphaMode alphaMode; // align?
-
-        MaterialUniformBlock();
-    } ubo;
-
+  protected:
     rhi::Texture* baseColorTexture;
     rhi::Texture* metallicRoughnessTexture;
     rhi::Texture* normalTexture;

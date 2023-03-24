@@ -1,6 +1,6 @@
 #define TINYGLTF_IMPLEMENTATION
 #include "loader.h"
-#include "model/material.h"
+#include "material.h"
 #include "model/node.h"
 #include "model/object.h"
 #include "model/vertexInput.h"
@@ -446,7 +446,7 @@ Result Loader::loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeI
                 }
             }
 
-            Material* material = object->getMaterial(primitive.material);
+            model::Material* material = object->getMaterial(primitive.material);
             Primitive* newPrimitive = new Primitive(indexStart, indexCount, material);
             newPrimitive->firstVertex = vertexStart;
             newPrimitive->vertexCount = vertexCount;

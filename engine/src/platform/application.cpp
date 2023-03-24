@@ -18,7 +18,7 @@ Result Application::init(Context* context)
     try(sceneInfo->load(context));
 
     baseRenderpass = new renderer::BaseRenderPass();
-    try(baseRenderpass->init(context));
+    try(baseRenderpass->init(context, sceneInfo));
 
     return Result::Continue;
 }

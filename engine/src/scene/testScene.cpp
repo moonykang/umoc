@@ -31,7 +31,7 @@ Result TestScene::load(platform::Context* context)
     model::Object* object = loader->load(context);
     registerObject(context, object);
 
-    object->instantiate(context, glm::mat4(1.0f));
+    object->instantiate(context, glm::mat4(1.0f), true);
 
     view->setView(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);

@@ -84,7 +84,7 @@ void Object::addLinearNode(Node* node)
     linearNodes.push_back(node);
 }
 
-Instance* Object::instantiate(platform::Context* context, glm::mat4 transform)
+Instance* Object::instantiate(platform::Context* context, glm::mat4 transform, bool initDescriptor)
 {
     Instance* prevInstance = nullptr;
 
@@ -100,9 +100,13 @@ Instance* Object::instantiate(platform::Context* context, glm::mat4 transform)
                     new Instance(this, primitive->material, primitive->firstIndex, primitive->indexCount,
                                  primitive->firstVertex, primitive->vertexCount, localMatrix);
                 prevInstance = newInstance;
-                try_call(newInstance->init(context));
 
-                try_call(newInstance->updateUniformBuffer(context));
+                try_call(newInstance->init(context, initDescriptor));
+
+                if (initDescriptor)
+                {
+                    try_call(newInstance->updateUniformBuffer(context));
+                }
 
                 linearInstances.push_back(newInstance);
             }

@@ -7,7 +7,7 @@ namespace renderer
 class ScreenPass : public Base
 {
   public:
-    Result init(platform::Context* context) override;
+    Result init(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
     void terminate(platform::Context* context) override;
 

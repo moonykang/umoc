@@ -1,4 +1,5 @@
 #include "base.h"
+#include "bloom.h"
 #include "forward.h"
 #include "platform/context.h"
 #include "rhi/context.h"
@@ -8,13 +9,14 @@
 
 namespace renderer
 {
-Result BaseRenderPass::init(platform::Context* context)
+Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneInfo)
 {
     passes.push_back(new Forward());
+    passes.push_back(new BloomPass());
 
     for (auto& pass : passes)
     {
-        try(pass->init(context));
+        try(pass->init(context, sceneInfo));
         // delete pass;
     }
 
@@ -25,6 +27,7 @@ void BaseRenderPass::terminate(platform::Context* context)
 {
     for (auto pass : passes)
     {
+        pass->terminate(context);
         delete pass;
     }
     passes.clear();

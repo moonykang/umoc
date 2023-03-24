@@ -56,7 +56,7 @@ ForwardFragmentShader forwardPixelShader;
 
 namespace renderer
 {
-Result Forward::init(platform::Context* platformContext)
+Result Forward::init(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     LOGD("Init Forward pass");
 
@@ -79,8 +79,8 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
 
     rhi::RenderPassInfo renderpassInfo;
     rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
-        {context->getCurrentSurfaceImage(), rhi::AttachmentLoadOp::Clear, rhi::AttachmentStoreOp::Store, 1,
-         rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
+        {sceneInfo->getRenderTargets()->getSceneColor()->getImage(), rhi::AttachmentLoadOp::Clear,
+         rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
 
     rhi::AttachmentId depthAttachmentId = renderpassInfo.registerDepthStencilAttachment(
         {sceneInfo->getRenderTargets()->getSceneDepth()->getImage(), rhi::AttachmentLoadOp::Clear,
@@ -91,7 +91,8 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
     subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
 
-    try(context->addTransition(context->getCurrentSurfaceImage(), rhi::ImageLayout::ColorAttachment));
+    try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
+                               rhi::ImageLayout::ColorAttachment));
     try(context->addTransition(sceneInfo->getRenderTargets()->getSceneDepth()->getImage(),
                                rhi::ImageLayout::DepthStencilAttachment));
 
@@ -106,7 +107,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     graphicsPipelineState.shaderParameters = &params;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
+    // graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
     graphicsPipelineState.depthStencilState.depthTestEnable = true;
     graphicsPipelineState.depthStencilState.depthWriteEnable = true;
 

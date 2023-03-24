@@ -2,9 +2,20 @@
 
 #include "base.h"
 
+namespace rhi
+{
+class DescriptorSet;
+class UniformBuffer;
+} // namespace rhi
+namespace model
+{
+class Object;
+class Instance;
+} // namespace model
+
 namespace renderer
 {
-class Forward : public Base
+class BloomPass : public Base
 {
   public:
     Result init(platform::Context* context, scene::SceneInfo* sceneInfo) override;
@@ -12,5 +23,9 @@ class Forward : public Base
     void terminate(platform::Context* context) override;
 
     Result render(platform::Context* context, scene::SceneInfo* sceneInfo) override;
+
+  private:
+    model::Object* object;
+    model::Instance* instance;
 };
 } // namespace renderer

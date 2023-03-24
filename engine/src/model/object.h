@@ -52,7 +52,7 @@ class Object
     void addLinearNode(Node* node);
 
   public:
-    Instance* instantiate(platform::Context* context, glm::mat4 transform);
+    Instance* instantiate(platform::Context* context, glm::mat4 transform, bool initDescriptor);
 
     std::vector<Instance*>& getInstances();
 

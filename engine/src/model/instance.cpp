@@ -16,21 +16,24 @@ Instance::Instance(Object* object, Material* material, uint32_t firstIndex, uint
 {
 }
 
-Result Instance::init(platform::Context* platformContext)
+Result Instance::init(platform::Context* platformContext, bool initDescriptor)
 {
     std::lock_guard<std::mutex> lock(mutex);
 
     if (!initialized)
     {
-        rhi::Context* context = platformContext->getRHI();
+        if (initDescriptor)
+        {
+            rhi::Context* context = platformContext->getRHI();
 
-        uniformBuffer = context->allocateUniformBuffer(sizeof(UniformBufferObject), &ubo);
+            uniformBuffer = context->allocateUniformBuffer(sizeof(UniformBufferObject), &ubo);
 
-        descriptorSet = context->allocateDescriptorSet();
+            descriptorSet = context->allocateDescriptorSet();
 
-        rhi::DescriptorInfoList descriptorInfoList;
-        descriptorInfoList.push_back({0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic});
-        descriptorSet->init(context, descriptorInfoList);
+            rhi::DescriptorInfoList descriptorInfoList;
+            descriptorInfoList.push_back({0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic});
+            descriptorSet->init(context, descriptorInfoList);
+        }
 
         initialized = true;
     }
@@ -78,13 +81,6 @@ void Instance::draw(platform::Context* platformContext)
     rhi::Context* context = platformContext->getRHI();
 
     context->drawIndexed(indexCount, 1, firstIndex, 0, 0);
-
-    /*
-    if (prevInstance != nullptr)
-    {
-        prevInstance->draw(context);
-    }
-     */
 }
 
 Material* Instance::getMaterial()

@@ -162,6 +162,7 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
     renderpassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderpassBeginInfo.pClearValues = clearValues.data();
 
+    try(context->submitUploadCommandBuffer());
     commandBuffer->beginRenderPass(renderpassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     VkViewport viewport = {};

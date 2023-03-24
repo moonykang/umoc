@@ -1,4 +1,5 @@
 #include "loader.h"
+#include "model/material.h"
 #include "model/node.h"
 #include "model/object.h"
 #include "model/vertexInput.h"
@@ -7,6 +8,25 @@ namespace model
 {
 namespace predefined
 {
+Loader::Builder::Builder() : material(nullptr)
+{
+}
+
+Loader::Builder& Loader::Builder::setMaterial(Material* material)
+{
+    this->material = material;
+    return *this;
+}
+
+std::shared_ptr<Loader> Loader::Builder::build()
+{
+    return std::make_shared<Loader>(material);
+}
+
+Loader::Loader(Material* material) : material(material)
+{
+}
+
 Object* Loader::load(platform::Context* context)
 {
     Object* newObject = new Object();
@@ -59,7 +79,16 @@ Object* Loader::load(platform::Context* context)
     try_call(newObject->getVertexInput()->loadVertexBuffer(context, vertices));
     try_call(newObject->getVertexInput()->loadIndexBuffer(context, indices));
 
-    try_call(loadMaterial(context, newObject));
+    if (material)
+    {
+        try_call(material->init(context));
+        try_call(material->update(context));
+        newObject->addMaterial(material);
+    }
+    else
+    {
+        try_call(loadMaterial(context, newObject));
+    }
 
     Node* newNode = new Node(nullptr);
     Mesh* newMesh = new Mesh("noname");

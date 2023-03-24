@@ -26,12 +26,12 @@ class Material;
 class Instance
 {
   public:
-    Instance(Object* object, Material* material, uint32_t firstIndex, uint32_t indexCount,
-             uint32_t firstVertex, uint32_t vertexCount, glm::mat4 transform);
+    Instance(Object* object, Material* material, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
+             uint32_t vertexCount, glm::mat4 transform);
 
     virtual ~Instance() = default;
 
-    Result init(platform::Context* context);
+    Result init(platform::Context* context, bool initDescriptor);
 
     void terminate(platform::Context* context);
 
