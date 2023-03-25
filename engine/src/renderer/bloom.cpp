@@ -132,7 +132,7 @@ Result BloomPass::render(platform::Context* platformContext, scene::SceneInfo* s
     graphicsPipelineState.shaderParameters = &params;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
+    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
     context->createGfxPipeline(graphicsPipelineState);
 
     materialDescriptor->bind(context, 0);
