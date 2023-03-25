@@ -19,6 +19,7 @@ class Device;
 class DeviceExtension;
 class DescriptorPool;
 class DescriptorSet;
+class DescriptorSetLayout;
 class InstanceExtension;
 class Instance;
 class PhysicalDevice;
@@ -110,6 +111,11 @@ class Context : public rhi::Context
 
     void clearAllGarbage();
 
+    DescriptorSetLayout* getEmptyDescriptorSetLayout();
+
+  private:
+    Result initEmptyDescriptorSetLayout();
+
   private:
     Instance* instance;
     Surface* surface;
@@ -120,6 +126,7 @@ class Context : public rhi::Context
     QueueMap* queueMap;
     ShaderMap* shaderMap;
     PipelineMap* pipelineMap;
+    DescriptorSetLayout* emptyDescriptorSetLayout;
 
     DebugUtilsMessenger* debugCallback;
     RenderTargetManager* renderTargetManager;

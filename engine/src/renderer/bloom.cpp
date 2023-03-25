@@ -15,7 +15,7 @@ class BloomVertexShader : public rhi::VertexShaderBase
 {
   public:
     BloomVertexShader()
-        : rhi::VertexShaderBase("bloom.vert.spv",
+        : rhi::VertexShaderBase("screen.vert.spv",
                                 rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal)
     {
     }
@@ -108,6 +108,8 @@ Result BloomPass::render(platform::Context* platformContext, scene::SceneInfo* s
     rhi::Context* context = platformContext->getRHI();
 
     rhi::RenderPassInfo renderpassInfo;
+    renderpassInfo.name = "Bloom Pass";
+
     rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
         {context->getCurrentSurfaceImage(), rhi::AttachmentLoadOp::Clear, rhi::AttachmentStoreOp::Store, 1,
          rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});

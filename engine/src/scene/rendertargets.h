@@ -29,8 +29,11 @@ class RenderTargets
 
     rhi::Texture* getSceneDepth();
 
+    rhi::Texture* getBrdfLutTexture();
+
   private:
     rhi::Texture* sceneColor;
     rhi::Texture* sceneDepth;
+    rhi::Texture* brdfLutTexture;
 };
 } // namespace scene

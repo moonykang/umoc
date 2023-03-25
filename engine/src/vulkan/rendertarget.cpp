@@ -62,8 +62,8 @@ void RenderTargetManager::terminate(VkDevice device)
 
 Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderpassInfo)
 {
-    size_t renderPassHash = generateRenderpassHash(renderpassInfo);
     size_t renderPassCompatibleHash = generateRenderpassCompatibleHash(renderpassInfo);
+    size_t renderPassHash = generateRenderpassHash(renderpassInfo, renderPassCompatibleHash);
     size_t framebufferHash = generateFramebufferHash(renderpassInfo);
 
     // get renderpass
@@ -189,13 +189,15 @@ struct RenderpassHashStruct
         memset(this, 0, sizeof(RenderpassHashStruct));
     }
 
+    size_t compatibleHash;
     VkAttachmentLoadOp loadOps[rhi::MaxSimultaneousRenderTargets];
     VkAttachmentStoreOp storeOps[rhi::MaxSimultaneousRenderTargets];
 };
 
-size_t RenderTargetManager::generateRenderpassHash(rhi::RenderPassInfo& renderpassInfo)
+size_t RenderTargetManager::generateRenderpassHash(rhi::RenderPassInfo& renderpassInfo, size_t compatibleHash)
 {
     RenderpassHashStruct renderpassHashStruct;
+    renderpassHashStruct.compatibleHash = compatibleHash;
 
     uint32_t attachmentIndex = 0;
     for (auto& colorAttachment : renderpassInfo.ColorAttachmentDescriptions)
@@ -278,6 +280,7 @@ struct FramebufferHashStruct
         memset(this, 0, sizeof(FramebufferHashStruct));
     }
 
+    uint8 numAttachments;
     VkImageView views[rhi::MaxSimultaneousRenderTargets];
 };
 
@@ -309,6 +312,7 @@ size_t RenderTargetManager::generateFramebufferHash(rhi::RenderPassInfo& renderp
         framebufferHashStruct.views[attachmentIndex] = image->getView();
         attachmentIndex++;
     }
+    framebufferHashStruct.numAttachments = attachmentIndex;
 
     return util::computeGenericHash(&framebufferHashStruct, sizeof(FramebufferHashStruct));
 }

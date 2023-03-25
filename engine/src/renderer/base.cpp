@@ -1,5 +1,6 @@
 #include "base.h"
 #include "bloom.h"
+#include "brdfLutPass.h"
 #include "forward.h"
 #include "platform/context.h"
 #include "rhi/context.h"
@@ -11,6 +12,7 @@ namespace renderer
 {
 Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneInfo)
 {
+    passes.push_back(new BrdfLutPass());
     passes.push_back(new Forward());
     passes.push_back(new BloomPass());
 

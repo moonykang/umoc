@@ -412,6 +412,11 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
             descriptorSetLayouts.push_back(descriptorSet->getLayout()->getHandle());
         }
 
+        if (descriptorSetLayouts.empty())
+        {
+            descriptorSetLayouts.push_back(context->getEmptyDescriptorSetLayout()->getHandle());
+        }
+
         Pipeline* newPipeline = new Pipeline();
         newPipeline->init(context);
         newPipeline->getLayout()->init(context, descriptorSetLayouts);

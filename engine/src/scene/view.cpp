@@ -96,7 +96,7 @@ void View::updateViewMatrix()
 void View::setPerspective(float fov, float ratio, float minDepth, float maxDepth)
 {
     projection = glm::perspective(glm::radians(fov), ratio, minDepth, maxDepth);
-    projection[1][1] *= -1;
+    // projection[1][1] *= -1;
 
     // lock
     {
@@ -157,7 +157,7 @@ void View::handle_mouse_move(float x, float y)
 
     if (mouseButtonInput.right)
     {
-        rotate(glm::vec3(-dy * rotationSpeed, -dx * rotationSpeed, 0.f));
+        rotate(glm::vec3(dy * rotationSpeed, -dx * rotationSpeed, 0.f));
     }
 
     mouseCursorPos = glm::vec2(x, y);

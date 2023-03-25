@@ -504,6 +504,7 @@ class RenderPassInfo
     AttachmentId registerDepthStencilAttachment(AttachmentDescription attachmentDescription);
 
   public:
+    std::string name;
     std::vector<AttachmentDescription> ColorAttachmentDescriptions;
     std::optional<AttachmentDescription> ResolveAttachmentDescription;
     std::optional<AttachmentDescription> DepthStencilAttachmentDescription;

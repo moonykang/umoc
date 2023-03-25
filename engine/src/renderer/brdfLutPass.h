@@ -10,7 +10,7 @@ class Instance;
 
 namespace renderer
 {
-class BloomPass : public Base
+class BrdfLutPass : public Base
 {
   public:
     Result init(platform::Context* context, scene::SceneInfo* sceneInfo) override;
@@ -23,4 +23,4 @@ class BloomPass : public Base
     model::Object* object;
     model::Instance* instance;
 };
-} // namespace renderer
+}

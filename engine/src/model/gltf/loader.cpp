@@ -392,7 +392,12 @@ Result Loader::loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeI
                         bufferTangents ? glm::cross(vertex.normal, vertex.tangent) * tangent.w : glm::vec3(0.f);
                     vertex.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
                     vertex.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
-
+                    
+                    if ((gltfLoadingFlags & model::GltfLoadingFlag::FlipY) != 0)
+                    {
+                        vertex.position.y *= -1.0f;
+                        vertex.normal.y *= -1.0f;
+                    }
                     vertices.push_back(vertex);
                 }
             }

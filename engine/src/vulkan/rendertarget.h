@@ -33,7 +33,7 @@ class RenderTargetManager
     }
 
   private:
-    size_t generateRenderpassHash(rhi::RenderPassInfo& renderpassInfo);
+    size_t generateRenderpassHash(rhi::RenderPassInfo& renderpassInfo, size_t compatibleHash);
 
     size_t generateRenderpassCompatibleHash(rhi::RenderPassInfo& renderpassInfo);
 

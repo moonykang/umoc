@@ -23,6 +23,10 @@ Result RenderTargets::init(platform::Context* platformContext)
     try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent,
                          rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
 
+    rhi::Extent3D brdfExtent = {512, 512, 1};
+    brdfLutTexture = new rhi::Texture();
+    try(brdfLutTexture->init(context, rhi::Format::R16G16_FLOAT, brdfExtent, rhi::ImageUsage::COLOR_ATTACHMENT));
+
     return Result::Continue;
 }
 
@@ -32,6 +36,7 @@ void RenderTargets::terminate(platform::Context* platformContext)
 
     TERMINATE(sceneColor, context);
     TERMINATE(sceneDepth, context);
+    TERMINATE(brdfLutTexture, context);
 }
 
 rhi::Texture* RenderTargets::getSceneColor()
@@ -42,5 +47,10 @@ rhi::Texture* RenderTargets::getSceneColor()
 rhi::Texture* RenderTargets::getSceneDepth()
 {
     return sceneDepth;
+}
+
+rhi::Texture* RenderTargets::getBrdfLutTexture()
+{
+    return brdfLutTexture;
 }
 } // namespace scene

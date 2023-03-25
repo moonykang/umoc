@@ -10,6 +10,21 @@
 
 namespace vk
 {
+
+Result Context::initEmptyDescriptorSetLayout()
+{
+    emptyDescriptorSetLayout = new DescriptorSetLayout();
+
+    rhi::DescriptorInfoList descriptorInfoList;
+    return emptyDescriptorSetLayout->init(this, descriptorInfoList);
+}
+
+DescriptorSetLayout* Context::getEmptyDescriptorSetLayout()
+{
+    ASSERT(emptyDescriptorSetLayout);
+    return emptyDescriptorSetLayout;
+}
+
 Result DescriptorSetLayout::init(Context* context, rhi::DescriptorInfoList& descriptorInfoList)
 {
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;

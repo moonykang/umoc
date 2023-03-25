@@ -26,6 +26,7 @@ Result TestScene::load(platform::Context* context)
                       .setFileName("sponza.gltf")
                       //.setMaterialFlags(model::MaterialFlag::BaseColorTexture)
                       .setMaterialFlags(model::MaterialFlag::All)
+                      .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                       .build();
 
     model::Object* object = loader->load(context);
@@ -33,7 +34,7 @@ Result TestScene::load(platform::Context* context)
 
     object->instantiate(context, glm::mat4(1.0f), true);
 
-    view->setView(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
+    view->setView(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();
 

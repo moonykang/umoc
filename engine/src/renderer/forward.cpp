@@ -78,6 +78,8 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     scene::TestScene* testScene = reinterpret_cast<scene::TestScene*>(sceneInfo);
 
     rhi::RenderPassInfo renderpassInfo;
+    renderpassInfo.name = "Forward Pass";
+
     rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
         {sceneInfo->getRenderTargets()->getSceneColor()->getImage(), rhi::AttachmentLoadOp::Clear,
          rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
