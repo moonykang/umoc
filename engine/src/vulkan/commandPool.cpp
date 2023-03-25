@@ -164,7 +164,11 @@ Result CommandPool::submitActiveCommandBuffer(Context* context, Queue* queue, st
 
 Result CommandPool::submitUploadCommandBuffer(Context* context, Queue* queue)
 {
-    ASSERT(uploadCommandBuffer);
+    if (!uploadCommandBuffer)
+    {
+        return Result::Continue;
+    }
+
     uploadCommandBuffer->end();
     try(queue->submit(uploadCommandBuffer));
 

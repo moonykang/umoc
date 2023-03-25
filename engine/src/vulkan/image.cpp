@@ -18,7 +18,7 @@ Result Context::addTransition(rhi::Image* rhiImage, rhi::ImageLayout layout)
 {
     Image* image = reinterpret_cast<Image*>(rhiImage);
 
-    CommandBuffer* commandBuffer = getUploadCommandBuffer();
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
 
     commandBuffer->addTransition(image->updateImageLayoutAndBarrier(layout));
 

@@ -150,6 +150,7 @@ Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderp
         clearValue.depthStencil = {1.f, 0};
         clearValues.push_back(clearValue);
     }
+    commandBuffer->flushTransitions();
 
     rhi::Extent3D frameBufferExtent = framebuffer->getExtent();
 
