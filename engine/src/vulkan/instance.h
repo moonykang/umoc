@@ -16,6 +16,8 @@ class Instance final : public WrappedObject<Instance, VkInstance>
 
     void terminate();
 
+    bool supportExtension(ExtensionName extensionName);
+
   private:
     VkResult create(const VkInstanceCreateInfo& createInfo);
 

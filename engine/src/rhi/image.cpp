@@ -6,8 +6,8 @@
 
 namespace rhi
 {
-Image::Image(DescriptorType descriptorType)
-    : Descriptor(descriptorType), format(Format::NONE), imageLayout(ImageLayout::Undefined),
+Image::Image(std::string name, DescriptorType descriptorType)
+    : Descriptor(descriptorType), name(name), format(Format::NONE), imageLayout(ImageLayout::Undefined),
       imageUsage(ImageUsage::NONE), imageType(ImageType::IMAGE_2D)
 {
 }
@@ -16,33 +16,48 @@ Texture::Texture() : image(nullptr)
 {
 }
 
-Result Texture::init(Context* context, std::string path, platform::ImageLoader imageLoader)
+Result Texture::init(Context* context, std::string name, std::string path, platform::ImageLoader imageLoader)
 {
-    Extent3D extent;
+    Extent2D extent;
+    uint32_t numLevels;
+    uint32_t numLayers;
     util::MemoryBuffer buffer;
-    std::vector<size_t> mipOffsets;
+    std::vector<std::vector<size_t>> offsets;
     Format format;
 
-    try(context->getAssetManager()->loadImage(imageLoader, path, format, extent, mipOffsets, buffer));
+    try(context->getAssetManager()->loadImage(imageLoader, path, format, extent, numLevels, numLayers, offsets,
+                                              buffer));
 
-    image = context->allocateImage(DescriptorType::Combined_Image_Sampler);
+    image = context->allocateImage(name, DescriptorType::Combined_Image_Sampler);
+
+    ImageType imageType = ImageType::IMAGE_2D;
+    if (numLayers == 6)
+    {
+        imageType = ImageType::IMAGE_CUBE;
+    }
 
     // TODO: IMAGE_2D
-    try(image->init(context, format, ImageType::IMAGE_2D, ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST,
-                    MemoryProperty::DEVICE_LOCAL, extent.depth, 1, 1, {extent.width, extent.height, 1}));
+    try(image->init(context, format, imageType, ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST,
+                    MemoryProperty::DEVICE_LOCAL, numLevels, numLayers, 1, {extent.width, extent.height, 1}));
 
-    try(image->update(context, buffer.size(), buffer.data(), mipOffsets));
+    try(image->update(context, buffer.size(), buffer.data(), offsets));
 
     return Result::Continue;
 }
 
-Result Texture::init(Context* context, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags)
+Result Texture::init(Context* context, std::string name, Format format, Extent3D extent, uint32_t mipLevels,
+                     uint32_t layers, ImageUsageFlags imageUsageFlags)
 {
-    image = context->allocateImage(rhi::DescriptorType::Combined_Image_Sampler);
+    image = context->allocateImage(name, rhi::DescriptorType::Combined_Image_Sampler);
 
-    try(image->init(context, format, ImageType::IMAGE_2D,
-                    ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST | imageUsageFlags, MemoryProperty::DEVICE_LOCAL, 1,
-                    1, 1, {extent.width, extent.height, extent.depth}));
+    ImageType iamgeType = ImageType::IMAGE_2D;
+
+    if (layers == 6)
+    {
+        iamgeType = ImageType::IMAGE_CUBE;
+    }
+    try(image->init(context, format, iamgeType, ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST | imageUsageFlags,
+                    MemoryProperty::DEVICE_LOCAL, mipLevels, layers, 1, {extent.width, extent.height, extent.depth}));
 
     return Result::Continue;
 }

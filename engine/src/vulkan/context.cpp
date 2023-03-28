@@ -1,5 +1,6 @@
 #include "vulkan/context.h"
 #include "buffer.h"
+#include "debug.h"
 #include "descriptor.h"
 #include "pendingState.h"
 #include "pipeline.h"

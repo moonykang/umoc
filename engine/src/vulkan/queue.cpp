@@ -26,6 +26,17 @@ Result Context::submitUploadCommandBuffer()
     return queueMap->getQueue(QueueType::GraphicPresent)->submitUpload(this);
 }
 
+Result Context::submitActiveCommandBuffer()
+{
+    ASSERT(queueMap);
+    std::vector<VkSemaphore> waitSemaphores;
+    std::vector<VkSemaphore> signalSemaphores;
+    GarbageList garbageList;
+
+    return queueMap->getQueue(QueueType::GraphicPresent)
+        ->submitActive(this, waitSemaphores, signalSemaphores, std::move(garbageList));
+}
+
 Queue::Queue(uint32_t queueFamilyIndex) : commandPool(nullptr), queueFamilyIndex(queueFamilyIndex)
 {
 }

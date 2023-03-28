@@ -521,4 +521,9 @@ inline VkImageLayout convertImageLayout(rhi::ImageLayout imageLayout)
 {
     return kImageMemoryBarrierData[imageLayout].layout;
 }
+
+inline std::string getImageLayoutName(rhi::ImageLayout imageLayout)
+{
+    return kImageMemoryBarrierData[imageLayout].name;
+}
 }

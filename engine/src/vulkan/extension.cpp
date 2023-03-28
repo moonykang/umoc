@@ -1,4 +1,7 @@
 #include "vulkan/extension.h"
+#include "context.h"
+#include "device.h"
+#include "instance.h"
 #include "vulkan/core.h"
 
 #if PLATFORM_MAC
@@ -7,6 +10,34 @@
 
 namespace vk
 {
+bool Instance::supportExtension(ExtensionName extensionName)
+{
+    if (auto search = instanceExtensions.find(extensionName); search != instanceExtensions.end())
+    {
+        return search->second->isSupport();
+    }
+    return false;
+}
+
+bool Device::supportExtension(ExtensionName extensionName)
+{
+    if (auto search = deviceExtensions.find(extensionName); search != deviceExtensions.end())
+    {
+        return search->second->isSupport();
+    }
+    return false;
+}
+
+bool Context::supportInstanceExtension(ExtensionName extensionName)
+{
+    return instance->supportExtension(extensionName);
+}
+
+bool Context::supportDeviceExtension(ExtensionName extensionName)
+{
+    return device->supportExtension(extensionName);
+}
+
 #define GET_INSTANCE_PROC(instance, func) func = reinterpret_cast<PFN_##func>(vkGetInstanceProcAddr(instance, #func))
 #define GET_DEVICE_PROC(device, func) func = reinterpret_cast<PFN_##func>(vkGetDeviceProcAddr(device, #func))
 
@@ -79,6 +110,10 @@ void DebugUtils::fetch(VkInstance instance)
     }
 }
 
+DebugReportExtension::DebugReportExtension() : InstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)
+{
+}
+
 InstanceExtension* ExtensionFactory::createInstanceExtension(ExtensionName extensionName)
 {
     switch (extensionName)
@@ -89,6 +124,8 @@ InstanceExtension* ExtensionFactory::createInstanceExtension(ExtensionName exten
         return new PortabilityEnumeration();
     case ExtensionName::DebugUtils:
         return new DebugUtils();
+    case ExtensionName::DebugReport:
+        return new DebugReportExtension();
     default:
         UNREACHABLE();
         return nullptr;
@@ -129,9 +166,27 @@ DeviceExtension* ExtensionFactory::createDeviceExtension(ExtensionName extension
 SwapchainExtension::SwapchainExtension() : DeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)
 {
 }
+
 // VK_EXT_debug_marker
 DebugMarkerExtension::DebugMarkerExtension() : DeviceExtension(VK_EXT_DEBUG_MARKER_EXTENSION_NAME)
 {
+}
+
+PFN_vkDebugMarkerSetObjectTagEXT vkDebugMarkerSetObjectTagEXT;
+PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT;
+PFN_vkCmdDebugMarkerBeginEXT vkCmdDebugMarkerBeginEXT;
+PFN_vkCmdDebugMarkerEndEXT vkCmdDebugMarkerEndEXT;
+PFN_vkCmdDebugMarkerInsertEXT vkCmdDebugMarkerInsertEXT;
+void DebugMarkerExtension::fetch(VkDevice device)
+{
+    if (support)
+    {
+        GET_DEVICE_PROC(device, vkDebugMarkerSetObjectTagEXT);
+        GET_DEVICE_PROC(device, vkDebugMarkerSetObjectNameEXT);
+        GET_DEVICE_PROC(device, vkCmdDebugMarkerBeginEXT);
+        GET_DEVICE_PROC(device, vkCmdDebugMarkerEndEXT);
+        GET_DEVICE_PROC(device, vkCmdDebugMarkerInsertEXT);
+    }
 }
 
 // VK_KHR_acceleration_structure

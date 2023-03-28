@@ -75,15 +75,27 @@ Shader* Context::getShader(rhi::ShaderBase* shaderBase)
 }
 
 // TODO: empty layout now
-Result PipelineLayout::init(Context* context, std::vector<VkDescriptorSetLayout>& descriptorSetLayouts)
+Result PipelineLayout::init(Context* context, std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
+                            std::vector<rhi::PushConstant>& rhiPushConstants)
 {
     ASSERT(!valid());
+
+    std::vector<VkPushConstantRange> pushConstants;
+
+    for (auto& rhiPushConstant : rhiPushConstants)
+    {
+        auto& pushConstant = pushConstants.emplace_back();
+        pushConstant.stageFlags = convertToVkShaderStage(rhiPushConstant.shaderStageFlags);
+        pushConstant.offset = rhiPushConstant.offset;
+        pushConstant.size = rhiPushConstant.size;
+    }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
     pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
+    pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
 
     vk_try(vkCreatePipelineLayout(context->getDevice()->getHandle(), &pipelineLayoutInfo, nullptr, &mHandle));
 
@@ -154,9 +166,6 @@ Result Context::createGfxPipeline(rhi::GraphicsPipelineState gfxPipelineState)
         return Result::Fail;
     }
 
-    CommandBuffer* commandBuffer = getActiveCommandBuffer();
-    pipeline->bind(commandBuffer);
-
     pendingState->setPipeline(pipeline);
 
     return Result::Continue;
@@ -164,13 +173,25 @@ Result Context::createGfxPipeline(rhi::GraphicsPipelineState gfxPipelineState)
 
 void Context::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
-    getActiveCommandBuffer()->draw(vertexCount, instanceCount, firstVertex, firstInstance);
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+    Pipeline* bindPipeline = pendingState->getPipeline();
+    bindPipeline->bind(commandBuffer);
+    commandBuffer->draw(vertexCount, instanceCount, firstVertex, firstInstance);
 }
 
 void Context::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
                           uint32_t firstInstance)
 {
-    getActiveCommandBuffer()->drawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+    Pipeline* bindPipeline = pendingState->getPipeline();
+    bindPipeline->bind(commandBuffer);
+    commandBuffer->drawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+}
+
+void Context::pushConstant(rhi::ShaderStageFlags shaderStage, size_t size, void* data)
+{
+    Pipeline* bindPipeline = pendingState->getPipeline();
+    getActiveCommandBuffer()->pushConstants(bindPipeline->getLayout()->getHandle(), shaderStage, size, data);
 }
 
 PipelineMap::PipelineMap() : pipelineCache(nullptr)
@@ -419,7 +440,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
 
         Pipeline* newPipeline = new Pipeline();
         newPipeline->init(context);
-        newPipeline->getLayout()->init(context, descriptorSetLayouts);
+        newPipeline->getLayout()->init(context, descriptorSetLayouts, gfxPipelineState.pushConstants);
 
         VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo = {};
         graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;

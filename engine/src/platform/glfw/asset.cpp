@@ -7,6 +7,8 @@
 #include <ktx.h>
 #include <ktxvulkan.h>
 
+#include "rhi/resources/glFormats.h"
+
 namespace platform
 {
 
@@ -50,8 +52,8 @@ Result Asset::loadShader(std::string path, util::MemoryBuffer& buffer)
     return Result::Continue;
 }
 
-Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent3D& extent, std::vector<size_t>& mipOffsets,
-                    util::MemoryBuffer& buffer)
+Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent2D& extent, uint32_t& numLevels,
+                    uint32_t& numLayers, std::vector<std::vector<size_t>>& offsets, util::MemoryBuffer& buffer)
 {
     std::string assetPath = std::string(TEXTURE_PATH);
 
@@ -68,8 +70,9 @@ Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent3D& extent
     // TODO: set channel from Format
     extent.width = static_cast<uint32_t>(texWidth);
     extent.height = static_cast<uint32_t>(texHeight);
-    extent.depth = 1;
-    mipOffsets.push_back(0);
+
+    numLevels = 1;
+    offsets.push_back({0});
 
     size_t fileSize = (extent.width) * (extent.height) * STBI_rgb_alpha;
 
@@ -82,8 +85,8 @@ Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent3D& extent
     return Result::Continue;
 }
 
-Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent3D& extent, std::vector<size_t>& mipOffsets,
-                    util::MemoryBuffer& buffer)
+Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent2D& extent, uint32_t& numLevels,
+                    uint32_t& numLayers, std::vector<std::vector<size_t>>& offsets, util::MemoryBuffer& buffer)
 {
     std::string assetPath = std::string(TEXTURE_PATH);
 
@@ -99,36 +102,52 @@ Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent3D& extent
 
     extent.width = static_cast<uint32_t>(ktxTexture->baseWidth);
     extent.height = static_cast<uint32_t>(ktxTexture->baseHeight);
-    extent.depth = static_cast<uint32_t>(ktxTexture->numLevels);
+    numLevels = static_cast<uint32_t>(ktxTexture->numLevels);
+    numLayers = static_cast<uint32_t>(ktxTexture->numFaces > ktxTexture->numLayers ? ktxTexture->numFaces
+                                                                                   : ktxTexture->numLayers);
 
     buffer.resize(ktxSize);
     memcpy(buffer.data(), ktxImage, ktxSize);
 
-    for (uint32_t i = 0; i < extent.depth; i++)
+    for (uint32_t layer = 0; layer < numLayers; layer++)
     {
-        ktx_size_t offset;
-        KTX_error_code result = ktxTexture_GetImageOffset(ktxTexture, i, 0, 0, &offset);
-        assert(result == KTX_SUCCESS);
-        mipOffsets.push_back(offset);
+        auto& layerOffsets = offsets.emplace_back();
+
+        for (uint32_t level = 0; level < numLevels; level++)
+        {
+            ktx_size_t offset;
+            KTX_error_code result = ktxTexture_GetImageOffset(ktxTexture, level, 0, layer, &offset);
+            assert(result == KTX_SUCCESS);
+            layerOffsets.push_back(offset);
+        }
     }
 
-    // TODO
-    format = rhi::Format::R8G8B8A8_UNORM;
+    if (ktxTexture->glInternalformat == GL_RGBA16F)
+    {
+
+        format = rhi::Format::R16G16B16A16_FLOAT;
+    }
+    else
+    {
+        // TODO
+        format = rhi::Format::R8G8B8A8_UNORM;
+    }
 
     ktxTexture_Destroy(ktxTexture);
 
     return Result::Continue;
 }
 
-Result Asset::loadImage(ImageLoader loader, std::string path, rhi::Format& format, rhi::Extent3D& extent,
-                        std::vector<size_t>& mipOffsets, util::MemoryBuffer& buffer)
+Result Asset::loadImage(ImageLoader loader, std::string path, rhi::Format& format, rhi::Extent2D& extent,
+                        uint32_t& numLevels, uint32_t& numLayers, std::vector<std::vector<size_t>>& offsets,
+                        util::MemoryBuffer& buffer)
 {
     switch (loader)
     {
     case ImageLoader::KTX:
-        return loadImageKTX(path, format, extent, mipOffsets, buffer);
+        return loadImageKTX(path, format, extent, numLevels, numLayers, offsets, buffer);
     case ImageLoader::STB:
-        return loadImageSTB(path, format, extent, mipOffsets, buffer);
+        return loadImageSTB(path, format, extent, numLevels, numLayers, offsets, buffer);
     default:
         UNREACHABLE();
         return Result::Fail;

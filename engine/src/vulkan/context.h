@@ -66,12 +66,19 @@ class Context : public rhi::Context
                      uint32_t firstInstance) override;
 
     Result addTransition(rhi::Image* image, rhi::ImageLayout layout) override;
+
+    void pushConstant(rhi::ShaderStageFlags shaderStage, size_t size, void* data) override;
+
+    Result copyImage(rhi::Image* srcImage, rhi::ImageSubResource srcRange, rhi::Image* dstImage,
+                     rhi::ImageSubResource dstRange, rhi::Extent3D extent) override;
+
+    Result viewport(rhi::Extent2D extent) override;
     // factory
   public:
     rhi::Buffer* allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
                                 size_t size) override;
 
-    rhi::Image* allocateImage(rhi::DescriptorType descriptorType) override;
+    rhi::Image* allocateImage(std::string name, rhi::DescriptorType descriptorType) override;
 
     rhi::DescriptorSet* allocateDescriptorSet() override;
 
@@ -91,6 +98,8 @@ class Context : public rhi::Context
     CommandBuffer* getUploadCommandBuffer() const;
 
     Result submitUploadCommandBuffer();
+
+    Result submitActiveCommandBuffer();
 
     QueueMap* getQueueMap() const;
 
@@ -112,6 +121,12 @@ class Context : public rhi::Context
     void clearAllGarbage();
 
     DescriptorSetLayout* getEmptyDescriptorSetLayout();
+
+    Result debugMarkerSetObjectName(uint64_t object, VkDebugReportObjectTypeEXT objectType, const char* name);
+
+    bool supportInstanceExtension(ExtensionName extensionName);
+
+    bool supportDeviceExtension(ExtensionName extensionName);
 
   private:
     Result initEmptyDescriptorSetLayout();

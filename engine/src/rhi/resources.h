@@ -803,6 +803,24 @@ class ColorBlendState
     bool logicOpEnable;
 };
 
+class PushConstant
+{
+  public:
+    PushConstant() : shaderStageFlags(0), offset(0), size(0)
+    {
+    }
+
+    PushConstant(ShaderStageFlags shaderStageFlags, size_t offset, size_t size)
+        : shaderStageFlags(shaderStageFlags), offset(offset), size(size)
+    {
+    }
+
+  public:
+    ShaderStageFlags shaderStageFlags;
+    size_t offset;
+    size_t size;
+};
+
 class ShaderBase;
 class VertexShaderBase;
 class PixelShaderBase;
@@ -810,11 +828,11 @@ class ShaderParameters;
 
 constexpr size_t PipelineStateHashSize = sizeof(AssemblyState) + sizeof(RasterizationState) +
                                          sizeof(TessellationState) + sizeof(MultisampleState) +
-                                         sizeof(DepthStencilState) + sizeof(ColorBlendState);
+                                         sizeof(DepthStencilState) + sizeof(ColorBlendState) + sizeof(size_t);
 class GraphicsPipelineState
 {
   public:
-    GraphicsPipelineState() : shaderParameters(nullptr)
+    GraphicsPipelineState() : shaderParameters(nullptr), pushConstantsHash(0)
     {
     }
 
@@ -827,10 +845,11 @@ class GraphicsPipelineState
     MultisampleState multisampleState;
     DepthStencilState depthStencilState;
     ColorBlendState colorBlendState;
-    uint8_t padding1 = 0;
-    uint8_t padding2 = 0;
+    size_t pushConstantsHash;
+    uint64_t padding = 0;
 
     ShaderParameters* shaderParameters;
+    std::vector<PushConstant> pushConstants;
     /*
     - shader
     - vertex input

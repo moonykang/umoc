@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/util.h"
+#include "core.h"
 #include "vulkan/extension.h"
 #include <string>
 
@@ -19,15 +20,8 @@ class DebugUtilsMessenger final : public WrappedObject<DebugUtilsMessenger, VkDe
     VkResult create(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 };
 
-namespace debug
+class DebugMarker
 {
+};
 
-VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                           VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                           const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                           void* pUserData);
-
-std::string getVkResultString(VkResult result);
-
-} // namespace debug
 } // namespace vk

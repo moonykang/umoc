@@ -17,6 +17,8 @@ class Device final : public WrappedObject<Device, VkDevice>
 
     void terminate();
 
+    bool supportExtension(ExtensionName extensionName);
+
   private:
     VkResult create(VkPhysicalDevice device, const VkDeviceCreateInfo& createInfo);
 

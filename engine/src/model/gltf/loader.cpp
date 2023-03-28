@@ -20,6 +20,10 @@ bool loadImageDataFuncEmpty(tinygltf::Image* image, const int imageIndex, std::s
     return true;
 }
 
+Loader::Builder::Builder() : path(""), gltfLoadingFlags(0), materialFlags(0), externalMaterial(nullptr)
+{
+}
+
 Loader::Builder& Loader::Builder::setPath(std::string path)
 {
     this->path = path;
@@ -44,13 +48,21 @@ Loader::Builder& Loader::Builder::setMaterialFlags(MaterialFlags materialFlags)
     return *this;
 }
 
-std::shared_ptr<Loader> Loader::Builder::build()
+Loader::Builder& Loader::Builder::addExternalMaterial(model::Material* material)
 {
-    return std::make_shared<Loader>(path, fileName, gltfLoadingFlags, materialFlags);
+    externalMaterial = material;
+    return *this;
 }
 
-Loader::Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags)
-    : path(path), fileName(fileName), gltfLoadingFlags(gltfLoadingFlags), materialFlags(materialFlags)
+std::shared_ptr<Loader> Loader::Builder::build()
+{
+    return std::make_shared<Loader>(path, fileName, gltfLoadingFlags, materialFlags, externalMaterial);
+}
+
+Loader::Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,
+               model::Material* externalMaterial)
+    : path(path), fileName(fileName), gltfLoadingFlags(gltfLoadingFlags), materialFlags(materialFlags),
+      externalMaterial(externalMaterial)
 {
 }
 
@@ -73,7 +85,17 @@ Object* Loader::load(platform::Context* platformContext)
         try_call(loadTextures(platformContext, newObject));
     }
 
-    try_call(loadMaterials(platformContext, newObject));
+    // Use external material if is set.
+    if (!externalMaterial)
+    {
+        try_call(loadMaterials(platformContext, newObject));
+    }
+    else
+    {
+        try_call(externalMaterial->init(platformContext));
+        try_call(externalMaterial->update(platformContext));
+        newObject->addMaterial(externalMaterial);
+    }
 
     const tinygltf::Scene& scene = gltfModel.scenes[gltfModel.defaultScene > -1 ? gltfModel.defaultScene : 0];
     for (size_t i = 0; i < scene.nodes.size(); i++)
@@ -95,6 +117,8 @@ Result Loader::loadTextures(platform::Context* platformContext, Object* object)
     for (tinygltf::Image& image : gltfModel.images)
     {
         bool isKtx = false;
+        std::string name = image.uri;
+
         if (image.uri.find_last_of(".") != std::string::npos)
         {
             if (image.uri.substr(image.uri.find_last_of(".") + 1) == "ktx")
@@ -106,7 +130,7 @@ Result Loader::loadTextures(platform::Context* platformContext, Object* object)
         if (isKtx)
         {
             rhi::Texture* texture = new rhi::Texture();
-            try(texture->init(context, path + image.uri, platform::ImageLoader::KTX));
+            try(texture->init(context, name, path + image.uri, platform::ImageLoader::KTX));
 
             object->addTexture(texture);
         }
@@ -392,7 +416,7 @@ Result Loader::loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeI
                         bufferTangents ? glm::cross(vertex.normal, vertex.tangent) * tangent.w : glm::vec3(0.f);
                     vertex.joint0 = hasSkin ? glm::vec4(glm::make_vec4(&bufferJoints[v * 4])) : glm::vec4(0.0f);
                     vertex.weight0 = hasSkin ? glm::make_vec4(&bufferWeights[v * 4]) : glm::vec4(0.0f);
-                    
+
                     if ((gltfLoadingFlags & model::GltfLoadingFlag::FlipY) != 0)
                     {
                         vertex.position.y *= -1.0f;
@@ -451,7 +475,7 @@ Result Loader::loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeI
                 }
             }
 
-            model::Material* material = object->getMaterial(primitive.material);
+            model::Material* material = externalMaterial ? externalMaterial : object->getMaterial(primitive.material);
             Primitive* newPrimitive = new Primitive(indexStart, indexCount, material);
             newPrimitive->firstVertex = vertexStart;
             newPrimitive->vertexCount = vertexCount;

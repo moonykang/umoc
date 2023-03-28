@@ -276,14 +276,40 @@ inline VkShaderStageFlags convertToVkShaderStage(rhi::ShaderStageFlags shaderSta
     VkShaderStageFlags shaderStageFlags = 0;
     if ((shaderStage & rhi::ShaderStage::Vertex) != 0)
     {
-        return VK_SHADER_STAGE_VERTEX_BIT;
+        shaderStageFlags |= VK_SHADER_STAGE_VERTEX_BIT;
     }
-
+    if ((shaderStage & rhi::ShaderStage::Geometry) != 0)
+    {
+        shaderStageFlags |= VK_SHADER_STAGE_GEOMETRY_BIT;
+    }
+    if ((shaderStage & rhi::ShaderStage::TessellationControl) != 0)
+    {
+        shaderStageFlags |= VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+    }
+    if ((shaderStage & rhi::ShaderStage::TessellationEvaluation) != 0)
+    {
+        shaderStageFlags |= VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    }
     if ((shaderStage & rhi::ShaderStage::Pixel) != 0)
     {
-        return VK_SHADER_STAGE_FRAGMENT_BIT;
+        shaderStageFlags |= VK_SHADER_STAGE_FRAGMENT_BIT;
     }
-
+    if ((shaderStage & rhi::ShaderStage::Compute) != 0)
+    {
+        shaderStageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
+    }
+    if ((shaderStage & rhi::ShaderStage::RayGen) != 0)
+    {
+        shaderStageFlags |= VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    }
+    if ((shaderStage & rhi::ShaderStage::RayMiss) != 0)
+    {
+        shaderStageFlags |= VK_SHADER_STAGE_MISS_BIT_KHR;
+    }
+    if ((shaderStage & rhi::ShaderStage::ClosestHit) != 0)
+    {
+        shaderStageFlags |= VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    }
     return shaderStageFlags;
 }
 
@@ -328,6 +354,8 @@ inline VkImageType convertToVkImageType(rhi::ImageType imageType)
         return VK_IMAGE_TYPE_2D;
     case rhi::ImageType::IMAGE_3D:
         return VK_IMAGE_TYPE_3D;
+    case rhi::ImageType::IMAGE_CUBE:
+        return VK_IMAGE_TYPE_2D;
     default:
         UNREACHABLE();
         return VK_IMAGE_TYPE_1D;

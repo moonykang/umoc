@@ -54,6 +54,12 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
                                 const VkImageMemoryBarrier* imageMemoryBarriers)
     {
         ASSERT(valid());
+        for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
+        {
+
+            LOGD("CB %p image %p %u > %u", mHandle, imageMemoryBarriers[i].image, imageMemoryBarriers[i].oldLayout,
+                 imageMemoryBarriers[i].newLayout);
+        }
         vkCmdPipelineBarrier(mHandle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers,
                              bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount,
                              imageMemoryBarriers);
@@ -124,6 +130,20 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         ASSERT(valid());
         vkCmdBindDescriptorSets(mHandle, pipelineBindPoint, pipelineLayout, firstSet, descriptorSetCount,
                                 pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+    }
+
+    inline void pushConstants(VkPipelineLayout pipelinelayout, VkShaderStageFlags shaderStage, size_t size,
+                              const void* data)
+    {
+        ASSERT(valid());
+        vkCmdPushConstants(mHandle, pipelinelayout, shaderStage, 0, size, data);
+    }
+
+    inline void copyImage(VkImage srcImage, VkImage dstImage, const VkImageCopy& copyRegion)
+    {
+        ASSERT(valid());
+        vkCmdCopyImage(mHandle, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage,
+                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
     }
     /*
     End of command functions

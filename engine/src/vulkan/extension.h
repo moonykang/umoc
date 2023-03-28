@@ -13,6 +13,7 @@ enum class ExtensionName
     Swapchain,
     DebugMarker,
     DebugUtils,
+    DebugReport,
     AccelerationStructure,
     RayTracingPipeline,
     DeviceAddress,
@@ -125,6 +126,13 @@ class DebugUtils : public InstanceExtension
     void fetch(VkInstance instance) override final;
 };
 
+// VK_EXT_DEBUG_REPORT
+class DebugReportExtension : public InstanceExtension
+{
+  public:
+    DebugReportExtension();
+};
+
 /*
 List of Device extensions
 */
@@ -137,10 +145,18 @@ class SwapchainExtension : public DeviceExtension
 };
 
 // VK_EXT_debug_marker
+extern PFN_vkDebugMarkerSetObjectTagEXT vkDebugMarkerSetObjectTagEXT;
+extern PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT;
+extern PFN_vkCmdDebugMarkerBeginEXT vkCmdDebugMarkerBeginEXT;
+extern PFN_vkCmdDebugMarkerEndEXT vkCmdDebugMarkerEndEXT;
+extern PFN_vkCmdDebugMarkerInsertEXT vkCmdDebugMarkerInsertEXT;
+
 class DebugMarkerExtension : public DeviceExtension
 {
   public:
     DebugMarkerExtension();
+
+    void fetch(VkDevice device) override;
 };
 
 // VK_KHR_acceleration_structure
@@ -264,4 +280,5 @@ class PortabilitySubsetExtension : public DeviceExtension
   public:
     PortabilitySubsetExtension();
 };
+
 } // namespace vk

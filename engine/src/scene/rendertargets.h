@@ -25,15 +25,20 @@ class RenderTargets
 
     void terminate(platform::Context* context);
 
-    rhi::Texture* getSceneColor();
+#define REGISTER_TEXTURE(texture, getFunc)                                                                             \
+  public:                                                                                                              \
+    inline rhi::Texture* getFunc()                                                                                     \
+    {                                                                                                                  \
+        return texture;                                                                                                \
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    rhi::Texture* texture;
 
-    rhi::Texture* getSceneDepth();
-
-    rhi::Texture* getBrdfLutTexture();
-
-  private:
-    rhi::Texture* sceneColor;
-    rhi::Texture* sceneDepth;
-    rhi::Texture* brdfLutTexture;
+    REGISTER_TEXTURE(sceneColor, getSceneColor);
+    REGISTER_TEXTURE(sceneDepth, getSceneDepth);
+    REGISTER_TEXTURE(brdfLutTexture, getBrdfLutTexture);
+    REGISTER_TEXTURE(environmentCube, getEnvironmentCube);
+    REGISTER_TEXTURE(irradianceCube, getIrradianceCube);
 };
 } // namespace scene

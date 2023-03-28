@@ -1,11 +1,28 @@
-#include "vulkan/debug.h"
-#include "vulkan/context.h"
-#include "vulkan/core.h"
-#include "vulkan/instance.h"
+#include "debug.h"
+#include "context.h"
+#include "core.h"
+#include "device.h"
+#include "instance.h"
 #include <sstream>
 
 namespace vk
 {
+Result Context::debugMarkerSetObjectName(uint64_t object, VkDebugReportObjectTypeEXT objectType, const char* name)
+{
+    if (supportDeviceExtension(ExtensionName::DebugMarker))
+    {
+        VkDebugMarkerObjectNameInfoEXT debugMarkerObjectNameInfo = {};
+        debugMarkerObjectNameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT;
+        debugMarkerObjectNameInfo.objectType = objectType;
+        debugMarkerObjectNameInfo.object = object;
+        debugMarkerObjectNameInfo.pObjectName = name;
+
+        vk_try(vkDebugMarkerSetObjectNameEXT(device->getHandle(), &debugMarkerObjectNameInfo));
+    }
+
+    return Result::Continue;
+}
+
 namespace debug
 {
 VkDebugUtilsMessengerEXT debugUtilsMessenger;

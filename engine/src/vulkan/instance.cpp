@@ -1,6 +1,6 @@
 #include "vulkan/instance.h"
 #include "vulkan/context.h"
-#include "vulkan/debug.h"
+#include "vulkan/core.h"
 #include "vulkan/extension.h"
 #include "vulkan/surface.h"
 
@@ -32,6 +32,7 @@ Result Instance::init(Context* context)
     createInstanceExtension(ExtensionName::PhysicalDeviceProperties2);
     createInstanceExtension(ExtensionName::PortabilityEnumeration);
     createInstanceExtension(ExtensionName::DebugUtils);
+    createInstanceExtension(ExtensionName::DebugReport);
 
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);

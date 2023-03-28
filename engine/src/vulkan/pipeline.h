@@ -43,7 +43,8 @@ class ShaderMap
 class PipelineLayout : public WrappedObject<PipelineLayout, VkPipelineLayout>
 {
   public:
-    Result init(Context* context, std::vector<VkDescriptorSetLayout>& descriptorSetLayouts);
+    Result init(Context* context, std::vector<VkDescriptorSetLayout>& descriptorSetLayouts,
+                std::vector<rhi::PushConstant>& pushConstants);
 
     void terminate(VkDevice device);
 

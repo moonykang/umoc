@@ -15,8 +15,9 @@ class Asset : public platform::Asset
 
     Result loadShader(std::string path, util::MemoryBuffer& buffer) override;
 
-    Result loadImage(ImageLoader loader, std::string path, rhi::Format& format, rhi::Extent3D& extent,
-                     std::vector<size_t>& mipOffsets, util::MemoryBuffer& buffer) override;
+    Result loadImage(ImageLoader loader, std::string path, rhi::Format& format, rhi::Extent2D& extent,
+                     uint32_t& numLevels, uint32_t& numLayers, std::vector<std::vector<size_t>>& offsets,
+                     util::MemoryBuffer& buffer) override;
 };
 } // namespace glfw
 } // namespace platform

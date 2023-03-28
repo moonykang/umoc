@@ -11,7 +11,7 @@ class Context;
 class Image : public Descriptor
 {
   public:
-    Image(DescriptorType descriptorType);
+    Image(std::string name, DescriptorType descriptorType);
 
     virtual ~Image() = default;
 
@@ -19,11 +19,12 @@ class Image : public Descriptor
                         MemoryPropertyFlags memoryProperty, uint32_t mipLevels, uint32_t layers, uint32_t samples,
                         Extent3D extent) = 0;
 
-    virtual Result update(Context* context, size_t size, void* data, std::vector<size_t>& mipOffsets) = 0;
+    virtual Result update(Context* context, size_t size, void* data, std::vector<std::vector<size_t>>& offsets) = 0;
 
     virtual void terminate(Context* context) = 0;
 
   protected:
+    std::string name;
     Format format;
     ImageLayout imageLayout;
     ImageUsageFlags imageUsage;
@@ -40,10 +41,11 @@ class Texture
     virtual ~Texture() = default;
 
     // For texture loading
-    Result init(Context* context, std::string path, platform::ImageLoader imageLoader);
+    Result init(Context* context, std::string name, std::string path, platform::ImageLoader imageLoader);
 
     // For render targets
-    Result init(Context* context, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags);
+    Result init(Context* context, std::string name, Format format, Extent3D extent, uint32_t mipLevels, uint32_t layers,
+                ImageUsageFlags imageUsageFlags);
 
     void terminate(Context* context);
 

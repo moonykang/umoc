@@ -9,9 +9,9 @@
 
 namespace vk
 {
-rhi::Image* Context::allocateImage(rhi::DescriptorType descriptorType)
+rhi::Image* Context::allocateImage(std::string name, rhi::DescriptorType descriptorType)
 {
-    return new Image(descriptorType);
+    return new Image(name, descriptorType);
 }
 
 Result Context::addTransition(rhi::Image* rhiImage, rhi::ImageLayout layout)
@@ -22,6 +22,41 @@ Result Context::addTransition(rhi::Image* rhiImage, rhi::ImageLayout layout)
 
     commandBuffer->addTransition(image->updateImageLayoutAndBarrier(layout));
 
+    return Result::Continue;
+}
+
+Result Context::copyImage(rhi::Image* rhiSrcImage, rhi::ImageSubResource srcRange, rhi::Image* rhiDstImage,
+                          rhi::ImageSubResource dstRange, rhi::Extent3D extent)
+{
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+
+    Image* srcImage = reinterpret_cast<Image*>(rhiSrcImage);
+    commandBuffer->addTransition(srcImage->updateImageLayoutAndBarrier(rhi::ImageLayout::TransferSrc));
+    Image* dstImage = reinterpret_cast<Image*>(rhiDstImage);
+    commandBuffer->addTransition(dstImage->updateImageLayoutAndBarrier(rhi::ImageLayout::TransferDst));
+    commandBuffer->flushTransitions();
+
+    VkImageCopy copyRegion = {};
+
+    copyRegion.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.srcSubresource.baseArrayLayer = srcRange.baseArrayLayer;
+    copyRegion.srcSubresource.mipLevel = srcRange.baseMipLevel;
+    copyRegion.srcSubresource.layerCount = srcRange.layerCount;
+    copyRegion.srcOffset = {0, 0, 0}; // todo
+
+    copyRegion.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.dstSubresource.baseArrayLayer = dstRange.baseArrayLayer;
+    copyRegion.dstSubresource.mipLevel = dstRange.baseMipLevel;
+    copyRegion.dstSubresource.layerCount = dstRange.layerCount;
+    copyRegion.dstOffset = {0, 0, 0};
+
+    copyRegion.extent.width = extent.width;
+    copyRegion.extent.height = extent.height;
+    copyRegion.extent.depth = extent.depth;
+
+    commandBuffer->copyImage(srcImage->getHandle(), dstImage->getHandle(), copyRegion);
+
+    try(submitActiveCommandBuffer());
     return Result::Continue;
 }
 
@@ -60,8 +95,8 @@ VkResult ImageView::create(VkDevice device, const VkImageViewCreateInfo& createI
     return vkCreateImageView(device, &createInfo, nullptr, &mHandle);
 }
 
-Image::Image(rhi::DescriptorType descriptorType)
-    : rhi::Image(descriptorType), deviceMemory(nullptr), mipLevels(0), layers(0), samples(1), view(nullptr),
+Image::Image(std::string name, rhi::DescriptorType descriptorType)
+    : rhi::Image(name, descriptorType), deviceMemory(nullptr), mipLevels(0), layers(0), samples(1), view(nullptr),
       sampler(nullptr)
 {
 }
@@ -90,18 +125,6 @@ Result Image::init(rhi::Context* rhiContext, rhi::Format format, rhi::ImageType 
 
     vk_try(bindMemory(context->getDevice()->getHandle()));
 
-    VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
-    // TODO
-    /*
-    if (extent.depth > 1)
-    {
-        viewType = VK_IMAGE_VIEW_TYPE_3D;
-    }
-    else if (layers > 1)
-    {
-        viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-    }*/
-
     VkComponentMapping components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
                                      VK_COMPONENT_SWIZZLE_A};
 
@@ -115,6 +138,10 @@ Result Image::init(rhi::Context* rhiContext, rhi::Format format, rhi::ImageType 
     imageInfo.sampler = sampler->getHandle();
     imageInfo.imageView = view->getHandle();
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; // TODO
+
+    try(context->debugMarkerSetObjectName((uint64_t)mHandle, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, name.c_str()));
+
+    LOGD("Init image %s %p layout %s", name.c_str(), mHandle, getImageLayoutName(imageLayout).c_str());
 
     return Result::Continue;
 }
@@ -136,18 +163,6 @@ Result Image::init(Context* context, VkImage image, rhi::Format format, rhi::Ima
     this->mHandle = image;
 
     VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
-
-    // TODO
-    /*
-    if (extent.depth > 1)
-    {
-        viewType = VK_IMAGE_VIEW_TYPE_3D;
-    }
-    else if (layers > 1)
-    {
-        viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-    }*/
-
     VkComponentMapping components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
                                      VK_COMPONENT_SWIZZLE_A};
 
@@ -161,6 +176,8 @@ Result Image::init(Context* context, VkImage image, rhi::Format format, rhi::Ima
     imageInfo.sampler = sampler->getHandle();
     imageInfo.imageView = view->getHandle();
     imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; // TODO
+
+    try(context->debugMarkerSetObjectName((uint64_t)mHandle, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, name.c_str()));
 
     return Result::Continue;
 }
@@ -188,7 +205,7 @@ void Image::release(Context* context)
     mHandle = VK_NULL_HANDLE;
 }
 
-Result Image::update(rhi::Context* rhiContext, size_t size, void* data, std::vector<size_t>& mipOffsets)
+Result Image::update(rhi::Context* rhiContext, size_t size, void* data, std::vector<std::vector<size_t>>& offsets)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
 
@@ -207,16 +224,22 @@ Result Image::update(rhi::Context* rhiContext, size_t size, void* data, std::vec
 
         uint32_t mipLevel = 0;
 
-        for (auto& offset : mipOffsets)
+        ASSERT(offsets.size() == layers);
+        for (uint32_t layer = 0; layer < layers; layer++)
         {
-            VkExtent3D copyExtent;
-            copyExtent.width = extent.width >> mipLevel;
-            copyExtent.height = extent.height >> mipLevel;
-            copyExtent.depth = extent.depth;
+            ASSERT(offsets[layer].size() == mipLevels);
+            for (uint32_t level = 0; level < mipLevels; level++)
+            {
+                size_t offset = offsets[layer][level];
 
-            try(copy(context, stagingBuffer, copyExtent, mipLevel++, 0, offset));
+                VkExtent3D copyExtent;
+                copyExtent.width = extent.width >> level;
+                copyExtent.height = extent.height >> level;
+                copyExtent.depth = extent.depth;
+
+                try(copy(context, stagingBuffer, copyExtent, level, layer, offset));
+            }
         }
-
         commandBuffer->addTransition(updateImageLayoutAndBarrier(rhi::ImageLayout::FragmentShaderReadOnly));
     }
 
@@ -247,6 +270,9 @@ Result Image::copy(Context* context, RealBuffer* srcBuffer, VkExtent3D extent, u
 
 Transition* Image::updateImageLayoutAndBarrier(rhi::ImageLayout newLayout)
 {
+    LOGD("Image %s %p, %s -> %s", name.c_str(), mHandle, getImageLayoutName(imageLayout).c_str(),
+         getImageLayoutName(newLayout).c_str());
+
     if (newLayout == imageLayout)
     {
         return nullptr;
@@ -283,6 +309,11 @@ Result Image::initImage(Context* context)
     imageCreateInfo.extent = {extent.width, extent.height, extent.depth};
     imageCreateInfo.usage = static_cast<VkImageUsageFlags>(imageUsage);
 
+    if (imageType == rhi::ImageType::IMAGE_CUBE)
+    {
+        imageCreateInfo.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+    }
+
     vk_try(create(device->getHandle(), imageCreateInfo));
 
     return Result::Continue;
@@ -314,22 +345,23 @@ Result Image::initView(Context* context, VkComponentMapping components, VkImageS
 
     VkImageViewType viewType = VK_IMAGE_VIEW_TYPE_2D;
 
-    // TODO
-    /*
     switch (imageType)
     {
     case rhi::ImageType::IMAGE_1D:
-        viewType = layers > 0 ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D;
+        viewType = layers > 1 ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D;
         break;
     case rhi::ImageType::IMAGE_2D:
-        viewType = layers > 0 ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
+        viewType = layers > 1 ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
         break;
     case rhi::ImageType::IMAGE_3D:
         viewType = VK_IMAGE_VIEW_TYPE_3D;
         break;
+    case rhi::ImageType::IMAGE_CUBE:
+        viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+        break;
     default:
         UNREACHABLE();
-    }*/
+    }
 
     view = new ImageView();
     return view->init(context, mHandle, {getFormat(), getAspectFlags()}, components, subresourceRange, viewType);

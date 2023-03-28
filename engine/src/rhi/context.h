@@ -58,6 +58,13 @@ class Context : public platform::Context
 
     virtual Result addTransition(Image* image, ImageLayout layout) = 0;
 
+    virtual void pushConstant(ShaderStageFlags shaderStage, size_t size, void* data) = 0;
+
+    virtual Result copyImage(Image* srcImage, ImageSubResource srcRange, Image* dstImage, ImageSubResource dstRagne,
+                             Extent3D extent) = 0;
+
+    virtual Result viewport(Extent2D extent) = 0;
+
   public:
     VertexBuffer* allocateVertexBuffer(size_t size, void* data);
 
@@ -68,7 +75,7 @@ class Context : public platform::Context
   public:
     virtual Buffer* allocateBuffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size) = 0;
 
-    virtual Image* allocateImage(DescriptorType descriptorType) = 0;
+    virtual Image* allocateImage(std::string name, DescriptorType descriptorType) = 0;
 
     virtual DescriptorSet* allocateDescriptorSet() = 0;
 

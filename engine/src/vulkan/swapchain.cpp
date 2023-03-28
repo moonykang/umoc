@@ -206,7 +206,7 @@ Result Swapchain::setupSwapchainImages(Context* context, VkFormat format, VkExte
 
     for (auto& image : images)
     {
-        Image* swapchainImage = new Image(rhi::DescriptorType::Combined_Image_Sampler);
+        Image* swapchainImage = new Image("Swapchain Image", rhi::DescriptorType::Combined_Image_Sampler);
         try(swapchainImage->init(context, image, kReverseFormatMap[format], rhi::ImageType::IMAGE_2D,
                                  rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_DST, 1, 1, 1,
                                  {extent.width, extent.height, 1}));

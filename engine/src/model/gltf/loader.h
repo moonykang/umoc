@@ -10,6 +10,8 @@ class Context;
 
 namespace model
 {
+class Material;
+
 namespace gltf
 {
 class Loader : public model::Loader
@@ -18,6 +20,8 @@ class Loader : public model::Loader
     class Builder
     {
       public:
+        Builder();
+
         Builder& setPath(std::string path);
 
         Builder& setFileName(std::string name);
@@ -26,6 +30,8 @@ class Loader : public model::Loader
 
         Builder& setMaterialFlags(MaterialFlags materialFlags);
 
+        Builder& addExternalMaterial(model::Material* material);
+
         std::shared_ptr<Loader> build();
 
       private:
@@ -33,9 +39,11 @@ class Loader : public model::Loader
         std::string fileName;
         MaterialFlags materialFlags;
         GltfLoadingFlags gltfLoadingFlags;
+        Material* externalMaterial;
     };
 
-    Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags);
+    Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,
+           model::Material* externalMaterial);
 
     Object* load(platform::Context* context) override;
 
@@ -50,6 +58,7 @@ class Loader : public model::Loader
     std::string fileName;
     MaterialFlags materialFlags;
     GltfLoadingFlags gltfLoadingFlags;
+    model::Material* externalMaterial;
 
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;

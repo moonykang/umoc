@@ -6,6 +6,12 @@
 
 namespace rhi
 {
+class Handle
+{
+  public:
+    virtual void setName(std::string name) = 0;
+};
+
 enum class List
 {
     Vulkan
@@ -243,6 +249,8 @@ enum class Format : uint8_t
     X2R10G10B10_USCALED_VERTEX
 };
 const uint32_t kNumFormats = 256;
+
+// inline
 
 // Image layout
 enum class ImageLayout : uint8_t
@@ -525,7 +533,8 @@ enum class ImageType
 {
     IMAGE_1D = 0,
     IMAGE_2D = 1,
-    IMAGE_3D = 2
+    IMAGE_3D = 2,
+    IMAGE_CUBE = 3
 };
 
 struct Extent2D
@@ -539,5 +548,19 @@ struct Extent3D
     uint32_t width;
     uint32_t height;
     uint32_t depth;
+};
+
+class ImageSubResource
+{
+  public:
+    ImageSubResource() : baseMipLevel(0), levelCount(1), baseArrayLayer(0), layerCount(1)
+    {
+    }
+
+  public:
+    uint32_t baseMipLevel;
+    uint32_t levelCount;
+    uint32_t baseArrayLayer;
+    uint32_t layerCount;
 };
 } // namespace rhi

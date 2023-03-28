@@ -36,6 +36,7 @@ Result ShaderBase::init(Context* context)
 
 size_t GraphicsPipelineState::getHash()
 {
+    pushConstantsHash = util::computeGenericHash(pushConstants.data(), sizeof(PushConstant) * pushConstants.size());
     return util::computeGenericHash(this, ((PipelineStateHashSize + 3) / 4) * 4);
 }
 

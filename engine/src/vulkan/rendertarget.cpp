@@ -3,6 +3,7 @@
 #include "common/hash.h"
 #include "context.h"
 #include "queue.h"
+#include "rhi/defines.h"
 #include "rhi/rendertarget.h"
 #include "vulkan/framebuffer.h"
 #include "vulkan/image.h"
@@ -38,6 +39,21 @@ Renderpass* Context::getCurrentRenderpass()
     return renderTargetManager->getCurrentRenderpass();
 }
 
+Result Context::viewport(rhi::Extent2D extent)
+{
+    VkViewport viewport = {};
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width = extent.width;
+    viewport.height = extent.height;
+    viewport.minDepth = 0.f;
+    viewport.maxDepth = 1.f;
+
+    getActiveCommandBuffer()->setViewport(viewport);
+
+    return Result::Continue;
+}
+
 RenderTargetManager::RenderTargetManager() : currentRenderPassHash(0)
 {
 }
@@ -62,6 +78,7 @@ void RenderTargetManager::terminate(VkDevice device)
 
 Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderpassInfo)
 {
+    LOGD("Begin %s", renderpassInfo.name.c_str());
     size_t renderPassCompatibleHash = generateRenderpassCompatibleHash(renderpassInfo);
     size_t renderPassHash = generateRenderpassHash(renderpassInfo, renderPassCompatibleHash);
     size_t framebufferHash = generateFramebufferHash(renderpassInfo);

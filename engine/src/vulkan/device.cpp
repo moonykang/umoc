@@ -39,7 +39,12 @@ Result Device::init(Context* context, QueueMap* queueMap)
     createDeviceExtension(ExtensionName::DeferredHostOperations);
     createDeviceExtension(ExtensionName::RayQuery);
     createDeviceExtension(ExtensionName::PortabilitySubset);
-    // createDeviceExtension(ExtensionName::DebugMarker);
+
+    if (context->supportInstanceExtension(ExtensionName::DebugReport))
+    {
+        createDeviceExtension(ExtensionName::DebugMarker);
+    }
+
     // createDeviceExtension(ExtensionName::DescriptorIndexing);
     // createDeviceExtension(ExtensionName::Spirv_1_4);
 
@@ -53,6 +58,13 @@ Result Device::init(Context* context, QueueMap* queueMap)
 
     deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requestedExtensions.size());
     deviceCreateInfo.ppEnabledExtensionNames = requestedExtensions.data();
+
+    LOGD("==== List of enabled Device extensions ====");
+    for (auto& extension : requestedExtensions)
+    {
+        LOGD("%s", extension);
+    }
+    LOGD("==== End of enabled Device extensions ====");
 
     ASSERT(!valid());
     vk_try(create(physicalDevice->getHandle(), deviceCreateInfo));
