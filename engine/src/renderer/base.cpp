@@ -4,6 +4,7 @@
 #include "forward.h"
 #include "irradiancePass.h"
 #include "platform/context.h"
+#include "preFilterPass.h"
 #include "rhi/context.h"
 #include "rhi/rendertarget.h"
 #include "scene/scene.h"
@@ -15,6 +16,7 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
 {
     passes.push_back(new BrdfLutPass());
     passes.push_back(new IrradiancePass());
+    passes.push_back(new PreFilterPass());
     passes.push_back(new Forward());
     passes.push_back(new BloomPass());
 

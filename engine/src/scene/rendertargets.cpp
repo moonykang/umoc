@@ -34,6 +34,7 @@ Result RenderTargets::init(platform::Context* platformContext)
     environmentCube = new rhi::Texture();
     try(environmentCube->init(context, "Environment Cube Texture", "gcanyon_cube.ktx", platform::ImageLoader::KTX));
 
+    // Irradiance
     {
         uint32_t dim = 64;
         uint32_t layers = 6;
@@ -43,6 +44,18 @@ Result RenderTargets::init(platform::Context* platformContext)
         irradianceCube = new rhi::Texture();
         try(irradianceCube->init(context, "Irradiance Cube Texture", rhi::Format::R32G32B32A32_FLOAT, extent, mipLevels,
                                  layers, rhi::ImageUsage::TRANSFER_DST));
+    }
+
+    // PreFilter
+    {
+        uint32_t dim = 512;
+        uint32_t layers = 6;
+        uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
+        rhi::Extent3D extent = {dim, dim, 1};
+
+        preFilterCube = new rhi::Texture();
+        try(preFilterCube->init(context, "PreFilter Cube Texture", rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels,
+                                layers, rhi::ImageUsage::TRANSFER_DST));
     }
     return Result::Continue;
 }
@@ -56,5 +69,6 @@ void RenderTargets::terminate(platform::Context* platformContext)
     TERMINATE(brdfLutTexture, context);
     TERMINATE(environmentCube, context);
     TERMINATE(irradianceCube, context);
+    TERMINATE(preFilterCube, context);
 }
 } // namespace scene

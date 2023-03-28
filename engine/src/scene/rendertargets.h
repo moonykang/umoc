@@ -40,5 +40,6 @@ class RenderTargets
     REGISTER_TEXTURE(brdfLutTexture, getBrdfLutTexture);
     REGISTER_TEXTURE(environmentCube, getEnvironmentCube);
     REGISTER_TEXTURE(irradianceCube, getIrradianceCube);
+    REGISTER_TEXTURE(preFilterCube, getPreFilterCube);
 };
 } // namespace scene
