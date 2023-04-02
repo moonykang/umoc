@@ -54,12 +54,14 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
                                 const VkImageMemoryBarrier* imageMemoryBarriers)
     {
         ASSERT(valid());
-        for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
-        {
+        /*
+                for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
+                {
 
-            LOGD("CB %p image %p %u > %u", mHandle, imageMemoryBarriers[i].image, imageMemoryBarriers[i].oldLayout,
-                 imageMemoryBarriers[i].newLayout);
-        }
+                    LOGD("CB %p image %p %u > %u", mHandle, imageMemoryBarriers[i].image,
+           imageMemoryBarriers[i].oldLayout, imageMemoryBarriers[i].newLayout);
+                }
+        */
         vkCmdPipelineBarrier(mHandle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers,
                              bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount,
                              imageMemoryBarriers);

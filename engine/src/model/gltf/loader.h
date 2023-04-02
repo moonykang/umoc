@@ -45,11 +45,11 @@ class Loader : public model::Loader
     Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,
            model::Material* externalMaterial);
 
-    Object* load(platform::Context* context) override;
+    Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
-    Result loadTextures(platform::Context* context, Object* object);
+    Result loadTextures(platform::Context* context, scene::SceneInfo* sceneInfo, Object* object);
 
-    Result loadMaterials(platform::Context* context, Object* object);
+    Result loadMaterials(platform::Context* context, scene::SceneInfo* sceneInfo, Object* object);
 
     Result loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeIndex, float globalscale, Object* object);
 

@@ -270,8 +270,8 @@ Result Image::copy(Context* context, RealBuffer* srcBuffer, VkExtent3D extent, u
 
 Transition* Image::updateImageLayoutAndBarrier(rhi::ImageLayout newLayout)
 {
-    LOGD("Image %s %p, %s -> %s", name.c_str(), mHandle, getImageLayoutName(imageLayout).c_str(),
-         getImageLayoutName(newLayout).c_str());
+    //    LOGD("Image %s %p, %s -> %s", name.c_str(), mHandle, getImageLayoutName(imageLayout).c_str(),
+    //         getImageLayoutName(newLayout).c_str());
 
     if (newLayout == imageLayout)
     {

@@ -8,6 +8,8 @@
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/image.h"
+#include "scene/scene.h"
+#include "scene/textures.h"
 
 namespace model
 {
@@ -66,7 +68,7 @@ Loader::Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoad
 {
 }
 
-Object* Loader::load(platform::Context* platformContext)
+Object* Loader::load(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     Object* newObject = new Object();
     try_call(newObject->init(platformContext));
@@ -82,13 +84,13 @@ Object* Loader::load(platform::Context* platformContext)
 
     if (!(gltfLoadingFlags & GltfLoadingFlag::DontLoadImages))
     {
-        try_call(loadTextures(platformContext, newObject));
+        try_call(loadTextures(platformContext, sceneInfo, newObject));
     }
 
     // Use external material if is set.
     if (!externalMaterial)
     {
-        try_call(loadMaterials(platformContext, newObject));
+        try_call(loadMaterials(platformContext, sceneInfo, newObject));
     }
     else
     {
@@ -110,7 +112,7 @@ Object* Loader::load(platform::Context* platformContext)
     return newObject;
 }
 
-Result Loader::loadTextures(platform::Context* platformContext, Object* object)
+Result Loader::loadTextures(platform::Context* platformContext, scene::SceneInfo* sceneInfo, Object* object)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
@@ -119,26 +121,19 @@ Result Loader::loadTextures(platform::Context* platformContext, Object* object)
         bool isKtx = false;
         std::string name = image.uri;
 
-        if (image.uri.find_last_of(".") != std::string::npos)
-        {
-            if (image.uri.substr(image.uri.find_last_of(".") + 1) == "ktx")
-            {
-                isKtx = true;
-            }
-        }
+        scene::Textures* sceneTextures = sceneInfo->getTextures();
 
-        if (isKtx)
-        {
-            rhi::Texture* texture = new rhi::Texture();
-            try(texture->init(context, name, path + image.uri, platform::ImageLoader::KTX));
+        auto [id, texture] = sceneTextures->get(platformContext, name, path + image.uri);
 
-            object->addTexture(texture);
-        }
+        //        rhi::Texture* texture = new rhi::Texture();
+        //        try(texture->init(context, name, path + image.uri, platform::ImageLoader::KTX));
+
+        object->addTexture(id);
     }
     return Result::Continue;
 }
 
-Result Loader::loadMaterials(platform::Context* context, Object* object)
+Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* sceneInfo, Object* object)
 {
     for (tinygltf::Material& mat : gltfModel.materials)
     {
@@ -148,40 +143,40 @@ Result Loader::loadMaterials(platform::Context* context, Object* object)
         if ((materialFlags & MaterialFlag::BaseColorTexture) != 0 &&
             mat.values.find("baseColorTexture") != mat.values.end())
         {
-            material->updateTexture(
-                MaterialFlag::BaseColorTexture,
-                object->getTexture(gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source));
+            TextureID textureID =
+                object->getTexture(gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source);
+            material->updateTexture(MaterialFlag::BaseColorTexture, sceneInfo->getTextures()->get(textureID));
         }
 
         if ((materialFlags & MaterialFlag::MetalicRoughnessTexture) != 0 &&
             mat.values.find("metallicRoughnessTexture") != mat.values.end())
         {
-            material->updateTexture(
-                MaterialFlag::MetalicRoughnessTexture,
-                object->getTexture(gltfModel.textures[mat.values["metallicRoughnessTexture"].TextureIndex()].source));
+            TextureID textureID =
+                object->getTexture(gltfModel.textures[mat.values["metallicRoughnessTexture"].TextureIndex()].source);
+            material->updateTexture(MaterialFlag::MetalicRoughnessTexture, sceneInfo->getTextures()->get(textureID));
         }
 
         if ((materialFlags & MaterialFlag::NormalTexture) != 0 && mat.values.find("normalTexture") != mat.values.end())
         {
-            material->updateTexture(
-                MaterialFlag::NormalTexture,
-                object->getTexture(gltfModel.textures[mat.values["normalTexture"].TextureIndex()].source));
+            TextureID textureID =
+                object->getTexture(gltfModel.textures[mat.values["normalTexture"].TextureIndex()].source);
+            material->updateTexture(MaterialFlag::NormalTexture, sceneInfo->getTextures()->get(textureID));
         }
 
         if ((materialFlags & MaterialFlag::EmissiveTexture) != 0 &&
             mat.values.find("emissiveTexture") != mat.values.end())
         {
-            material->updateTexture(
-                MaterialFlag::EmissiveTexture,
-                object->getTexture(gltfModel.textures[mat.values["emissiveTexture"].TextureIndex()].source));
+            TextureID textureID =
+                object->getTexture(gltfModel.textures[mat.values["emissiveTexture"].TextureIndex()].source);
+            material->updateTexture(MaterialFlag::EmissiveTexture, sceneInfo->getTextures()->get(textureID));
         }
 
         if ((materialFlags & MaterialFlag::OcclusionTexture) != 0 &&
             mat.values.find("occlusionTexture") != mat.values.end())
         {
-            material->updateTexture(
-                MaterialFlag::OcclusionTexture,
-                object->getTexture(gltfModel.textures[mat.values["occlusionTexture"].TextureIndex()].source));
+            TextureID textureID =
+                object->getTexture(gltfModel.textures[mat.values["occlusionTexture"].TextureIndex()].source);
+            material->updateTexture(MaterialFlag::OcclusionTexture, sceneInfo->getTextures()->get(textureID));
         }
 
         if (mat.values.find("roughnessFactor") != mat.values.end())

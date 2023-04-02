@@ -8,6 +8,7 @@
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
+#include "textures.h"
 #include "view.h"
 
 namespace scene
@@ -42,6 +43,8 @@ Result SceneInfo::init(platform::Context* platformContext)
     renderTargets = new RenderTargets();
     try(renderTargets->init(platformContext));
 
+    textures = new Textures();
+
     return postInit(platformContext);
 }
 
@@ -52,6 +55,7 @@ void SceneInfo::terminate(platform::Context* platformContext)
     preTerminate(platformContext);
     platformContext->getWindow()->getInput()->dettach();
 
+    TERMINATE(textures, context);
     TERMINATE(sceneDescriptorSet, context);
     TERMINATE(light, platformContext);
     TERMINATE(view, platformContext);

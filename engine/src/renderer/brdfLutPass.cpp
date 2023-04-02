@@ -53,7 +53,7 @@ Result BrdfLutPass::init(platform::Context* platformContext, scene::SceneInfo* s
 
     auto loader = model::predefined::Loader::Builder().build();
 
-    object = loader->load(platformContext);
+    object = loader->load(platformContext, sceneInfo);
     instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
 
     brdfLutVertexShader.init(context);

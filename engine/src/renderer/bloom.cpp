@@ -89,7 +89,7 @@ Result BloomPass::init(platform::Context* platformContext, scene::SceneInfo* sce
 
     auto loader = model::predefined::Loader::Builder().setMaterial(bloomMaterial).build();
 
-    object = loader->load(platformContext);
+    object = loader->load(platformContext, sceneInfo);
     instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
 
     bloomVertexShader.init(context);

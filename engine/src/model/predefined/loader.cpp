@@ -27,7 +27,7 @@ Loader::Loader(Material* material) : material(material)
 {
 }
 
-Object* Loader::load(platform::Context* context)
+Object* Loader::load(platform::Context* context, scene::SceneInfo* sceneInfo)
 {
     Object* newObject = new Object();
     try_call(newObject->init(context));

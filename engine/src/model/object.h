@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/util.h"
+#include "defines.h"
 #include <vector>
 
 namespace platform
@@ -39,9 +40,9 @@ class Object
   public:
     VertexInput* getVertexInput();
 
-    void addTexture(rhi::Texture* texture);
+    void addTexture(TextureID id);
 
-    rhi::Texture* getTexture(uint32_t index);
+    TextureID getTexture(uint32_t index);
 
     void addMaterial(Material* material);
 
@@ -59,9 +60,10 @@ class Object
   protected:
     VertexInput* vertexInput;
     std::vector<Material*> materials;
-    std::vector<rhi::Texture*> textures;
     std::vector<Node*> nodes;
     std::vector<Node*> linearNodes;
     std::vector<Instance*> linearInstances;
+
+    std::vector<TextureID> textures;
 };
 } // namespace model

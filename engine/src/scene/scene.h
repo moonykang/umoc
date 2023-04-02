@@ -23,6 +23,7 @@ namespace scene
 class Light;
 class View;
 class RenderTargets;
+class Textures;
 
 class SceneInfo
 {
@@ -69,6 +70,11 @@ class SceneInfo
 
     rhi::DescriptorSet* getDescriptorSet();
 
+    Textures* getTextures()
+    {
+        return textures;
+    }
+
   protected:
     void registerObject(platform::Context* context, model::Object* object);
 
@@ -78,5 +84,6 @@ class SceneInfo
     Light* light;
     RenderTargets* renderTargets;
     rhi::DescriptorSet* sceneDescriptorSet;
+    Textures* textures;
 };
 } // namespace scene

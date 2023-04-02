@@ -51,7 +51,8 @@ class GltfLoadingFlag
         PreTransformVertices = 0x00000001,
         PreMultiplyVertexColors = 0x00000002,
         FlipY = 0x00000004,
-        DontLoadImages = 0x00000008
+        DontLoadImages = 0x00000008,
+        UseExternalMaterial = 0x00000016
     };
 
     GltfLoadingFlag() = default;
@@ -81,4 +82,5 @@ enum AlphaMode
     Opaque,
 };
 
+using TextureID = size_t;
 } // namespace model

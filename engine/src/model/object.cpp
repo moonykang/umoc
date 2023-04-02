@@ -30,15 +30,14 @@ void Object::terminate(platform::Context* platformContext)
         TERMINATE(material, platformContext);
     }
 
-    for (auto& texture : textures)
-    {
-        TERMINATE(texture, context);
-    }
+    materials.clear();
+    textures.clear();
 
     for (auto& instance : linearInstances)
     {
         TERMINATE(instance, platformContext);
     }
+    linearInstances.clear();
 }
 
 void Object::draw(platform::Context* context)
@@ -52,12 +51,12 @@ VertexInput* Object::getVertexInput()
     return vertexInput;
 }
 
-void Object::addTexture(rhi::Texture* texture)
+void Object::addTexture(TextureID texture)
 {
     textures.push_back(texture);
 }
 
-rhi::Texture* Object::getTexture(uint32_t index)
+TextureID Object::getTexture(uint32_t index)
 {
     ASSERT(textures.size() > index);
     return textures[index];

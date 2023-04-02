@@ -28,7 +28,7 @@ class Loader : public model::Loader
   public:
     Loader(Material* material);
 
-    Object* load(platform::Context* context) override;
+    Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
   private:
     Material* material;

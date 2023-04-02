@@ -11,6 +11,11 @@ namespace platform
 class Context;
 }
 
+namespace scene
+{
+class SceneInfo;
+}
+
 namespace model
 {
 class Object;
@@ -19,7 +24,7 @@ class Node;
 class Loader
 {
   public:
-    virtual Object* load(platform::Context* context) = 0;
+    virtual Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) = 0;
 
     Result loadMaterial(platform::Context* context, Object* object);
 
