@@ -40,6 +40,9 @@ class Light
     {
         ALIGNED(4)
         glm::vec4 position;
+        float gamma = 0.1f;
+        float exposure = 0.1f;
+
     } ubo;
 
     rhi::UniformBuffer* uniformBuffer;

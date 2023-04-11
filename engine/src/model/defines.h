@@ -18,6 +18,7 @@ class MaterialFlag
         EmissiveTexture = 0x00000010,
         SpecularGlossinessTexture = 0x00000020,
         DiffuseTexture = 0x00000040,
+        External = 0x00000080,
         All = 0xFFFFFFFF
     };
 

@@ -45,6 +45,8 @@ class Material
     rhi::Texture* specularGlossinessTexture;
     rhi::Texture* diffuseTexture;
 
+    std::vector<rhi::Texture*> externalTextures;
+
     rhi::UniformBuffer* uniformBuffer;
     rhi::DescriptorSet* descriptorSet;
 };

@@ -6,6 +6,8 @@
 
 namespace rhi
 {
+using ResourceID = size_t;
+
 class Handle
 {
   public:
@@ -548,6 +550,14 @@ struct Extent3D
     uint32_t width;
     uint32_t height;
     uint32_t depth;
+
+    Extent3D() : width(0), height(0), depth(1)
+    {
+    }
+
+    Extent3D(uint32_t width, uint32_t height, uint32_t depth) : width(width), height(height), depth(depth)
+    {
+    }
 };
 
 class ImageSubResource

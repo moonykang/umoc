@@ -69,6 +69,11 @@ void BrdfLutPass::terminate(platform::Context* context)
 
 Result BrdfLutPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
+    if (oneTimeRender)
+    {
+        return Result::Continue;
+    }
+
     rhi::Context* context = platformContext->getRHI();
 
     rhi::RenderPassInfo renderpassInfo;

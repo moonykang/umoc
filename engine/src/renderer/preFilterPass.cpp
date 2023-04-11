@@ -86,6 +86,9 @@ Result PreFilterPass::init(platform::Context* platformContext, scene::SceneInfo*
     PreFilterPassMaterial* material = new PreFilterPassMaterial();
     material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube());
 
+    try(material->init(context));
+    try(material->update(context));
+
     auto loader = model::gltf::Loader::Builder()
                       .setFileName("cube.gltf")
                       .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
@@ -123,6 +126,9 @@ Result PreFilterPass::render(platform::Context* platformContext, scene::SceneInf
 
     try(offscreenTexture->init(context, "Offscreen Texture (PrefilterPass)", rhi::Format::R16G16B16A16_FLOAT,
                                {dim, dim, 1}, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC));
+
+    try(context->addTransition(sceneInfo->getRenderTargets()->getEnvironmentCube()->getImage(),
+                               rhi::ImageLayout::FragmentShaderReadOnly));
 
     rhi::RenderPassInfo renderpassInfo;
     renderpassInfo.name = "PreFilter Pass";
@@ -195,11 +201,11 @@ Result PreFilterPass::render(platform::Context* platformContext, scene::SceneInf
             rhi::ImageSubResource srcImageSubResource = {};
 
             rhi::ImageSubResource dstImageSubResource = {};
-            dstImageSubResource.baseArrayLayer = 0;
-            dstImageSubResource.baseMipLevel = 0;
+            dstImageSubResource.baseArrayLayer = face;
+            dstImageSubResource.baseMipLevel = level;
 
             try(context->copyImage(offscreenTexture->getImage(), srcImageSubResource, preFilterTexture->getImage(),
-                                   dstImageSubResource, {64, 64, 1}));
+                                   dstImageSubResource, {extent.width, extent.height, 1}));
         }
     }
 

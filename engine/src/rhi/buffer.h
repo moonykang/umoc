@@ -126,6 +126,12 @@ class Buffer
     size_t alignmentSize;
 };
 
+class BufferBlock
+{
+  public:
+    BufferBlock();
+};
+
 class ScratchBuffer
 {
   public:

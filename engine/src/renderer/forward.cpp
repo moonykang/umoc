@@ -34,6 +34,24 @@ class ForwardFragmentShader : public rhi::PixelShaderBase
     }
 };
 
+class PBRVertexShader : public rhi::VertexShaderBase
+{
+  public:
+    PBRVertexShader()
+        : rhi::VertexShaderBase("pbr.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                                    rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent)
+    {
+    }
+};
+
+class PBRFragmentShader : public rhi::PixelShaderBase
+{
+  public:
+    PBRFragmentShader() : rhi::PixelShaderBase("pbr.frag.spv")
+    {
+    }
+};
+
 class ForwardShaderParameters : public rhi::ShaderParameters
 {
   public:
@@ -51,8 +69,8 @@ class ForwardShaderParameters : public rhi::ShaderParameters
     rhi::DescriptorSet* materialDescriptor;
 };
 
-ForwardVertexShader forwardVertexShader;
-ForwardFragmentShader forwardPixelShader;
+PBRVertexShader forwardVertexShader;
+PBRFragmentShader forwardPixelShader;
 
 namespace renderer
 {
@@ -98,6 +116,13 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     try(context->addTransition(sceneInfo->getRenderTargets()->getSceneDepth()->getImage(),
                                rhi::ImageLayout::DepthStencilAttachment));
 
+    try(context->addTransition(sceneInfo->getRenderTargets()->getIrradianceCube()->getImage(),
+                               rhi::ImageLayout::FragmentShaderReadOnly));
+    try(context->addTransition(sceneInfo->getRenderTargets()->getBrdfLutTexture()->getImage(),
+                               rhi::ImageLayout::FragmentShaderReadOnly));
+    try(context->addTransition(sceneInfo->getRenderTargets()->getPreFilterCube()->getImage(),
+                               rhi::ImageLayout::FragmentShaderReadOnly));
+
     try(context->beginRenderpass(renderpassInfo));
 
     ForwardShaderParameters params;
@@ -108,9 +133,12 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.shaderParameters = &params;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
+    graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    // graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
+    graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
+    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
     graphicsPipelineState.depthStencilState.depthTestEnable = true;
+    graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
     graphicsPipelineState.depthStencilState.depthWriteEnable = true;
 
     for (auto& model : testScene->getModels())

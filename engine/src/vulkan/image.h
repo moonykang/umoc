@@ -35,6 +35,8 @@ class ImageView final : public WrappedObject<ImageView, VkImageView>
 
   private:
     VkResult create(VkDevice device, const VkImageViewCreateInfo& createInfo);
+
+    VkImageViewType viewType;
 };
 
 class Image final : public rhi::Image, public WrappedObject<Image, VkImage>

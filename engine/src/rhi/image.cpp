@@ -62,6 +62,23 @@ Result Texture::init(Context* context, std::string name, Format format, Extent3D
     return Result::Continue;
 }
 
+Result Texture::init(Context* context, std::string name, Format format, Extent3D extent,
+                     ImageUsageFlags imageUsageFlags, size_t size, void* data)
+{
+    image = context->allocateImage(name, DescriptorType::Combined_Image_Sampler);
+
+    ImageType imageType = ImageType::IMAGE_2D;
+
+    std::vector<std::vector<size_t>> offsets = {{0}};
+
+    try(image->init(context, format, imageType, ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST,
+                    MemoryProperty::DEVICE_LOCAL, 1, 1, 1, {extent.width, extent.height, 1}));
+
+    try(image->update(context, size, data, offsets));
+
+    return Result::Continue;
+}
+
 void Texture::terminate(Context* context)
 {
     TERMINATE(image, context);

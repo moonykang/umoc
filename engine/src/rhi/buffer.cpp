@@ -4,8 +4,9 @@
 
 namespace rhi
 {
-const size_t VERTEX_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
-const size_t INDEX_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
+const size_t MAX_SUB_BLOCK_SIZE = 4 * 1024 * 1024;
+const size_t VERTEX_SCRATCH_BUFFER_SIZE = 512 * 1024 * 1024;
+const size_t INDEX_SCRATCH_BUFFER_SIZE = 512 * 1024 * 1024;
 const size_t UNIFORM_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
 
 VertexBuffer* Context::allocateVertexBuffer(size_t size, void* data)

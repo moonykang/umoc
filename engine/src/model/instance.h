@@ -3,6 +3,7 @@
 #include "common/transform.h"
 #include "common/tree.h"
 #include "common/util.h"
+#include <memory>
 #include <mutex>
 #include <vector>
 

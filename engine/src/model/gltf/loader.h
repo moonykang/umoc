@@ -39,7 +39,7 @@ class Loader : public model::Loader
         std::string fileName;
         MaterialFlags materialFlags;
         GltfLoadingFlags gltfLoadingFlags;
-        Material* externalMaterial;
+        model::Material* externalMaterial;
     };
 
     Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,

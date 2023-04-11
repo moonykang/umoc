@@ -6,6 +6,7 @@
 #include "model/object.h"
 #include "model/predefined/loader.h"
 #include "platform/context.h"
+#include "rendertargets.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
@@ -23,6 +24,8 @@ Result TestScene::postInit(platform::Context* context)
 
 Result TestScene::load(platform::Context* context)
 {
+
+    /*
     {
         // sponza
         auto loader = model::gltf::Loader::Builder()
@@ -38,59 +41,67 @@ Result TestScene::load(platform::Context* context)
 
         object->instantiate(context, glm::mat4(1.0f), true);
     }
-
-    /*
-        {
-            model::gltf::Material* material = new model::gltf::Material();
-            try(material->init(context));
-
-            // albedo
-            {
-                auto [id, texture] = textures->get(context, "cerberus_albedo", "cerberus/albedo.ktx");
-                material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
-            }
-
-            // normal
-            {
-                auto [id, texture] = textures->get(context, "cerberus_normal", "cerberus/normal.ktx");
-                material->updateTexture(model::MaterialFlag::NormalTexture, texture);
-            }
-
-            // ao
-            {
-                auto [id, texture] = textures->get(context, "cerberus_ao", "cerberus/ao.ktx");
-                material->updateTexture(model::MaterialFlag::OcclusionTexture, texture);
-            }
-
-            // metallic
-            {
-                auto [id, texture] = textures->get(context, "cerberus_metallic", "cerberus/metallic.ktx");
-                material->updateTexture(model::MaterialFlag::MetalicRoughnessTexture, texture);
-            }
-
-            // roughness (use diffuse)
-            {
-                auto [id, texture] = textures->get(context, "cerberus_roughness", "cerberus/roughness.ktx");
-                material->updateTexture(model::MaterialFlag::DiffuseTexture, texture);
-            }
-            // ceberus (PBR)
-            // auto loader = model::
-
-            auto loader = model::gltf::Loader::Builder()
-                              .setPath("cerberus/")
-                              .setFileName("cerberus.gltf")
-                              //.setMaterialFlags(model::MaterialFlag::BaseColorTexture)
-                              .setMaterialFlags(model::MaterialFlag::All)
-                              .addExternalMaterial(material)
-                              .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
-                              .build();
-
-            model::Object* object = loader->load(context, this);
-            registerObject(context, object);
-
-            object->instantiate(context, glm::mat4(1.0f), true);
-        }
     */
+    {
+        model::Material* material = new model::Material();
+        try(material->init(context));
+
+        // albedo 0
+        {
+            auto [id, texture] = textures->get(context, "cerberus_albedo", "cerberus/albedo.ktx");
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
+        }
+
+        // normal 1
+        {
+            auto [id, texture] = textures->get(context, "cerberus_normal", "cerberus/normal.ktx");
+            material->updateTexture(model::MaterialFlag::NormalTexture, texture);
+        }
+
+        // ao 2
+        {
+            auto [id, texture] = textures->get(context, "cerberus_ao", "cerberus/ao.ktx");
+            material->updateTexture(model::MaterialFlag::OcclusionTexture, texture);
+        }
+
+        // metallic 3
+        {
+            auto [id, texture] = textures->get(context, "cerberus_metallic", "cerberus/metallic.ktx");
+            material->updateTexture(model::MaterialFlag::MetalicRoughnessTexture, texture);
+        }
+
+        // roughness (use diffuse) 4
+        {
+            auto [id, texture] = textures->get(context, "cerberus_roughness", "cerberus/roughness.ktx");
+            material->updateTexture(model::MaterialFlag::DiffuseTexture, texture);
+        }
+        // ceberus (PBR)
+        // auto loader = model::
+
+        {
+            material->updateTexture(model::MaterialFlag::External, renderTargets->getIrradianceCube());
+            material->updateTexture(model::MaterialFlag::External, renderTargets->getBrdfLutTexture());
+            material->updateTexture(model::MaterialFlag::External, renderTargets->getPreFilterCube());
+        }
+
+        try(material->init(context));
+        try(material->update(context));
+
+        auto loader = model::gltf::Loader::Builder()
+                          .setPath("cerberus/")
+                          .setFileName("cerberus.gltf")
+                          //.setMaterialFlags(model::MaterialFlag::BaseColorTexture)
+                          .setMaterialFlags(model::MaterialFlag::All)
+                          .addExternalMaterial(material)
+                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .build();
+
+        model::Object* object = loader->load(context, this);
+        registerObject(context, object);
+
+        object->instantiate(context, glm::mat4(1.0f), true);
+    }
+
     view->setView(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();

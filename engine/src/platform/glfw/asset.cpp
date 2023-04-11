@@ -122,15 +122,17 @@ Result loadImageKTX(std::string path, rhi::Format& format, rhi::Extent2D& extent
         }
     }
 
-    if (ktxTexture->glInternalformat == GL_RGBA16F)
+    switch (ktxTexture->glInternalformat)
     {
-
+    case GL_RGBA16F:
         format = rhi::Format::R16G16B16A16_FLOAT;
-    }
-    else
-    {
-        // TODO
+        break;
+    case GL_R8:
+        format = rhi::Format::R8_UNORM;
+        break;
+    default:
         format = rhi::Format::R8G8B8A8_UNORM;
+        break;
     }
 
     ktxTexture_Destroy(ktxTexture);

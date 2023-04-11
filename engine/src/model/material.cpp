@@ -91,6 +91,13 @@ Result Material::update(platform::Context* platformContext)
                                   diffuseTexture->getImageDescriptor()});
     }
 
+    for (auto texture : externalTextures)
+    {
+        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
+                                  texture->getImageDescriptor()});
+    }
+
     try(descriptorSet->init(context, descriptorInfoList));
     try(descriptorSet->update(context, descriptorList, offsets));
 
@@ -127,6 +134,9 @@ void Material::updateTexture(MaterialFlag materialFlag, rhi::Texture* texture)
         break;
     case MaterialFlag::DiffuseTexture:
         diffuseTexture = texture;
+        break;
+    case MaterialFlag::External:
+        externalTextures.push_back(texture);
         break;
     }
 }

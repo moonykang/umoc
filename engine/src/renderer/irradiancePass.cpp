@@ -84,6 +84,9 @@ Result IrradiancePass::init(platform::Context* platformContext, scene::SceneInfo
     IrradianceMaterial* material = new IrradianceMaterial();
     material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube());
 
+    try(material->init(context));
+    try(material->update(context));
+
     auto loader = model::gltf::Loader::Builder()
                       .setFileName("cube.gltf")
                       .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
@@ -120,6 +123,9 @@ Result IrradiancePass::render(platform::Context* platformContext, scene::SceneIn
     const uint32_t numMips = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
     try(offscreenTexture->init(context, "Offscreen Texture", rhi::Format::R32G32B32A32_FLOAT, {dim, dim, 1}, 1, 1,
                                rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC));
+
+    try(context->addTransition(sceneInfo->getRenderTargets()->getEnvironmentCube()->getImage(),
+                               rhi::ImageLayout::FragmentShaderReadOnly));
 
     rhi::RenderPassInfo renderpassInfo;
     renderpassInfo.name = "Irradiance Pass";
@@ -190,11 +196,11 @@ Result IrradiancePass::render(platform::Context* platformContext, scene::SceneIn
             rhi::ImageSubResource srcImageSubResource = {};
 
             rhi::ImageSubResource dstImageSubResource = {};
-            dstImageSubResource.baseArrayLayer = 0;
-            dstImageSubResource.baseMipLevel = 0;
+            dstImageSubResource.baseArrayLayer = face;
+            dstImageSubResource.baseMipLevel = level;
 
             try(context->copyImage(offscreenTexture->getImage(), srcImageSubResource, irradianceTexture->getImage(),
-                                   dstImageSubResource, {64, 64, 1}));
+                                   dstImageSubResource, {extent.width, extent.height, 1}));
         }
     }
 

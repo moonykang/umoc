@@ -33,7 +33,7 @@ class Image : public Descriptor
 };
 
 class ImageDescriptor;
-class Texture
+class Texture : public Resource
 {
   public:
     Texture();
@@ -46,6 +46,10 @@ class Texture
     // For render targets
     Result init(Context* context, std::string name, Format format, Extent3D extent, uint32_t mipLevels, uint32_t layers,
                 ImageUsageFlags imageUsageFlags);
+
+    // For texture loading
+    Result init(Context* context, std::string name, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags,
+                size_t size, void* data);
 
     void terminate(Context* context);
 

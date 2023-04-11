@@ -4,13 +4,18 @@
 
 namespace model
 {
-class Object;
-class Instance;
+class VertexInput;
 } // namespace model
+
+namespace rhi
+{
+class Texture;
+class DescriptorSet;
+} // namespace rhi
 
 namespace renderer
 {
-class BrdfLutPass : public Base
+class UIPass : public Base
 {
   public:
     Result init(platform::Context* context, scene::SceneInfo* sceneInfo) override;
@@ -20,8 +25,12 @@ class BrdfLutPass : public Base
     Result render(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
   private:
-    model::Object* object;
-    model::Instance* instance;
-    bool oneTimeRender = false;
+    Result updateUI();
+    Result updateBuffers(platform::Context* context);
+
+  private:
+    model::VertexInput* vertexInput;
+    rhi::Texture* fontTexture;
+    rhi::DescriptorSet* uiDescriptorSet;
 };
-}
+} // namespace renderer

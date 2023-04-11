@@ -1,12 +1,38 @@
 #pragma once
 
+#include "common/hash.h"
 #include "defines.h"
+#include <mutex>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace rhi
 {
+
+class Resource
+{
+  public:
+    inline ResourceID getID()
+    {
+        return id;
+    }
+
+    static ResourceID generateID(const void* data, size_t size)
+    {
+        return util::computeGenericHash(data, size);
+    }
+
+    std::mutex& getLock()
+    {
+        return lock;
+    }
+
+  protected:
+    ResourceID id;
+    std::mutex lock;
+};
+
 // Format
 const inline std::string toString(Format format)
 {

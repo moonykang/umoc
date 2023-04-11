@@ -94,8 +94,6 @@ Object* Loader::load(platform::Context* platformContext, scene::SceneInfo* scene
     }
     else
     {
-        try_call(externalMaterial->init(platformContext));
-        try_call(externalMaterial->update(platformContext));
         newObject->addMaterial(externalMaterial);
     }
 

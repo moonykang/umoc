@@ -65,6 +65,8 @@ Result ImageView::init(Context* context, VkImage image, Format format, VkCompone
 {
     Device* device = context->getDevice();
 
+    this->viewType = viewType;
+
     VkImageViewCreateInfo imageViewCreateInfo = {};
     imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     imageViewCreateInfo.pNext = NULL;
