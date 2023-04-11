@@ -9,47 +9,11 @@
 #include "rhi/image.h"
 #include "rhi/shader.h"
 
-class UIVertexShader : public rhi::VertexShaderBase
-{
-  public:
-    UIVertexShader()
-        : rhi::VertexShaderBase("ui.vert.spv",
-                                rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Color)
-    {
-    }
-};
-
-class UIFragmentShader : public rhi::PixelShaderBase
-{
-  public:
-    UIFragmentShader() : rhi::PixelShaderBase("ui.frag.spv")
-    {
-    }
-};
-
 struct UIPushBlock
 {
     glm::vec2 scale;
     glm::vec2 translate;
 } uiPushBlock;
-
-class UIShaderParameters : public rhi::ShaderParameters
-{
-  public:
-    UIShaderParameters() : ShaderParameters(), uiDescriptor(nullptr)
-    {
-    }
-
-    std::vector<rhi::DescriptorSet*> getDescriptorSets() override
-    {
-        return {uiDescriptor};
-    }
-
-    rhi::DescriptorSet* uiDescriptor;
-};
-
-UIVertexShader uiVertexShader;
-UIFragmentShader uiPixelShader;
 
 namespace renderer
 {
@@ -57,10 +21,13 @@ Result UIPass::init(platform::Context* platformContext, scene::SceneInfo* sceneI
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    vertexInput = new model::VertexInput();
+    shaderParameters = std::make_shared<rhi::ShaderParameters>();
 
-    try(uiVertexShader.init(context));
-    try(uiPixelShader.init(context));
+    shaderParameters->vertexShader = context->allocateVertexShader(
+        "ui.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Color);
+    shaderParameters->pixelShader = context->allocatePixelShader("ui.frag.spv");
+
+    vertexInput = new model::VertexInput();
 
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -124,16 +91,13 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     try(updateUI());
 
     try(updateBuffers(platformContext));
-    /*
+
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    UIShaderParameters params;
-    params.vertexShader = &uiVertexShader;
-    params.pixelShader = &uiPixelShader;
-    params.uiDescriptor = uiDescriptorSet;
+    shaderParameters->materialDescriptor = uiDescriptorSet;
 
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.shaderParameters = &params;
+    graphicsPipelineState.shaderParameters = shaderParameters.get();
     graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
     graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
@@ -160,7 +124,7 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
         rhi::PushConstant(rhi::ShaderStage::Vertex | rhi::ShaderStage::Pixel, 0, sizeof(UIPushBlock)));
 
     // context->pushConstant(rhi::ShaderStage::Vertex | rhi::ShaderStage::Pixel, sizeof(PushBlock), &pushBlock);
-*/
+
     return Result::Continue;
 }
 

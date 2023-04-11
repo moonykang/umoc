@@ -14,7 +14,7 @@ class Shader : public WrappedObject<Shader, VkShaderModule>
   public:
     Shader();
 
-    ~Shader() = default;
+    virtual ~Shader() = default;
 
     Result init(Context* context, rhi::ShaderBase* shaderBase);
 
@@ -29,15 +29,24 @@ class Shader : public WrappedObject<Shader, VkShaderModule>
     VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo;
 };
 
-class ShaderMap
+class VertexShader : public rhi::VertexShaderBase, public Shader
 {
   public:
-    Shader* getShader(Context* context, rhi::ShaderBase* shader);
+    VertexShader(rhi::ResourceID id, std::string name, rhi::VertexChannelFlags vertexChannelFlags);
 
-    void terminate(VkDevice device);
+    Result initRHI(rhi::Context* context) override;
 
-  private:
-    std::unordered_map<size_t, Shader*> shaderMap;
+    void terminateRHI(rhi::Context* context) override;
+};
+
+class FragmentShader : public rhi::PixelShaderBase, public Shader
+{
+  public:
+    FragmentShader(rhi::ResourceID id, std::string name);
+
+    Result initRHI(rhi::Context* context) override;
+
+    void terminateRHI(rhi::Context* context) override;
 };
 
 class PipelineLayout : public WrappedObject<PipelineLayout, VkPipelineLayout>

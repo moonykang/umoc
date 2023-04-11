@@ -8,6 +8,8 @@ namespace rhi
 {
 using ResourceID = size_t;
 
+constexpr size_t SHADER_KEY_SIZE = 128;
+
 class Handle
 {
   public:

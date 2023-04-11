@@ -13,6 +13,14 @@ namespace rhi
 class Resource
 {
   public:
+    Resource()
+    {
+    }
+
+    Resource(ResourceID id) : id(id)
+    {
+    }
+
     inline ResourceID getID()
     {
         if (!id.has_value())

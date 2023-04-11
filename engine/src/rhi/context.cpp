@@ -54,7 +54,7 @@ void Context::terminateRHI()
 
     for (auto shader : shaderMap)
     {
-        delete shader.second;
+        TERMINATE(shader.second, this);
     }
     shaderMap.clear();
 

@@ -85,6 +85,11 @@ class Context : public platform::Context
 
     virtual DescriptorSet* allocateDescriptorSet() = 0;
 
+    virtual VertexShaderBase* createVertexShader(ResourceID id, std::string name,
+                                                 VertexChannelFlags vertexChannelFlags) = 0;
+
+    virtual PixelShaderBase* createPixelShader(ResourceID id, std::string name) = 0;
+
   private:
     VertexScratchBuffer* vertexScratchBuffer;
     IndexScratchBuffer* indexScratchBuffer;

@@ -11,6 +11,51 @@
 
 namespace vk
 {
+
+rhi::VertexShaderBase* Context::createVertexShader(rhi::ResourceID id, std::string name,
+                                                   rhi::VertexChannelFlags vertexChannelFlags)
+{
+    return new VertexShader(id, name, vertexChannelFlags);
+}
+
+rhi::PixelShaderBase* Context::createPixelShader(rhi::ResourceID id, std::string name)
+{
+    return new FragmentShader(id, name);
+}
+
+VertexShader::VertexShader(rhi::ResourceID id, std::string name, rhi::VertexChannelFlags vertexChannelFlags)
+    : rhi::VertexShaderBase(id, name, vertexChannelFlags), Shader()
+{
+}
+
+Result VertexShader::initRHI(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    return Shader::init(context, this);
+}
+
+void VertexShader::terminateRHI(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    Shader::terminate(context->getDevice()->getHandle());
+}
+
+FragmentShader::FragmentShader(rhi::ResourceID id, std::string name) : rhi::PixelShaderBase(id, name), Shader()
+{
+}
+
+Result FragmentShader::initRHI(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    return Shader::init(context, this);
+}
+
+void FragmentShader::terminateRHI(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    Shader::terminate(context->getDevice()->getHandle());
+}
+
 Shader::Shader() : pipelineShaderStageCreateInfo({})
 {
 }
@@ -42,36 +87,6 @@ void Shader::terminate(VkDevice device)
         vkDestroyShaderModule(device, mHandle, nullptr);
         mHandle = VK_NULL_HANDLE;
     }
-}
-
-void ShaderMap::terminate(VkDevice device)
-{
-    for (auto& shader : shaderMap)
-    {
-        TERMINATE(shader.second, device);
-    }
-    shaderMap.clear();
-}
-
-Shader* ShaderMap::getShader(Context* context, rhi::ShaderBase* shaderBase)
-{
-    if (auto search = shaderMap.find(shaderBase->getID()); search != shaderMap.end())
-    {
-        return search->second;
-    }
-    else
-    {
-        Shader* newShader = new Shader();
-        newShader->init(context, shaderBase);
-        shaderMap.insert({shaderBase->getID(), newShader});
-
-        return newShader;
-    }
-}
-
-Shader* Context::getShader(rhi::ShaderBase* shaderBase)
-{
-    return shaderMap->getShader(this, shaderBase);
 }
 
 // TODO: empty layout now
@@ -292,8 +307,8 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
 
     try
     {
-        Shader* vertexShader = context->getShader(gfxPipelineState.shaderParameters->vertexShader);
-        Shader* pixelShader = context->getShader(gfxPipelineState.shaderParameters->pixelShader);
+        VertexShader* vertexShader = reinterpret_cast<VertexShader*>(gfxPipelineState.shaderParameters->vertexShader);
+        FragmentShader* pixelShader = reinterpret_cast<FragmentShader*>(gfxPipelineState.shaderParameters->pixelShader);
 
         std::vector<VkPipelineShaderStageCreateInfo> shaderStageInfos;
         shaderStageInfos.push_back(vertexShader->getPipelineShaderStageCreateInfo());

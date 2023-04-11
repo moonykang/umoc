@@ -8,7 +8,6 @@
 #include "rhi/context.h"
 #include "rhi/rendertarget.h"
 #include "scene/scene.h"
-#include "screenPass.h"
 #include "ui.h"
 
 namespace renderer
@@ -20,7 +19,7 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     passes.push_back(new PreFilterPass());
     passes.push_back(new Forward());
     passes.push_back(new BloomPass());
-    // passes.push_back(new UIPass());
+    passes.push_back(new UIPass());
 
     for (auto& pass : passes)
     {

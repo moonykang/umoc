@@ -82,6 +82,11 @@ class Context : public rhi::Context
 
     rhi::DescriptorSet* allocateDescriptorSet() override;
 
+    rhi::VertexShaderBase* createVertexShader(rhi::ResourceID id, std::string name,
+                                              rhi::VertexChannelFlags vertexChannelFlags) override final;
+
+    rhi::PixelShaderBase* createPixelShader(rhi::ResourceID id, std::string name) override final;
+
   public:
     Instance* getInstance() const;
 
@@ -106,8 +111,6 @@ class Context : public rhi::Context
     size_t getCurrentRenderpassHash();
 
     Renderpass* getCurrentRenderpass();
-
-    Shader* getShader(rhi::ShaderBase* shaderBase);
 
     DescriptorPool* getDescriptorPool();
 
@@ -139,7 +142,6 @@ class Context : public rhi::Context
     DescriptorPool* descriptorPool;
     Swapchain* swapchain;
     QueueMap* queueMap;
-    ShaderMap* shaderMap;
     PipelineMap* pipelineMap;
     DescriptorSetLayout* emptyDescriptorSetLayout;
 

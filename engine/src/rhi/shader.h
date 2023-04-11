@@ -14,7 +14,8 @@ class DescriptorSet;
 class ShaderBase : public Resource
 {
   public:
-    ShaderBase(std::string name, ShaderStageFlags shaderStage) : name(name), shaderStage(shaderStage), loaded(false)
+    ShaderBase(ResourceID id, std::string name, ShaderStageFlags shaderStage)
+        : Resource(id), name(name), shaderStage(shaderStage), loaded(false)
     {
     }
 
@@ -22,15 +23,19 @@ class ShaderBase : public Resource
 
     Result init(Context* context);
 
+    void terminate(Context* context);
+
+    virtual Result initRHI(Context* context) = 0;
+
+    virtual void terminateRHI(Context* context) = 0;
+
     size_t size()
     {
-        ASSERT(loaded);
         return code.size();
     }
 
     void* data()
     {
-        ASSERT(loaded);
         return code.data();
     }
 
@@ -63,10 +68,14 @@ class ShaderBase : public Resource
 class VertexShaderBase : public ShaderBase
 {
   public:
-    VertexShaderBase(std::string name, VertexChannelFlags vertexChannelFlags)
-        : ShaderBase(name, ShaderStage::Vertex), vertexChannelFlags(vertexChannelFlags)
+    VertexShaderBase(ResourceID id, std::string name, VertexChannelFlags vertexChannelFlags)
+        : ShaderBase(id, name, ShaderStage::Vertex), vertexChannelFlags(vertexChannelFlags)
     {
     }
+
+    virtual Result initRHI(Context* context) = 0;
+
+    virtual void terminateRHI(Context* context) = 0;
 
     VertexChannelFlags getVertexChannelFlags()
     {
@@ -80,9 +89,13 @@ class VertexShaderBase : public ShaderBase
 class PixelShaderBase : public ShaderBase
 {
   public:
-    PixelShaderBase(std::string name) : ShaderBase(name, ShaderStage::Pixel)
+    PixelShaderBase(ResourceID id, std::string name) : ShaderBase(id, name, ShaderStage::Pixel)
     {
     }
+
+    virtual Result initRHI(Context* context) = 0;
+
+    virtual void terminateRHI(Context* context) = 0;
 };
 
 class ShaderParameters

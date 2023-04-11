@@ -18,8 +18,8 @@ namespace vk
 {
 Context::Context()
     : device(nullptr), instance(nullptr), physicalDevice(nullptr), surface(nullptr), swapchain(nullptr),
-      enableValidationLayer(true), debugCallback(nullptr), shaderMap(nullptr), pipelineMap(nullptr),
-      emptyDescriptorSetLayout(nullptr), pendingState(nullptr)
+      enableValidationLayer(true), debugCallback(nullptr), pipelineMap(nullptr), emptyDescriptorSetLayout(nullptr),
+      pendingState(nullptr)
 {
 }
 
@@ -54,8 +54,6 @@ Result Context::initRHIImplementation(platform::Window* window)
 
     renderTargetManager = new RenderTargetManager();
 
-    shaderMap = new ShaderMap();
-
     pipelineMap = new PipelineMap();
     try(initEmptyDescriptorSetLayout());
 
@@ -75,7 +73,6 @@ void Context::terminateRHIImplementation()
     // Device dependencies
     TERMINATE(emptyDescriptorSetLayout, this);
     TERMINATE(descriptorPool, this);
-    TERMINATE(shaderMap, device->getHandle());
     TERMINATE(pipelineMap, device->getHandle());
     TERMINATE(renderTargetManager, device->getHandle());
     TERMINATE(swapchain, this);

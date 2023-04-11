@@ -48,7 +48,7 @@ Result TestScene::load(platform::Context* platformContext)
         object->instantiate(context, glm::mat4(1.0f), true);
     }
 
-    if (false)
+    if (true)
     {
         model::Material* material = new model::Material();
         try(material->init(context));

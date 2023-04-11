@@ -1,6 +1,7 @@
 #pragma once
 
 #include "base.h"
+#include <memory>
 
 namespace model
 {
@@ -11,6 +12,7 @@ namespace rhi
 {
 class Texture;
 class DescriptorSet;
+class ShaderParameters;
 } // namespace rhi
 
 namespace renderer
@@ -32,5 +34,6 @@ class UIPass : public Base
     model::VertexInput* vertexInput;
     rhi::Texture* fontTexture;
     rhi::DescriptorSet* uiDescriptorSet;
+    std::shared_ptr<rhi::ShaderParameters> shaderParameters;
 };
 } // namespace renderer
