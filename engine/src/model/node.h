@@ -52,7 +52,6 @@ class Node : public util::Tree
     void setMesh(Mesh* mesh);
 
   public:
-    Node* parent;
     uint32_t index;
     std::vector<Node*> children;
     glm::mat4 matrix;

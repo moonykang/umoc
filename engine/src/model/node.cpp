@@ -42,7 +42,7 @@ void Node::updateTransform()
     glm::mat4 localMatrix = glm::translate(glm::mat4(1.0f), translation) * glm::mat4(rotation) *
                             glm::scale(glm::mat4(1.0f), scale) * matrix;
 
-    matrix = parent == nullptr ? localMatrix : parent->getTransform() * localMatrix;
+    matrix = parent == nullptr ? localMatrix : reinterpret_cast<Node*>(parent)->getTransform() * localMatrix;
 }
 
 glm::mat4 Node::getTransform()

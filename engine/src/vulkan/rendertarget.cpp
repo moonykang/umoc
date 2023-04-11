@@ -297,7 +297,7 @@ struct FramebufferHashStruct
         memset(this, 0, sizeof(FramebufferHashStruct));
     }
 
-    uint8 numAttachments;
+    uint8_t numAttachments;
     VkImageView views[rhi::MaxSimultaneousRenderTargets];
 };
 

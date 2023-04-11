@@ -3,6 +3,7 @@
 #include "common/util.h"
 #include "model/loader.h"
 #include <map>
+#include <memory>
 
 namespace model
 {

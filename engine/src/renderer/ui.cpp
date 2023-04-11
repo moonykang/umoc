@@ -193,7 +193,7 @@ Result UIPass::updateBuffers(platform::Context* context)
     LOGD("imDrawData->CmdListsCount %zu", imDrawData->CmdListsCount);
     if ((vertexBufferSize == 0) || (indexBufferSize == 0))
     {
-        return;
+        Result::Continue;
     }
     return Result::Continue;
 }
