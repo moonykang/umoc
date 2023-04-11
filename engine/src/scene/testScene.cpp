@@ -102,7 +102,12 @@ Result TestScene::load(platform::Context* context)
         object->instantiate(context, glm::mat4(1.0f), true);
     }
 
-    view->setView(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
+    /*
+    [scene::View::updateViewMatrix:87] position 3.625247 1.461132 -3.264188
+[scene::View::updateViewMatrix:88] rotation -7.200001 33.600002 0.000000
+[scene::View::updateUniformBuffer:116] Update scene view ubo
+    */
+    view->setView(glm::vec3(3.0f, 1.0f, -3.0f), glm::vec3(-10.0f, 30.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();
 

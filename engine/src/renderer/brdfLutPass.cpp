@@ -109,6 +109,8 @@ Result BrdfLutPass::render(platform::Context* platformContext, scene::SceneInfo*
 
     try(context->endRenderpass());
 
+    oneTimeRender = true;
+
     return Result::Continue;
 }
 } // namespace renderer
