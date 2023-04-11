@@ -16,6 +16,11 @@ namespace scene
 class SceneInfo;
 }
 
+namespace rhi
+{
+class ShaderParameters;
+}
+
 namespace model
 {
 class Object;

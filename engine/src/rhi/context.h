@@ -14,6 +14,8 @@ class UniformBuffer;
 class VertexScratchBuffer;
 class IndexScratchBuffer;
 class UniformScratchBuffer;
+class VertexShaderBase;
+class PixelShaderBase;
 
 class Buffer;
 class DescriptorSetLayout;
@@ -71,6 +73,10 @@ class Context : public platform::Context
     IndexBuffer* allocateIndexBuffer(size_t size, void* data);
 
     UniformBuffer* allocateUniformBuffer(size_t size, void* data);
+
+    VertexShaderBase* allocateVertexShader(std::string name, VertexChannelFlags vertexChannelFlags);
+
+    PixelShaderBase* allocatePixelShader(std::string name);
     // factory
   public:
     virtual Buffer* allocateBuffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size) = 0;
@@ -83,5 +89,6 @@ class Context : public platform::Context
     VertexScratchBuffer* vertexScratchBuffer;
     IndexScratchBuffer* indexScratchBuffer;
     UniformScratchBuffer* uniformScratchBuffer;
+    std::unordered_map<ResourceID, ShaderBase*> shaderMap;
 };
 } // namespace rhi

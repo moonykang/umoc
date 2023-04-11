@@ -52,6 +52,12 @@ void Context::terminateRHI()
 {
     waitIdle();
 
+    for (auto shader : shaderMap)
+    {
+        delete shader.second;
+    }
+    shaderMap.clear();
+
     TERMINATE(vertexScratchBuffer, this);
     TERMINATE(indexScratchBuffer, this);
     TERMINATE(uniformScratchBuffer, this);

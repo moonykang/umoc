@@ -4,6 +4,7 @@
 #include "rhi/descriptor.h"
 #include "rhi/image.h"
 #include "rhi/resources.h"
+#include "rhi/shader.h"
 
 namespace model
 {
@@ -14,10 +15,20 @@ Material::Material()
 {
 }
 
+Material::~Material()
+{
+    if (shaderParameters)
+    {
+        delete shaderParameters;
+        shaderParameters = nullptr;
+    }
+}
+
 Result Material::init(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
     descriptorSet = context->allocateDescriptorSet();
+    shaderParameters = new rhi::ShaderParameters();
 
     return Result::Continue;
 }
@@ -169,5 +180,15 @@ rhi::DescriptorSet* Material::getDescriptorSet()
 {
     ASSERT(descriptorSet);
     return descriptorSet;
+}
+
+void Material::setShaderParameters(rhi::ShaderParameters* shaderParameters)
+{
+    this->shaderParameters = new rhi::ShaderParameters(*shaderParameters);
+}
+rhi::ShaderParameters* Material::getShaderParameters()
+{
+    ASSERT(shaderParameters);
+    return shaderParameters;
 }
 } // namespace model

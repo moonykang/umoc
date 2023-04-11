@@ -60,8 +60,8 @@ std::pair<model::TextureID, rhi::Texture*> Textures::get(platform::Context* plat
         platform::ImageLoader imageLoader =
             extension == "ktx" ? platform::ImageLoader::KTX : platform::ImageLoader::STB;
 
-        texture = new rhi::Texture();
-        try_call(texture->init(context, name, fullpath, imageLoader));
+        texture = new rhi::Texture(name);
+        try_call(texture->init(context, fullpath, imageLoader));
 
         textureMap[id] = texture;
     }

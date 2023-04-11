@@ -12,6 +12,7 @@ namespace rhi
 class Texture;
 class UniformBuffer;
 class DescriptorSet;
+class ShaderParameters;
 } // namespace rhi
 
 namespace model
@@ -22,7 +23,7 @@ class Material
   public:
     Material();
 
-    ~Material() = default;
+    ~Material();
 
     virtual Result init(platform::Context* context);
 
@@ -35,6 +36,10 @@ class Material
     rhi::Texture* getTexture(MaterialFlag materialFlag);
 
     rhi::DescriptorSet* getDescriptorSet();
+
+    void setShaderParameters(rhi::ShaderParameters* shaderParameters);
+
+    rhi::ShaderParameters* getShaderParameters();
 
   protected:
     rhi::Texture* baseColorTexture;
@@ -49,5 +54,7 @@ class Material
 
     rhi::UniformBuffer* uniformBuffer;
     rhi::DescriptorSet* descriptorSet;
+
+    rhi::ShaderParameters* shaderParameters;
 };
 } // namespace model

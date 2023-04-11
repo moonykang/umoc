@@ -12,11 +12,11 @@ Image::Image(std::string name, DescriptorType descriptorType)
 {
 }
 
-Texture::Texture() : image(nullptr)
+Texture::Texture(std::string name) : image(nullptr), name(name)
 {
 }
 
-Result Texture::init(Context* context, std::string name, std::string path, platform::ImageLoader imageLoader)
+Result Texture::init(Context* context, std::string path, platform::ImageLoader imageLoader)
 {
     Extent2D extent;
     uint32_t numLevels;
@@ -45,8 +45,8 @@ Result Texture::init(Context* context, std::string name, std::string path, platf
     return Result::Continue;
 }
 
-Result Texture::init(Context* context, std::string name, Format format, Extent3D extent, uint32_t mipLevels,
-                     uint32_t layers, ImageUsageFlags imageUsageFlags)
+Result Texture::init(Context* context, Format format, Extent3D extent, uint32_t mipLevels, uint32_t layers,
+                     ImageUsageFlags imageUsageFlags)
 {
     image = context->allocateImage(name, rhi::DescriptorType::Combined_Image_Sampler);
 
@@ -62,8 +62,8 @@ Result Texture::init(Context* context, std::string name, Format format, Extent3D
     return Result::Continue;
 }
 
-Result Texture::init(Context* context, std::string name, Format format, Extent3D extent,
-                     ImageUsageFlags imageUsageFlags, size_t size, void* data)
+Result Texture::init(Context* context, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags, size_t size,
+                     void* data)
 {
     image = context->allocateImage(name, DescriptorType::Combined_Image_Sampler);
 

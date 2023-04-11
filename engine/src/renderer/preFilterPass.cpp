@@ -13,39 +13,6 @@
 #include "scene/scene.h"
 #include <cmath>
 
-class PreFilterPassVertexShader : public rhi::VertexShaderBase
-{
-  public:
-    PreFilterPassVertexShader()
-        : rhi::VertexShaderBase("filtercube.vert.spv",
-                                rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal)
-    {
-    }
-};
-
-class PreFilterPassFragmentShader : public rhi::PixelShaderBase
-{
-  public:
-    PreFilterPassFragmentShader() : rhi::PixelShaderBase("prefilterenvmap.frag.spv")
-    {
-    }
-};
-
-class PreFilterPassShaderParameters : public rhi::ShaderParameters
-{
-  public:
-    PreFilterPassShaderParameters() : ShaderParameters(), materialDescriptor(nullptr)
-    {
-    }
-
-    std::vector<rhi::DescriptorSet*> getDescriptorSets() override
-    {
-        return {materialDescriptor};
-    }
-
-    rhi::DescriptorSet* materialDescriptor;
-};
-
 namespace preFilterPass
 {
 struct PushBlock
@@ -55,9 +22,6 @@ struct PushBlock
     uint32_t numSamples = 32u;
 } pushBlock;
 } // namespace preFilterPass
-
-PreFilterPassVertexShader preFilterPassVertexShader;
-PreFilterPassFragmentShader preFilterPassPixelShader;
 
 namespace renderer
 {
@@ -89,17 +53,20 @@ Result PreFilterPass::init(platform::Context* platformContext, scene::SceneInfo*
     try(material->init(context));
     try(material->update(context));
 
+    rhi::ShaderParameters shaderParameters;
+    shaderParameters.vertexShader = context->allocateVertexShader(
+        "filtercube.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+    shaderParameters.pixelShader = context->allocatePixelShader("prefilterenvmap.frag.spv");
+
     auto loader = model::gltf::Loader::Builder()
                       .setFileName("cube.gltf")
                       .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                       .addExternalMaterial(material)
+                      .setShaderParameters(&shaderParameters)
                       .build();
 
     object = loader->load(platformContext, sceneInfo);
     instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
-
-    try(preFilterPassVertexShader.init(context));
-    try(preFilterPassPixelShader.init(context));
 
     return Result::Continue;
 }
@@ -118,14 +85,14 @@ Result PreFilterPass::render(platform::Context* platformContext, scene::SceneInf
 
     rhi::Context* context = platformContext->getRHI();
 
-    rhi::Texture* offscreenTexture = new rhi::Texture();
+    rhi::Texture* offscreenTexture = new rhi::Texture("Offscreen Texture (PrefilterPass)");
     rhi::Texture* preFilterTexture = sceneInfo->getRenderTargets()->getPreFilterCube();
 
     const int32_t dim = 512;
     const uint32_t numMips = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
 
-    try(offscreenTexture->init(context, "Offscreen Texture (PrefilterPass)", rhi::Format::R16G16B16A16_FLOAT,
-                               {dim, dim, 1}, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC));
+    try(offscreenTexture->init(context, rhi::Format::R16G16B16A16_FLOAT, {dim, dim, 1}, 1, 1,
+                               rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC));
 
     try(context->addTransition(sceneInfo->getRenderTargets()->getEnvironmentCube()->getImage(),
                                rhi::ImageLayout::FragmentShaderReadOnly));
@@ -140,12 +107,11 @@ Result PreFilterPass::render(platform::Context* platformContext, scene::SceneInf
     auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
 
-    auto materialDescriptor = instance->getMaterial()->getDescriptorSet();
+    auto material = instance->getMaterial();
+    auto materialDescriptor = material->getDescriptorSet();
 
-    PreFilterPassShaderParameters params;
-    params.vertexShader = &preFilterPassVertexShader;
-    params.pixelShader = &preFilterPassPixelShader;
-    params.materialDescriptor = materialDescriptor;
+    rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+    shaderParameters->materialDescriptor = materialDescriptor;
 
     std::vector<glm::mat4> matrices = {
         // POSITIVE_X
@@ -165,7 +131,7 @@ Result PreFilterPass::render(platform::Context* platformContext, scene::SceneInf
     };
 
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.shaderParameters = &params;
+    graphicsPipelineState.shaderParameters = shaderParameters;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;

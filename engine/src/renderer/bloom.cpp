@@ -11,42 +11,6 @@
 #include "scene/rendertargets.h"
 #include "scene/scene.h"
 
-class BloomVertexShader : public rhi::VertexShaderBase
-{
-  public:
-    BloomVertexShader()
-        : rhi::VertexShaderBase("screen.vert.spv",
-                                rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal)
-    {
-    }
-};
-
-class BloomFragmentShader : public rhi::PixelShaderBase
-{
-  public:
-    BloomFragmentShader() : rhi::PixelShaderBase("bloom.frag.spv")
-    {
-    }
-};
-
-class BloomShaderParameters : public rhi::ShaderParameters
-{
-  public:
-    BloomShaderParameters() : ShaderParameters(), materialDescriptor(nullptr)
-    {
-    }
-
-    std::vector<rhi::DescriptorSet*> getDescriptorSets() override
-    {
-        return {materialDescriptor};
-    }
-
-    rhi::DescriptorSet* materialDescriptor;
-};
-
-BloomVertexShader bloomVertexShader;
-BloomFragmentShader bloomPixelShader;
-
 namespace renderer
 {
 
@@ -87,13 +51,16 @@ Result BloomPass::init(platform::Context* platformContext, scene::SceneInfo* sce
     BloomMaterial* bloomMaterial = new BloomMaterial();
     bloomMaterial->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSceneColor());
 
-    auto loader = model::predefined::Loader::Builder().setMaterial(bloomMaterial).build();
+    rhi::ShaderParameters shaderParameters;
+    shaderParameters.vertexShader = context->allocateVertexShader(
+        "screen.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+    shaderParameters.pixelShader = context->allocatePixelShader("bloom.frag.spv");
+
+    auto loader =
+        model::predefined::Loader::Builder().setMaterial(bloomMaterial).setShaderParameters(&shaderParameters).build();
 
     object = loader->load(platformContext, sceneInfo);
     instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
-
-    bloomVertexShader.init(context);
-    bloomPixelShader.init(context);
 
     return Result::Continue;
 }
@@ -123,15 +90,14 @@ Result BloomPass::render(platform::Context* platformContext, scene::SceneInfo* s
 
     try(context->beginRenderpass(renderpassInfo));
 
-    auto materialDescriptor = instance->getMaterial()->getDescriptorSet();
+    auto material = instance->getMaterial();
+    auto materialDescriptor = material->getDescriptorSet();
 
-    BloomShaderParameters params;
-    params.vertexShader = &bloomVertexShader;
-    params.pixelShader = &bloomPixelShader;
-    params.materialDescriptor = materialDescriptor;
+    rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+    shaderParameters->materialDescriptor = materialDescriptor;
 
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.shaderParameters = &params;
+    graphicsPipelineState.shaderParameters = shaderParameters;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;

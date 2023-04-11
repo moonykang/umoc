@@ -56,15 +56,22 @@ Loader::Builder& Loader::Builder::addExternalMaterial(model::Material* material)
     return *this;
 }
 
+Loader::Builder& Loader::Builder::setShaderParameters(rhi::ShaderParameters* shaderParameters)
+{
+    this->shaderParameters = shaderParameters;
+    return *this;
+}
+
 std::shared_ptr<Loader> Loader::Builder::build()
 {
-    return std::make_shared<Loader>(path, fileName, gltfLoadingFlags, materialFlags, externalMaterial);
+    return std::make_shared<Loader>(path, fileName, gltfLoadingFlags, materialFlags, externalMaterial,
+                                    shaderParameters);
 }
 
 Loader::Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,
-               model::Material* externalMaterial)
+               model::Material* externalMaterial, rhi::ShaderParameters* shaderParameters)
     : path(path), fileName(fileName), gltfLoadingFlags(gltfLoadingFlags), materialFlags(materialFlags),
-      externalMaterial(externalMaterial)
+      externalMaterial(externalMaterial), shaderParameters(shaderParameters)
 {
 }
 
@@ -94,6 +101,10 @@ Object* Loader::load(platform::Context* platformContext, scene::SceneInfo* scene
     }
     else
     {
+        if (shaderParameters)
+        {
+            externalMaterial->setShaderParameters(shaderParameters);
+        }
         newObject->addMaterial(externalMaterial);
     }
 
@@ -123,9 +134,6 @@ Result Loader::loadTextures(platform::Context* platformContext, scene::SceneInfo
 
         auto [id, texture] = sceneTextures->get(platformContext, name, path + image.uri);
 
-        //        rhi::Texture* texture = new rhi::Texture();
-        //        try(texture->init(context, name, path + image.uri, platform::ImageLoader::KTX));
-
         object->addTexture(id);
     }
     return Result::Continue;
@@ -136,7 +144,13 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
     for (tinygltf::Material& mat : gltfModel.materials)
     {
         Material* material = new Material();
+
         try(material->init(context));
+
+        if (shaderParameters)
+        {
+            material->setShaderParameters(shaderParameters);
+        }
 
         if ((materialFlags & MaterialFlag::BaseColorTexture) != 0 &&
             mat.values.find("baseColorTexture") != mat.values.end())

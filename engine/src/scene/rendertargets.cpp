@@ -18,21 +18,19 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     rhi::Extent3D extent = context->getSurfaceSize();
 
-    sceneColor = new rhi::Texture();
-    try(sceneColor->init(context, "SceneColor", rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
-                         rhi::ImageUsage::COLOR_ATTACHMENT));
+    sceneColor = new rhi::Texture("SceneColor");
+    try(sceneColor->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
 
-    sceneDepth = new rhi::Texture();
-    try(sceneDepth->init(context, "SceneDepth", rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
+    sceneDepth = new rhi::Texture("SceneDepth");
+    try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
                          rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
 
     rhi::Extent3D brdfExtent = {512, 512, 1};
-    brdfLutTexture = new rhi::Texture();
-    try(brdfLutTexture->init(context, "BRDF LUT Texture", rhi::Format::R16G16_FLOAT, brdfExtent, 1, 1,
-                             rhi::ImageUsage::COLOR_ATTACHMENT));
+    brdfLutTexture = new rhi::Texture("BRDF LUT Texture");
+    try(brdfLutTexture->init(context, rhi::Format::R16G16_FLOAT, brdfExtent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
 
-    environmentCube = new rhi::Texture();
-    try(environmentCube->init(context, "Environment Cube Texture", "gcanyon_cube.ktx", platform::ImageLoader::KTX));
+    environmentCube = new rhi::Texture("Environment Cube Texture");
+    try(environmentCube->init(context, "gcanyon_cube.ktx", platform::ImageLoader::KTX));
 
     // Irradiance
     {
@@ -41,9 +39,9 @@ Result RenderTargets::init(platform::Context* platformContext)
         uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
         rhi::Extent3D extent = {dim, dim, 1};
 
-        irradianceCube = new rhi::Texture();
-        try(irradianceCube->init(context, "Irradiance Cube Texture", rhi::Format::R32G32B32A32_FLOAT, extent, mipLevels,
-                                 layers, rhi::ImageUsage::TRANSFER_DST));
+        irradianceCube = new rhi::Texture("Irradiance Cube Texture");
+        try(irradianceCube->init(context, rhi::Format::R32G32B32A32_FLOAT, extent, mipLevels, layers,
+                                 rhi::ImageUsage::TRANSFER_DST));
     }
 
     // PreFilter
@@ -53,9 +51,9 @@ Result RenderTargets::init(platform::Context* platformContext)
         uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
         rhi::Extent3D extent = {dim, dim, 1};
 
-        preFilterCube = new rhi::Texture();
-        try(preFilterCube->init(context, "PreFilter Cube Texture", rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels,
-                                layers, rhi::ImageUsage::TRANSFER_DST));
+        preFilterCube = new rhi::Texture("PreFilter Cube Texture");
+        try(preFilterCube->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels, layers,
+                                rhi::ImageUsage::TRANSFER_DST));
     }
     return Result::Continue;
 }

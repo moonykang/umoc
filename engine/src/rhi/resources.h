@@ -15,7 +15,11 @@ class Resource
   public:
     inline ResourceID getID()
     {
-        return id;
+        if (!id.has_value())
+        {
+            try_call(generateID());
+        }
+        return id.value();
     }
 
     static ResourceID generateID(const void* data, size_t size)
@@ -23,13 +27,15 @@ class Resource
         return util::computeGenericHash(data, size);
     }
 
+    virtual Result generateID() = 0;
+
     std::mutex& getLock()
     {
         return lock;
     }
 
   protected:
-    ResourceID id;
+    std::optional<ResourceID> id;
     std::mutex lock;
 };
 

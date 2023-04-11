@@ -89,8 +89,8 @@ Result UIPass::init(platform::Context* platformContext, scene::SceneInfo* sceneI
         data.push_back(fontData[i]);
     }
 
-    fontTexture = new rhi::Texture();
-    try(fontTexture->init(context, "uiFont", rhi::Format::R8G8B8A8_UNORM,
+    fontTexture = new rhi::Texture("uiFont");
+    try(fontTexture->init(context, rhi::Format::R8G8B8A8_UNORM,
                           {static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1}, rhi::ImageUsage::SAMPLED,
                           fontSize, fontData));
 

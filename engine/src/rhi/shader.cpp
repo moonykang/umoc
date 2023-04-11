@@ -7,6 +7,27 @@
 
 namespace rhi
 {
+
+VertexShaderBase* Context::allocateVertexShader(std::string name, VertexChannelFlags vertexChannelFlags)
+{
+    VertexShaderBase* vertexShader = new VertexShaderBase(name, vertexChannelFlags);
+
+    try_call(vertexShader->init(this));
+    shaderMap.insert({vertexShader->getID(), vertexShader});
+
+    return vertexShader;
+}
+
+PixelShaderBase* Context::allocatePixelShader(std::string name)
+{
+    PixelShaderBase* pixelShader = new PixelShaderBase(name);
+
+    try_call(pixelShader->init(this));
+    shaderMap.insert({pixelShader->getID(), pixelShader});
+
+    return pixelShader;
+}
+
 Result ShaderBase::init(Context* context)
 {
     if (!loaded)
@@ -26,8 +47,6 @@ Result ShaderBase::init(Context* context)
                 name += ' ';
             }
         }
-
-        hash = util::computeGenericHash(name.data(), name.size() * sizeof(char));
 
         loaded = true;
     }

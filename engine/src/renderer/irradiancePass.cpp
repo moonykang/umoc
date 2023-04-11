@@ -13,39 +13,6 @@
 #include "scene/scene.h"
 #include <cmath>
 
-class IrradianceVertexShader : public rhi::VertexShaderBase
-{
-  public:
-    IrradianceVertexShader()
-        : rhi::VertexShaderBase("filtercube.vert.spv",
-                                rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal)
-    {
-    }
-};
-
-class IrradianceFragmentShader : public rhi::PixelShaderBase
-{
-  public:
-    IrradianceFragmentShader() : rhi::PixelShaderBase("irradiancecube.frag.spv")
-    {
-    }
-};
-
-class IrradianceShaderParameters : public rhi::ShaderParameters
-{
-  public:
-    IrradianceShaderParameters() : ShaderParameters(), materialDescriptor(nullptr)
-    {
-    }
-
-    std::vector<rhi::DescriptorSet*> getDescriptorSets() override
-    {
-        return {materialDescriptor};
-    }
-
-    rhi::DescriptorSet* materialDescriptor;
-};
-
 struct PushBlock
 {
     glm::mat4 mvp;
@@ -53,9 +20,6 @@ struct PushBlock
     float deltaPhi = (2.0f * float(M_PI)) / 180.0f;
     float deltaTheta = (0.5f * float(M_PI)) / 64.0f;
 } pushBlock;
-
-IrradianceVertexShader irradianceVertexShader;
-IrradianceFragmentShader irradiancePixelShader;
 
 namespace renderer
 {
@@ -87,17 +51,20 @@ Result IrradiancePass::init(platform::Context* platformContext, scene::SceneInfo
     try(material->init(context));
     try(material->update(context));
 
+    rhi::ShaderParameters shaderParameters;
+    shaderParameters.vertexShader = context->allocateVertexShader(
+        "filtercube.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+    shaderParameters.pixelShader = context->allocatePixelShader("irradiancecube.frag.spv");
+
     auto loader = model::gltf::Loader::Builder()
                       .setFileName("cube.gltf")
                       .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                       .addExternalMaterial(material)
+                      .setShaderParameters(&shaderParameters)
                       .build();
 
     object = loader->load(platformContext, sceneInfo);
     instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
-
-    try(irradianceVertexShader.init(context));
-    try(irradiancePixelShader.init(context));
 
     return Result::Continue;
 }
@@ -116,12 +83,12 @@ Result IrradiancePass::render(platform::Context* platformContext, scene::SceneIn
 
     rhi::Context* context = platformContext->getRHI();
 
-    rhi::Texture* offscreenTexture = new rhi::Texture();
+    rhi::Texture* offscreenTexture = new rhi::Texture("Offscreen Texture");
     rhi::Texture* irradianceTexture = sceneInfo->getRenderTargets()->getIrradianceCube();
 
     const int32_t dim = 64;
     const uint32_t numMips = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
-    try(offscreenTexture->init(context, "Offscreen Texture", rhi::Format::R32G32B32A32_FLOAT, {dim, dim, 1}, 1, 1,
+    try(offscreenTexture->init(context, rhi::Format::R32G32B32A32_FLOAT, {dim, dim, 1}, 1, 1,
                                rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC));
 
     try(context->addTransition(sceneInfo->getRenderTargets()->getEnvironmentCube()->getImage(),
@@ -137,12 +104,11 @@ Result IrradiancePass::render(platform::Context* platformContext, scene::SceneIn
     auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
 
-    auto materialDescriptor = instance->getMaterial()->getDescriptorSet();
+    auto material = instance->getMaterial();
+    auto materialDescriptor = material->getDescriptorSet();
 
-    IrradianceShaderParameters params;
-    params.vertexShader = &irradianceVertexShader;
-    params.pixelShader = &irradiancePixelShader;
-    params.materialDescriptor = materialDescriptor;
+    rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+    shaderParameters->materialDescriptor = materialDescriptor;
 
     std::vector<glm::mat4> matrices = {
         // POSITIVE_X
@@ -162,7 +128,7 @@ Result IrradiancePass::render(platform::Context* platformContext, scene::SceneIn
     };
 
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.shaderParameters = &params;
+    graphicsPipelineState.shaderParameters = shaderParameters;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;

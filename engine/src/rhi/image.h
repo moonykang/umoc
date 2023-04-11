@@ -36,20 +36,20 @@ class ImageDescriptor;
 class Texture : public Resource
 {
   public:
-    Texture();
+    Texture(std::string name);
 
     virtual ~Texture() = default;
 
     // For texture loading
-    Result init(Context* context, std::string name, std::string path, platform::ImageLoader imageLoader);
+    Result init(Context* context, std::string path, platform::ImageLoader imageLoader);
 
     // For render targets
-    Result init(Context* context, std::string name, Format format, Extent3D extent, uint32_t mipLevels, uint32_t layers,
+    Result init(Context* context, Format format, Extent3D extent, uint32_t mipLevels, uint32_t layers,
                 ImageUsageFlags imageUsageFlags);
 
     // For texture loading
-    Result init(Context* context, std::string name, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags,
-                size_t size, void* data);
+    Result init(Context* context, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags, size_t size,
+                void* data);
 
     void terminate(Context* context);
 
@@ -57,7 +57,17 @@ class Texture : public Resource
 
     Image* getImage();
 
+    Result generateID() override
+    {
+        std::lock_guard<std::mutex> local_lock(lock);
+        name.reserve(128);
+        id = util::computeGenericHash(name.data(), name.size() * sizeof(char));
+
+        return Result::Continue;
+    }
+
   private:
     Image* image;
+    std::string name;
 };
 } // namespace rhi

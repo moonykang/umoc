@@ -11,53 +11,21 @@
 #include "scene/rendertargets.h"
 #include "scene/scene.h"
 
-class BrdfLutVertexShader : public rhi::VertexShaderBase
-{
-  public:
-    BrdfLutVertexShader()
-        : rhi::VertexShaderBase("screen.vert.spv",
-                                rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal)
-    {
-    }
-};
-
-class BrdfLutFragmentShader : public rhi::PixelShaderBase
-{
-  public:
-    BrdfLutFragmentShader() : rhi::PixelShaderBase("brdflut.frag.spv")
-    {
-    }
-};
-
-class BrdfLutShaderParameters : public rhi::ShaderParameters
-{
-  public:
-    BrdfLutShaderParameters() : ShaderParameters()
-    {
-    }
-
-    std::vector<rhi::DescriptorSet*> getDescriptorSets() override
-    {
-        return {};
-    }
-};
-
-BrdfLutVertexShader brdfLutVertexShader;
-BrdfLutFragmentShader brdfLutPixelShader;
-
 namespace renderer
 {
 Result BrdfLutPass::init(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = platformContext->getRHI();
 
-    auto loader = model::predefined::Loader::Builder().build();
+    rhi::ShaderParameters shaderParameters;
+    shaderParameters.vertexShader = context->allocateVertexShader(
+        "screen.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+    shaderParameters.pixelShader = context->allocatePixelShader("brdflut.frag.spv");
+
+    auto loader = model::predefined::Loader::Builder().setShaderParameters(&shaderParameters).build();
 
     object = loader->load(platformContext, sceneInfo);
     instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
-
-    brdfLutVertexShader.init(context);
-    brdfLutPixelShader.init(context);
 
     return Result::Continue;
 }
@@ -91,14 +59,11 @@ Result BrdfLutPass::render(platform::Context* platformContext, scene::SceneInfo*
 
     try(context->beginRenderpass(renderpassInfo));
 
-    auto materialDescriptor = instance->getMaterial()->getDescriptorSet();
-
-    BrdfLutShaderParameters params;
-    params.vertexShader = &brdfLutVertexShader;
-    params.pixelShader = &brdfLutPixelShader;
+    auto material = instance->getMaterial();
+    rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
 
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.shaderParameters = &params;
+    graphicsPipelineState.shaderParameters = shaderParameters;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;

@@ -18,12 +18,19 @@ Loader::Builder& Loader::Builder::setMaterial(Material* material)
     return *this;
 }
 
-std::shared_ptr<Loader> Loader::Builder::build()
+Loader::Builder& Loader::Builder::setShaderParameters(rhi::ShaderParameters* shaderParameters)
 {
-    return std::make_shared<Loader>(material);
+    this->shaderParameters = shaderParameters;
+    return *this;
 }
 
-Loader::Loader(Material* material) : material(material)
+std::shared_ptr<Loader> Loader::Builder::build()
+{
+    return std::make_shared<Loader>(material, shaderParameters);
+}
+
+Loader::Loader(Material* material, rhi::ShaderParameters* shaderParameters)
+    : material(material), shaderParameters(shaderParameters)
 {
 }
 
@@ -90,11 +97,18 @@ Object* Loader::load(platform::Context* context, scene::SceneInfo* sceneInfo)
         try_call(loadMaterial(context, newObject));
     }
 
+    auto localMaterial = newObject->getMaterial(-1);
+
+    if (shaderParameters)
+    {
+        localMaterial->setShaderParameters(shaderParameters);
+    }
+
     Node* newNode = new Node(nullptr);
     Mesh* newMesh = new Mesh("noname");
     newNode->setMesh(newMesh);
 
-    Primitive* newPrimitive = new Primitive(indexStart, indexCount, newObject->getMaterial(-1));
+    Primitive* newPrimitive = new Primitive(indexStart, indexCount, localMaterial);
     newPrimitive->firstVertex = vertexStart;
     newPrimitive->vertexCount = vertexCount;
 

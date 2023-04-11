@@ -55,7 +55,7 @@ void ShaderMap::terminate(VkDevice device)
 
 Shader* ShaderMap::getShader(Context* context, rhi::ShaderBase* shaderBase)
 {
-    if (auto search = shaderMap.find(shaderBase->getHash()); search != shaderMap.end())
+    if (auto search = shaderMap.find(shaderBase->getID()); search != shaderMap.end())
     {
         return search->second;
     }
@@ -63,7 +63,7 @@ Shader* ShaderMap::getShader(Context* context, rhi::ShaderBase* shaderBase)
     {
         Shader* newShader = new Shader();
         newShader->init(context, shaderBase);
-        shaderMap.insert({shaderBase->getHash(), newShader});
+        shaderMap.insert({shaderBase->getID(), newShader});
 
         return newShader;
     }
@@ -277,8 +277,8 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
     PipelineHashStruct pipelineHashStruct;
     pipelineHashStruct.pipelineStateHash = gfxPipelineState.getHash();
     // TODO
-    pipelineHashStruct.vertexShaderHash = gfxPipelineState.shaderParameters->vertexShader->getHash();
-    pipelineHashStruct.pixelShaderHash = gfxPipelineState.shaderParameters->pixelShader->getHash();
+    pipelineHashStruct.vertexShaderHash = gfxPipelineState.shaderParameters->vertexShader->getID();
+    pipelineHashStruct.pixelShaderHash = gfxPipelineState.shaderParameters->pixelShader->getID();
     pipelineHashStruct.renderpassHash = context->getCurrentRenderpassHash();
 
     size_t pipelineHash = pipelineHashStruct.getHash();

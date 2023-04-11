@@ -20,19 +20,23 @@ class Loader : public model::Loader
 
         Builder& setMaterial(Material* material);
 
+        Builder& setShaderParameters(rhi::ShaderParameters* shaderParameters);
+
         std::shared_ptr<Loader> build();
 
       private:
         Material* material;
+        rhi::ShaderParameters* shaderParameters;
     };
 
   public:
-    Loader(Material* material);
+    Loader(Material* material, rhi::ShaderParameters* shaderParameters);
 
     Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
   private:
     Material* material;
+    rhi::ShaderParameters* shaderParameters;
 };
 } // namespace predefined
 } // namespace model

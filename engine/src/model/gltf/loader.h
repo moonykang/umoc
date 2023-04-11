@@ -32,6 +32,8 @@ class Loader : public model::Loader
 
         Builder& addExternalMaterial(model::Material* material);
 
+        Builder& setShaderParameters(rhi::ShaderParameters* shaderParameters);
+
         std::shared_ptr<Loader> build();
 
       private:
@@ -40,10 +42,11 @@ class Loader : public model::Loader
         MaterialFlags materialFlags;
         GltfLoadingFlags gltfLoadingFlags;
         model::Material* externalMaterial;
+        rhi::ShaderParameters* shaderParameters;
     };
 
     Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,
-           model::Material* externalMaterial);
+           model::Material* externalMaterial, rhi::ShaderParameters* shaderParameters);
 
     Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
@@ -59,6 +62,7 @@ class Loader : public model::Loader
     MaterialFlags materialFlags;
     GltfLoadingFlags gltfLoadingFlags;
     model::Material* externalMaterial;
+    rhi::ShaderParameters* shaderParameters;
 
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;

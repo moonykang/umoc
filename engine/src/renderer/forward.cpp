@@ -16,73 +16,11 @@
 #include "scene/testScene.h"
 #include "scene/view.h"
 
-class ForwardVertexShader : public rhi::VertexShaderBase
-{
-  public:
-    ForwardVertexShader()
-        : rhi::VertexShaderBase("forward.vert.spv",
-                                rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal)
-    {
-    }
-};
-
-class ForwardFragmentShader : public rhi::PixelShaderBase
-{
-  public:
-    ForwardFragmentShader() : rhi::PixelShaderBase("forward.frag.spv")
-    {
-    }
-};
-
-class PBRVertexShader : public rhi::VertexShaderBase
-{
-  public:
-    PBRVertexShader()
-        : rhi::VertexShaderBase("pbr.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                                    rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent)
-    {
-    }
-};
-
-class PBRFragmentShader : public rhi::PixelShaderBase
-{
-  public:
-    PBRFragmentShader() : rhi::PixelShaderBase("pbr.frag.spv")
-    {
-    }
-};
-
-class ForwardShaderParameters : public rhi::ShaderParameters
-{
-  public:
-    ForwardShaderParameters()
-        : ShaderParameters(), globalDescriptor(nullptr), localDescriptor(nullptr), materialDescriptor(nullptr)
-    {
-    }
-
-    std::vector<rhi::DescriptorSet*> getDescriptorSets() override
-    {
-        return {globalDescriptor, localDescriptor, materialDescriptor};
-    }
-    rhi::DescriptorSet* globalDescriptor;
-    rhi::DescriptorSet* localDescriptor;
-    rhi::DescriptorSet* materialDescriptor;
-};
-
-PBRVertexShader forwardVertexShader;
-PBRFragmentShader forwardPixelShader;
-
 namespace renderer
 {
 Result Forward::init(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     LOGD("Init Forward pass");
-
-    rhi::Context* context = platformContext->getRHI();
-
-    forwardVertexShader.init(context);
-    forwardPixelShader.init(context);
-
     return Result::Continue;
 }
 
@@ -125,13 +63,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
 
     try(context->beginRenderpass(renderpassInfo));
 
-    ForwardShaderParameters params;
-    params.vertexShader = &forwardVertexShader;
-    params.pixelShader = &forwardPixelShader;
-    params.globalDescriptor = sceneInfo->getDescriptorSet();
-
     rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.shaderParameters = &params;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
@@ -145,10 +77,16 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     {
         for (auto& instance : model->getInstances())
         {
-            auto materialDescriptor = instance->getMaterial()->getDescriptorSet();
+            model::Material* material = instance->getMaterial();
+            auto materialDescriptor = material->getDescriptorSet();
 
-            params.materialDescriptor = materialDescriptor;
-            params.localDescriptor = instance->getDescriptorSet();
+            rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+            shaderParameters->globalDescriptor = sceneInfo->getDescriptorSet();
+            shaderParameters->materialDescriptor = materialDescriptor;
+            shaderParameters->localDescriptor = instance->getDescriptorSet();
+
+            graphicsPipelineState.shaderParameters = shaderParameters;
+
             context->createGfxPipeline(graphicsPipelineState);
 
             sceneInfo->getDescriptorSet()->bind(context, 0);

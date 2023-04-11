@@ -22,17 +22,23 @@ Result TestScene::postInit(platform::Context* context)
     return Result::Continue;
 }
 
-Result TestScene::load(platform::Context* context)
+Result TestScene::load(platform::Context* platformContext)
 {
+    rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    /*
     {
+
+        rhi::ShaderParameters shaderParameters;
+        shaderParameters.vertexShader = context->allocateVertexShader(
+            "forward.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+        shaderParameters.pixelShader = context->allocatePixelShader("forward.frag.spv");
         // sponza
         auto loader = model::gltf::Loader::Builder()
                           .setPath("sponza/")
                           .setFileName("sponza.gltf")
                           //.setMaterialFlags(model::MaterialFlag::BaseColorTexture)
                           .setMaterialFlags(model::MaterialFlag::All)
+                          .setShaderParameters(&shaderParameters)
                           .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .build();
 
@@ -41,7 +47,8 @@ Result TestScene::load(platform::Context* context)
 
         object->instantiate(context, glm::mat4(1.0f), true);
     }
-    */
+
+    if (false)
     {
         model::Material* material = new model::Material();
         try(material->init(context));
@@ -87,6 +94,14 @@ Result TestScene::load(platform::Context* context)
         try(material->init(context));
         try(material->update(context));
 
+        rhi::ShaderParameters shaderParameters;
+        shaderParameters.vertexShader =
+            context->allocateVertexShader("pbr.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                                              rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
+        shaderParameters.pixelShader = context->allocatePixelShader("pbr.frag.spv");
+
+        LOGD("shaderParameters %p VS %p PS %p", &shaderParameters, shaderParameters.vertexShader,
+             shaderParameters.pixelShader);
         auto loader = model::gltf::Loader::Builder()
                           .setPath("cerberus/")
                           .setFileName("cerberus.gltf")
@@ -94,6 +109,7 @@ Result TestScene::load(platform::Context* context)
                           .setMaterialFlags(model::MaterialFlag::All)
                           .addExternalMaterial(material)
                           .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .setShaderParameters(&shaderParameters)
                           .build();
 
         model::Object* object = loader->load(context, this);
@@ -102,11 +118,6 @@ Result TestScene::load(platform::Context* context)
         object->instantiate(context, glm::mat4(1.0f), true);
     }
 
-    /*
-    [scene::View::updateViewMatrix:87] position 3.625247 1.461132 -3.264188
-[scene::View::updateViewMatrix:88] rotation -7.200001 33.600002 0.000000
-[scene::View::updateUniformBuffer:116] Update scene view ubo
-    */
     view->setView(glm::vec3(3.0f, 1.0f, -3.0f), glm::vec3(-10.0f, 30.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();

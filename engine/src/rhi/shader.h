@@ -11,7 +11,7 @@ namespace rhi
 class Context;
 class DescriptorSet;
 
-class ShaderBase
+class ShaderBase : public Resource
 {
   public:
     ShaderBase(std::string name, ShaderStageFlags shaderStage) : name(name), shaderStage(shaderStage), loaded(false)
@@ -19,11 +19,6 @@ class ShaderBase
     }
 
     virtual ~ShaderBase() = default;
-
-    inline size_t getHash()
-    {
-        return hash;
-    }
 
     Result init(Context* context);
 
@@ -44,6 +39,15 @@ class ShaderBase
         return shaderStage;
     }
 
+    Result generateID() override
+    {
+        std::lock_guard<std::mutex> local_lock(lock);
+
+        id = util::computeGenericHash(name.data(), name.size() * sizeof(char));
+
+        return Result::Continue;
+    }
+
   protected:
     std::string name;
     /*
@@ -51,7 +55,6 @@ class ShaderBase
     attribute layout (pos / normal / uv / color / ...)
      */
 
-    size_t hash;
     util::MemoryBuffer code;
     bool loaded;
     ShaderStageFlags shaderStage;
@@ -85,19 +88,50 @@ class PixelShaderBase : public ShaderBase
 class ShaderParameters
 {
   public:
-    ShaderParameters() : vertexShader(nullptr), pixelShader(nullptr)
+    ShaderParameters()
+        : vertexShader(nullptr), pixelShader(nullptr), globalDescriptor(nullptr), localDescriptor(nullptr),
+          materialDescriptor(nullptr)
     {
+    }
+
+    ShaderParameters(ShaderParameters& other)
+    {
+        this->vertexShader = other.vertexShader;
+        this->pixelShader = other.pixelShader;
+        this->globalDescriptor = other.globalDescriptor;
+        this->localDescriptor = other.localDescriptor;
+        this->materialDescriptor = other.materialDescriptor;
     }
 
     virtual ~ShaderParameters() = default;
 
     virtual std::vector<DescriptorSet*> getDescriptorSets()
     {
-        return std::vector<DescriptorSet*>();
+        std::vector<DescriptorSet*> descriptorList;
+
+        if (globalDescriptor)
+        {
+            descriptorList.push_back(globalDescriptor);
+        }
+
+        if (localDescriptor)
+        {
+            descriptorList.push_back(localDescriptor);
+        }
+
+        if (materialDescriptor)
+        {
+            descriptorList.push_back(materialDescriptor);
+        }
+        return descriptorList;
     }
 
   public:
     VertexShaderBase* vertexShader;
     PixelShaderBase* pixelShader;
+
+    rhi::DescriptorSet* globalDescriptor;
+    rhi::DescriptorSet* localDescriptor;
+    rhi::DescriptorSet* materialDescriptor;
 };
 } // namespace rhi
