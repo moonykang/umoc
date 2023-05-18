@@ -85,5 +85,6 @@ class SceneInfo
     RenderTargets* renderTargets;
     rhi::DescriptorSet* sceneDescriptorSet;
     Textures* textures;
+    uint64_t timer;
 };
 } // namespace scene

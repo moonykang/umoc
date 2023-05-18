@@ -40,6 +40,6 @@ void main()
     outUV = inUV;
 
     mat3 normal_mat = mat3(lubo.transform);
-    outNormal    = normal_mat * inNormal;
+    outNormal    = inNormal;//normal_mat * inNormal;
 	outTangent = vec4(normal_mat * inTangent.xyz, inTangent.w);
 }

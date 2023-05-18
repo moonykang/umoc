@@ -43,6 +43,8 @@ Result Cube::loadVertexBuffer(platform::Context* context)
         vertex.position = positions[i];
         vertex.uv = uvs[i];
         vertex.color = colors[i];
+        vertex.normal = {0.0f, 0.0f, 1.0f};
+        vertex.tangent = {0.0f, 0.0f, 0.0f};
 
         vertices.push_back(vertex);
     }

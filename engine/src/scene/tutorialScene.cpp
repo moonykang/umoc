@@ -73,7 +73,7 @@ Result TutorialScene::load(platform::Context* platformContext)
 
     try(view->updateUniformBuffer(context));
 
-    light->setLight(glm::vec4(-1.0f, -3.0f, 0.0f, 1.0f));
+    light->setLight(glm::vec4(0.0f, 0.0f, -1.0f, 1.0f));
 
     try(light->updateUniformBuffer(context));
 
@@ -84,6 +84,18 @@ Result TutorialScene::load(platform::Context* platformContext)
 
 Result TutorialScene::udpate(platform::Context* context)
 {
+    timer = timer++;
+
+    glm::vec3 lightPos;
+    lightPos.x = cos(glm::radians(timer * 360.0f)) * 40.0f;
+    lightPos.y = -50.0f + sin(glm::radians(timer * 360.0f)) * 20.0f;
+    lightPos.z = 25.0f + sin(glm::radians(timer * 360.0f)) * 5.0f;
+
+    // light->setLight(glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
+
+    try(light->updateUniformBuffer(context));
+
+    LOGD("%f %f %f", lightPos.x, lightPos.y, lightPos.z);
     try(view->updateUniformBuffer(context));
     return Result::Continue;
 }

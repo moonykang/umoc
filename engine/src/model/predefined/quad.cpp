@@ -43,6 +43,7 @@ Result Quad::loadVertexBuffer(platform::Context* context)
         vertex.position = positions[i];
         vertex.uv = uvs[i];
         vertex.color = colors[i];
+        vertex.normal = normals[i];
 
         vertices.push_back(vertex);
     }

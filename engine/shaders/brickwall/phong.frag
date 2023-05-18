@@ -5,6 +5,8 @@ layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
 layout (location = 3) in vec4 inTangent;
 
+#define ambient 0.1
+
 layout(set = 0, binding = 0) uniform GlobalUBO_1
 {
     mat4  view_inverse;
@@ -46,12 +48,11 @@ vec3 calculateNormal()
 
 void main()
 {
-	vec3 N = calculateNormal();
-
-	vec3 V = normalize(sceneView.cam_pos.xyz - inWorldPos);
-	vec3 R = reflect(-V, N); 
-
-    vec3 color = texture(albedoMap, inUV).rgb;
-
-	outColor = vec4(color, 1.0);
+    vec3 albedo = texture(albedoMap, inUV).rgb;
+	vec3 N = normalize(inNormal);
+	vec3 L = normalize(sceneLight.lightPosition.xyz - inWorldPos);
+	//vec3 V = normalize(inViewVec);
+	vec3 R = normalize(-reflect(L, N));
+	vec3 diffuse = max(dot(N, L), ambient) * albedo;
+	outColor = vec4(diffuse, 1.0);
 }
