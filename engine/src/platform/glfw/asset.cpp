@@ -74,13 +74,22 @@ Result loadImageSTB(std::string path, rhi::Format& format, rhi::Extent2D& extent
     numLevels = 1;
     offsets.push_back({0});
 
-    size_t fileSize = (extent.width) * (extent.height) * STBI_rgb_alpha;
+    size_t fileSize = (extent.width) * (extent.height) * texChannels;
 
     buffer.resize(fileSize);
     memcpy(buffer.data(), data, fileSize);
 
+    numLayers = 1;
+
     // TODO
-    format = rhi::Format::R8G8B8A8_UNORM;
+    if (texChannels == 3)
+    {
+        format = rhi::Format::R8G8B8_UNORM;
+    }
+    else
+    {
+        format = rhi::Format::R8G8B8A8_UNORM;
+    }
 
     return Result::Continue;
 }

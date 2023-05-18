@@ -29,7 +29,7 @@ class Object
   public:
     Object();
 
-    ~Object() = default;
+    virtual ~Object() = default;
 
     Result init(platform::Context* context);
 

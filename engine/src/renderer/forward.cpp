@@ -49,18 +49,19 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
     subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
 
-    try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
-                               rhi::ImageLayout::ColorAttachment));
-    try(context->addTransition(sceneInfo->getRenderTargets()->getSceneDepth()->getImage(),
-                               rhi::ImageLayout::DepthStencilAttachment));
+    /*
+        try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
+                                   rhi::ImageLayout::ColorAttachment));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getSceneDepth()->getImage(),
+                                   rhi::ImageLayout::DepthStencilAttachment));
 
-    try(context->addTransition(sceneInfo->getRenderTargets()->getIrradianceCube()->getImage(),
-                               rhi::ImageLayout::FragmentShaderReadOnly));
-    try(context->addTransition(sceneInfo->getRenderTargets()->getBrdfLutTexture()->getImage(),
-                               rhi::ImageLayout::FragmentShaderReadOnly));
-    try(context->addTransition(sceneInfo->getRenderTargets()->getPreFilterCube()->getImage(),
-                               rhi::ImageLayout::FragmentShaderReadOnly));
-
+        try(context->addTransition(sceneInfo->getRenderTargets()->getIrradianceCube()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getBrdfLutTexture()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getPreFilterCube()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+    */
     try(context->beginRenderpass(renderpassInfo));
 
     rhi::GraphicsPipelineState graphicsPipelineState;
@@ -68,7 +69,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
+    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
     graphicsPipelineState.depthStencilState.depthTestEnable = true;
     graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
     graphicsPipelineState.depthStencilState.depthWriteEnable = true;

@@ -14,12 +14,12 @@ namespace renderer
 {
 Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneInfo)
 {
-    passes.push_back(new BrdfLutPass());
-    passes.push_back(new IrradiancePass());
-    passes.push_back(new PreFilterPass());
+    // passes.push_back(new BrdfLutPass());
+    // passes.push_back(new IrradiancePass());
+    // passes.push_back(new PreFilterPass());
     passes.push_back(new Forward());
     passes.push_back(new BloomPass());
-    passes.push_back(new UIPass());
+    // passes.push_back(new UIPass());
 
     for (auto& pass : passes)
     {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdlib>
 #include "common/util.h"
+#include <cstdlib>
 
 namespace model
 {
@@ -85,4 +85,11 @@ enum AlphaMode
 };
 
 using TextureID = size_t;
+
+enum class PredefinedModel
+{
+    Quad,
+    Cube,
+    Sphere
+};
 } // namespace model

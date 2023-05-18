@@ -18,6 +18,8 @@ class Loader : public model::Loader
       public:
         Builder();
 
+        Builder& setPredefineModelType(PredefinedModel predefinedType);
+
         Builder& setMaterial(Material* material);
 
         Builder& setShaderParameters(rhi::ShaderParameters* shaderParameters);
@@ -25,16 +27,18 @@ class Loader : public model::Loader
         std::shared_ptr<Loader> build();
 
       private:
+        PredefinedModel predefinedType;
         Material* material;
         rhi::ShaderParameters* shaderParameters;
     };
 
   public:
-    Loader(Material* material, rhi::ShaderParameters* shaderParameters);
+    Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters);
 
     Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
   private:
+    PredefinedModel predefinedType;
     Material* material;
     rhi::ShaderParameters* shaderParameters;
 };
