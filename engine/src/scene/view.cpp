@@ -84,9 +84,6 @@ void View::updateViewMatrix()
     ubo.prev_view_proj = glm::mat4(1.f);
     ubo.view_pos = glm::vec4(position, 1.f);
 
-    LOGD("position %f %f %f", position.x, position.y, position.z);
-    LOGD("rotation %f %f %f", rotation.x, rotation.y, rotation.z);
-
     {
         std::lock_guard<std::mutex> lock(mutex);
         dirty = true;
@@ -113,7 +110,11 @@ Result View::updateUniformBuffer(platform::Context* platformContext)
 
     if (dirty)
     {
-        LOGD("Update scene view ubo");
+        LOGD("=== View State changes ===");
+        LOGD("view_pos %f %f %f", ubo.view_pos.x, ubo.view_pos.y, ubo.view_pos.z);
+        LOGD("position %f %f %f", position.x, position.y, position.z);
+        LOGD("rotation %f %f %f", rotation.x, rotation.y, rotation.z);
+
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
         try(uniformBuffer->update(context, uniformDataSize, &ubo));
         dirty = false;

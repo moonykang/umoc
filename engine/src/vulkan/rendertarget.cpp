@@ -78,7 +78,6 @@ void RenderTargetManager::terminate(VkDevice device)
 
 Result RenderTargetManager::begin(Context* context, rhi::RenderPassInfo& renderpassInfo)
 {
-    LOGD("Begin %s", renderpassInfo.name.c_str());
     size_t renderPassCompatibleHash = generateRenderpassCompatibleHash(renderpassInfo);
     size_t renderPassHash = generateRenderpassHash(renderpassInfo, renderPassCompatibleHash);
     size_t framebufferHash = generateFramebufferHash(renderpassInfo);

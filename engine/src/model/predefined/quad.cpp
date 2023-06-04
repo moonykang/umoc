@@ -25,15 +25,16 @@ Result Quad::loadVertexBuffer(platform::Context* context)
 
     const uint32_t vertexCount = 4;
     const glm::vec3 positions[vertexCount] = {
-        {-1.0f, -1.0f, 0.0f}, {1.0f, -1.0f, 0.0f}, {-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}};
-
-    const glm::vec3 normals[vertexCount] = {
-        {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}};
+        {-1.0f, -1.0f, 0.0f}, {1.0f, -1.0f, 0.0f}, {-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 0.0f} };
 
     const glm::vec2 uvs[vertexCount] = {{0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}};
 
     const glm::vec4 colors[vertexCount] = {
         {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}};
+
+    const glm::vec3 normal = { 0.0f, 0.0f, 1.0f };
+    const glm::vec3 tangent = { 1.0f, 0.0f, 0.0f };
+    const glm::vec3 bitangent = { 0.0f, 1.0f, 0.0f };
 
     std::vector<rhi::Vertex> vertices;
 
@@ -43,7 +44,10 @@ Result Quad::loadVertexBuffer(platform::Context* context)
         vertex.position = positions[i];
         vertex.uv = uvs[i];
         vertex.color = colors[i];
-        vertex.normal = normals[i];
+        vertex.normal = normal;
+        vertex.tangent = tangent;
+        vertex.bitangent = bitangent;
+
 
         vertices.push_back(vertex);
     }

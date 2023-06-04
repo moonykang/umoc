@@ -8,7 +8,7 @@
 namespace scene
 {
 RenderTargets::RenderTargets()
-    : sceneColor(nullptr), sceneDepth(nullptr), brdfLutTexture(nullptr), environmentCube(nullptr)
+    : sceneColor(nullptr), sceneDepth(nullptr), brdfLutTexture(nullptr), environmentCube(nullptr), irradianceCube(nullptr), preFilterCube(nullptr)
 {
 }
 

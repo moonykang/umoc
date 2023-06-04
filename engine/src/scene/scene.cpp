@@ -81,7 +81,6 @@ Result SceneInfo::updateDescriptor(platform::Context* platformContext)
     rhi::UniformBuffer* viewUniformBuffer = view->getUniformBuffer();
     rhi::UniformBuffer* lightUniformBuffer = light->getUniformBuffer();
 
-    LOGD("%zu %zu", viewUniformBuffer->getOffset(), lightUniformBuffer->getOffset());
     std::vector<uint32_t> offsets;
     offsets.push_back(viewUniformBuffer->getOffset());
     offsets.push_back(lightUniformBuffer->getOffset());

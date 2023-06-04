@@ -100,8 +100,6 @@ Result TestScene::load(platform::Context* platformContext)
                                                               rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
         shaderParameters.pixelShader = context->allocatePixelShader("pbr.frag.spv");
 
-        LOGD("shaderParameters %p VS %p PS %p", &shaderParameters, shaderParameters.vertexShader,
-             shaderParameters.pixelShader);
         auto loader = model::gltf::Loader::Builder()
                           .setPath("cerberus/")
                           .setFileName("cerberus.gltf")

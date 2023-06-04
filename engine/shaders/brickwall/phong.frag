@@ -1,11 +1,11 @@
 #version 450
 
 layout (location = 0) in vec3 inWorldPos;
-layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec2 inUV;
-layout (location = 3) in vec4 inTangent;
-
-#define ambient 0.1
+layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec4 inColor;
+layout (location = 3) in vec3 inTangentLightPos;
+layout (location = 4) in vec3 inTangentViewPos;
+layout (location = 5) in vec3 inTangentFragPos;
 
 layout(set = 0, binding = 0) uniform GlobalUBO_1
 {
@@ -35,24 +35,26 @@ layout(set = 2, binding = 7) uniform samplerCube prefilteredMap;
 
 layout (location = 0) out vec4 outColor;
 
-vec3 calculateNormal()
-{
-	vec3 tangentNormal = texture(normalMap, inUV).xyz * 2.0 - 1.0;
-
-	vec3 N = normalize(inNormal);
-	vec3 T = normalize(inTangent.xyz);
-	vec3 B = normalize(cross(N, T));
-	mat3 TBN = mat3(T, B, N);
-	return normalize(TBN * tangentNormal);
-}
-
 void main()
 {
+	vec3 normal = texture(normalMap, inUV).rgb;
+	normal = normalize(normal * 2.0f - 1.0f);
+
     vec3 albedo = texture(albedoMap, inUV).rgb;
-	vec3 N = normalize(inNormal);
-	vec3 L = normalize(sceneLight.lightPosition.xyz - inWorldPos);
-	//vec3 V = normalize(inViewVec);
-	vec3 R = normalize(-reflect(L, N));
-	vec3 diffuse = max(dot(N, L), ambient) * albedo;
-	outColor = vec4(diffuse, 1.0);
+    
+	vec3 ambient = albedo * 0.2f;
+
+	// diffuse
+	vec3 lightDir = normalize(inTangentLightPos - inTangentFragPos);
+	float diff = max(dot(lightDir, normal), 0.0);
+	vec3 diffuse = diff * albedo;
+
+	// specular
+	vec3 viewDir = normalize(inTangentViewPos - inTangentFragPos);
+	vec3 reflectDir = reflect(-lightDir, normal);
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+
+	vec3 specular = vec3(0.2) * spec;
+	outColor = vec4(ambient + diffuse + specular, 1.0);
 }

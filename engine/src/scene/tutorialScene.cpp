@@ -47,12 +47,9 @@ Result TutorialScene::load(platform::Context* platformContext)
 
         rhi::ShaderParameters shaderParameters;
         shaderParameters.vertexShader = context->allocateVertexShader(
-            "brickwall/phong.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                            rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
+            "brickwall/phong.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Color |
+                                            rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent | rhi::VertexChannel::Bitangent);
         shaderParameters.pixelShader = context->allocatePixelShader("brickwall/phong.frag.spv");
-
-        LOGD("shaderParameters %p VS %p PS %p", &shaderParameters, shaderParameters.vertexShader,
-             shaderParameters.pixelShader);
 
         auto loader = model::predefined::Loader::Builder()
                           .setPredefineModelType(model::PredefinedModel::Quad)
@@ -61,7 +58,7 @@ Result TutorialScene::load(platform::Context* platformContext)
                           .build();
 
         model::Object* object = loader->load(context, this);
-        LOGD("object %p", object);
+
         registerObject(context, object);
 
         object->instantiate(context, glm::mat4(1.0f), true);
@@ -73,7 +70,7 @@ Result TutorialScene::load(platform::Context* platformContext)
 
     try(view->updateUniformBuffer(context));
 
-    light->setLight(glm::vec4(0.0f, 0.0f, -1.0f, 1.0f));
+    light->setLight(glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
 
     try(light->updateUniformBuffer(context));
 
@@ -84,18 +81,17 @@ Result TutorialScene::load(platform::Context* platformContext)
 
 Result TutorialScene::udpate(platform::Context* context)
 {
-    timer = timer++;
+    timer++;
 
     glm::vec3 lightPos;
-    lightPos.x = cos(glm::radians(timer * 360.0f)) * 40.0f;
-    lightPos.y = -50.0f + sin(glm::radians(timer * 360.0f)) * 20.0f;
-    lightPos.z = 25.0f + sin(glm::radians(timer * 360.0f)) * 5.0f;
+    lightPos.x = cos(glm::radians(timer * 360.0f)) * 5.0f;
+    lightPos.y = sin(glm::radians(timer * 360.0f)) * 5.0f;
+    lightPos.z = -10.0f;
 
-    // light->setLight(glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
-
+    //light->setLight(glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
+    //LOGD("light %f %f %f", lightPos.x, lightPos.y, lightPos.z);
     try(light->updateUniformBuffer(context));
 
-    LOGD("%f %f %f", lightPos.x, lightPos.y, lightPos.z);
     try(view->updateUniformBuffer(context));
     return Result::Continue;
 }

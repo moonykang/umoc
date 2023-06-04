@@ -25,6 +25,7 @@ void Light::terminate(platform::Context* platformContext)
 void Light::setLight(glm::vec4 position)
 {
     ubo.position = position;
+    dirty = true;
 }
 
 Result Light::updateUniformBuffer(platform::Context* platformContext)
@@ -35,7 +36,6 @@ Result Light::updateUniformBuffer(platform::Context* platformContext)
 
     if (dirty)
     {
-        LOGD("Update Light view ubo");
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
         try(uniformBuffer->update(context, uniformDataSize, &ubo));
         dirty = false;
