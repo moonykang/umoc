@@ -26,45 +26,43 @@ Result TutorialScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    {
+    //if (false)
+    {        
         model::Material* material = new model::Material();
-        try(material->init(context));
-
-        // albedo 0
-        {
-            auto [id, texture] = textures->get(context, "brickwall diffuse", "brickwall/diffuse.png");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
-        }
-
-        // normal 1
-        {
-            auto [id, texture] = textures->get(context, "brickwall normal", "brickwall/normal.png");
-            material->updateTexture(model::MaterialFlag::NormalTexture, texture);
-        }
-
         try(material->init(context));
         try(material->update(context));
 
         rhi::ShaderParameters shaderParameters;
         shaderParameters.vertexShader = context->allocateVertexShader(
-            "brickwall/phong.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Color |
-                                            rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent | rhi::VertexChannel::Bitangent);
-        shaderParameters.pixelShader = context->allocatePixelShader("brickwall/phong.frag.spv");
+            "brickwall/pbr.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                            rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
+        shaderParameters.pixelShader = context->allocatePixelShader("brickwall/pbr.frag.spv");
 
-        auto loader = model::predefined::Loader::Builder()
-                          .setPredefineModelType(model::PredefinedModel::Quad)
-                          .setMaterial(material)
-                          .setShaderParameters(&shaderParameters)
-                          .build();
+        auto loader = model::gltf::Loader::Builder()
+                        .setPath("")
+                        .setFileName("sphere.gltf")
+                        .setMaterialFlags(model::MaterialFlag::NONE)
+                        .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                        .setShaderParameters(&shaderParameters)
+                        .addExternalMaterial(material)
+                        .build();
 
         model::Object* object = loader->load(context, this);
-
         registerObject(context, object);
 
-        object->instantiate(context, glm::mat4(1.0f), true);
+        for (float i = -1; i <= 1; i += 0.5f)
+        {
+            for (float j = -1; j <= 1; j += 0.5f)
+            {
+                util::Transform transform;
+                transform.scale(glm::vec3(0.2f));
+                transform.translate(glm::vec3(i, j, 0));
+                model::Instance* instance = object->instantiate(context, transform.get(), true);
+            }
+        }
     }
 
-    view->setView(glm::vec3(3.0f, 1.0f, -3.0f), glm::vec3(-10.0f, 30.0f, 0.0f));
+    view->setView(glm::vec3(0.0f, 0.0f, -3.0f), glm::vec3(0.0f, 0.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();
 
@@ -84,12 +82,12 @@ Result TutorialScene::udpate(platform::Context* context)
     timer++;
 
     glm::vec3 lightPos;
-    lightPos.x = cos(glm::radians(timer * 360.0f)) * 5.0f;
-    lightPos.y = sin(glm::radians(timer * 360.0f)) * 5.0f;
+    lightPos.x = cos(glm::radians(timer * 1.0f)) * 5.0f;
+    lightPos.y = sin(glm::radians(timer * 1.0f)) * 5.0f;
     lightPos.z = -10.0f;
 
-    //light->setLight(glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
-    //LOGD("light %f %f %f", lightPos.x, lightPos.y, lightPos.z);
+    light->setLight(glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
+
     try(light->updateUniformBuffer(context));
 
     try(view->updateUniformBuffer(context));

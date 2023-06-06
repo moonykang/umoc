@@ -47,6 +47,8 @@ class Instance
 
     Material* getMaterial();
 
+    util::Transform& getTransform();
+
   private:
     Object* object;
     Material* material;

@@ -18,6 +18,19 @@
 
 namespace renderer
 {
+namespace pbr
+{
+struct PushBlock
+{
+    float roughness;
+    float metallic;
+    float specular;
+    float r;
+    float g;
+    float b;
+} pushBlock;
+}
+
 Result Forward::init(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     LOGD("Init Forward pass");
@@ -64,6 +77,22 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     */
     try(context->beginRenderpass(renderpassInfo));
 
+    float specular = 1.0f;
+    pbr::PushBlock pushblocks[25];
+    for (int i = 0; i < 5; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            pbr::PushBlock& pushblock = pushblocks[i * 5 + j];
+            pushblock.roughness = i * 0.2f + 0.1f;
+            pushblock.metallic = j * 0.2f + 0.1f;
+            pushblock.specular = specular;
+            pushblock.r = 0.8f;
+            pushblock.b = 0.8f;
+            pushblock.g = 0.8f;
+        }
+        specular *= 2.0f;
+    }
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
@@ -73,7 +102,10 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     graphicsPipelineState.depthStencilState.depthTestEnable = true;
     graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
     graphicsPipelineState.depthStencilState.depthWriteEnable = true;
+    graphicsPipelineState.pushConstants.push_back(
+        rhi::PushConstant(rhi::ShaderStage::Pixel, 0, sizeof(pbr::PushBlock)));
 
+    int idx = 0;
     for (auto& model : testScene->getModels())
     {
         for (auto& instance : model->getInstances())
@@ -89,6 +121,8 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
             graphicsPipelineState.shaderParameters = shaderParameters;
 
             context->createGfxPipeline(graphicsPipelineState);
+            context->pushConstant(rhi::ShaderStage::Pixel, sizeof(pbr::PushBlock), &pushblocks[idx]);
+            idx = (idx + 1 ) % 25;
 
             sceneInfo->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);

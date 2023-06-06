@@ -87,4 +87,9 @@ Material* Instance::getMaterial()
 {
     return material;
 }
+
+util::Transform& Instance::getTransform()
+{
+    return transform;
+}
 } // namespace model
