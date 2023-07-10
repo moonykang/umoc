@@ -34,17 +34,17 @@ class SceneInfo
 
     Result init(platform::Context* context);
 
-    virtual Result postInit(platform::Context* context) = 0;
+    virtual Result postInit(platform::Context* context);
 
     virtual Result load(platform::Context* context) = 0;
 
-    virtual Result udpate(platform::Context* context) = 0;
+    virtual Result udpate(platform::Context* context);
 
-    virtual void preTerminate(platform::Context* context) = 0;
+    virtual void preTerminate(platform::Context* context);
 
     void terminate(platform::Context* context);
 
-    virtual void postTerminate(platform::Context* context) = 0;
+    virtual void postTerminate(platform::Context* context);
 
     std::vector<model::Object*>& getModels()
     {

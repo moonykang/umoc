@@ -2,6 +2,7 @@
 #include "context.h"
 #include "renderer/base.h"
 #include "scene/scene.h"
+#include "scene/sceneList.h"
 #include "scene/testScene.h"
 #include "scene/tutorialScene.h"
 #include <exception>

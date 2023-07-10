@@ -17,6 +17,11 @@ SceneInfo::SceneInfo() : view(nullptr), light(nullptr), renderTargets(nullptr), 
 {
 }
 
+Result SceneInfo::postInit(platform::Context* context)
+{
+    return Result::Continue;
+}
+
 Result SceneInfo::init(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
@@ -48,6 +53,16 @@ Result SceneInfo::init(platform::Context* platformContext)
     return postInit(platformContext);
 }
 
+Result SceneInfo::udpate(platform::Context* context)
+{
+    try(view->updateUniformBuffer(context));
+    return Result::Continue;
+}
+
+void SceneInfo::preTerminate(platform::Context* context)
+{
+}
+
 void SceneInfo::terminate(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
@@ -67,6 +82,10 @@ void SceneInfo::terminate(platform::Context* platformContext)
     }
 
     postTerminate(platformContext);
+}
+
+void SceneInfo::postTerminate(platform::Context* context)
+{
 }
 
 void SceneInfo::registerObject(platform::Context* context, model::Object* object)
