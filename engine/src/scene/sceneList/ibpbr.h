@@ -1,5 +1,4 @@
-#include "scene.h"
-#include <vector>
+#include "../scene.h"
 
 namespace model
 {
@@ -16,17 +15,11 @@ class Texture;
 
 namespace scene
 {
-class TestScene : public SceneInfo
+class IBPBRScene : public SceneInfo
 {
   public:
-    Result postInit(platform::Context* context) override;
-
     Result load(platform::Context* context) override;
 
     Result udpate(platform::Context* context) override;
-
-    void preTerminate(platform::Context* context) override;
-
-    void postTerminate(platform::Context* context) override;
 };
 } // namespace scene

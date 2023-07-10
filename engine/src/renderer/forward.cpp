@@ -13,7 +13,6 @@
 #include "rhi/shader.h"
 #include "scene/rendertargets.h"
 #include "scene/scene.h"
-#include "scene/testScene.h"
 #include "scene/view.h"
 
 namespace renderer
@@ -29,7 +28,7 @@ struct PushBlock
     float g;
     float b;
 } pushBlock;
-}
+} // namespace pbr
 
 Result Forward::init(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
@@ -44,7 +43,6 @@ void Forward::terminate(platform::Context* context)
 Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = platformContext->getRHI();
-    scene::TestScene* testScene = reinterpret_cast<scene::TestScene*>(sceneInfo);
 
     rhi::RenderPassInfo renderpassInfo;
     renderpassInfo.name = "Forward Pass";
@@ -106,7 +104,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
         rhi::PushConstant(rhi::ShaderStage::Pixel, 0, sizeof(pbr::PushBlock)));
 
     int idx = 0;
-    for (auto& model : testScene->getModels())
+    for (auto& model : sceneInfo->getModels())
     {
         for (auto& instance : model->getInstances())
         {
@@ -122,7 +120,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
 
             context->createGfxPipeline(graphicsPipelineState);
             context->pushConstant(rhi::ShaderStage::Pixel, sizeof(pbr::PushBlock), &pushblocks[idx]);
-            idx = (idx + 1 ) % 25;
+            idx = (idx + 1) % 25;
 
             sceneInfo->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);

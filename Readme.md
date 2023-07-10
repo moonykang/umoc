@@ -5,9 +5,9 @@ It supports Windows & Mac at this time.
 
 # Samples
 
-| Quad | Normal mapping  |   |
+| Quad | Normal mapping  | Basic PBR |
 |---|---|---|
-| ![quad](https://github.com/Umocmin/Umoc/blob/main/engine/ppm/quad.png) | ![normalmap](https://github.com/Umocmin/Umoc/blob/main/engine/ppm/normalmapping.png) |   |
+| ![quad](https://github.com/Umocmin/Umoc/blob/main/engine/ppm/quad.png) | ![normalmap](https://github.com/Umocmin/Umoc/blob/main/engine/ppm/normalmapping.png) | ![pbr](https://github.com/Umocmin/Umoc/blob/main/engine/ppm/pbr.png) |
 |   |   |   |
 |   |   |   |
 

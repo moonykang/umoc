@@ -3,8 +3,6 @@
 #include "renderer/base.h"
 #include "scene/scene.h"
 #include "scene/sceneList.h"
-#include "scene/testScene.h"
-#include "scene/tutorialScene.h"
 #include <exception>
 
 namespace platform
@@ -15,7 +13,7 @@ Application::Application() : sceneInfo(nullptr), baseRenderpass(nullptr)
 
 Result Application::init(Context* context)
 {
-    sceneInfo = new scene::NormalScene();
+    sceneInfo = new scene::PBRScene();
     try(sceneInfo->init(context));
     try(sceneInfo->load(context));
 

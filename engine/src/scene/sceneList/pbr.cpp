@@ -1,4 +1,4 @@
-#include "tutorialScene.h"
+#include "pbr.h"
 #include "common/util.h"
 #include "model/gltf/loader.h"
 #include "model/gltf/material.h"
@@ -6,18 +6,18 @@
 #include "model/object.h"
 #include "model/predefined/loader.h"
 #include "platform/context.h"
-#include "rendertargets.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
 #include "rhi/image.h"
 #include "scene/light.h"
+#include "scene/rendertargets.h"
+#include "scene/textures.h"
 #include "scene/view.h"
-#include "textures.h"
 
 namespace scene
 {
-Result TutorialScene::load(platform::Context* platformContext)
+Result PBRScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
@@ -72,7 +72,7 @@ Result TutorialScene::load(platform::Context* platformContext)
     return Result::Continue;
 }
 
-Result TutorialScene::udpate(platform::Context* context)
+Result PBRScene::udpate(platform::Context* context)
 {
     timer++;
 

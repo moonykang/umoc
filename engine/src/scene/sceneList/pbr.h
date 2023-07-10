@@ -1,4 +1,4 @@
-#include "scene.h"
+#include "../scene.h"
 #include <vector>
 
 namespace model
@@ -16,7 +16,7 @@ class Texture;
 
 namespace scene
 {
-class TutorialScene : public SceneInfo
+class PBRScene : public SceneInfo
 {
   public:
     Result load(platform::Context* context) override;
