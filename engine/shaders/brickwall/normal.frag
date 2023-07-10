@@ -2,10 +2,9 @@
 
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 1) in vec2 inUV;
-layout (location = 2) in vec4 inColor;
-layout (location = 3) in vec3 inTangentLightPos;
-layout (location = 4) in vec3 inTangentViewPos;
-layout (location = 5) in vec3 inTangentFragPos;
+layout (location = 2) in vec3 inTangentLightPos;
+layout (location = 3) in vec3 inTangentViewPos;
+layout (location = 4) in vec3 inTangentFragPos;
 
 layout(set = 0, binding = 0) uniform GlobalUBO_1
 {

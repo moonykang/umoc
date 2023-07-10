@@ -49,12 +49,14 @@ Result BloomPass::init(platform::Context* platformContext, scene::SceneInfo* sce
     rhi::Context* context = platformContext->getRHI();
 
     BloomMaterial* bloomMaterial = new BloomMaterial();
+    try(bloomMaterial->init(platformContext));
     bloomMaterial->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSceneColor());
+    try(bloomMaterial->update(platformContext));
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(
-        "screen.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
-    shaderParameters.pixelShader = context->allocatePixelShader("bloom.frag.spv");
+        "screen/screen.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+    shaderParameters.pixelShader = context->allocatePixelShader("screen/screen.frag.spv");
 
     auto loader =
         model::predefined::Loader::Builder().setMaterial(bloomMaterial).setShaderParameters(&shaderParameters).build();

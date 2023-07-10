@@ -12,7 +12,8 @@ namespace model
 Instance::Instance(Object* object, Material* material, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
                    uint32_t vertexCount, glm::mat4 transform)
     : object(object), material(material), firstIndex(firstIndex), indexCount(indexCount), firstVertex(firstVertex),
-      vertexCount(vertexCount), ubo({transform}), uniformBuffer(nullptr), descriptorSet(nullptr), initialized(false)
+      vertexCount(vertexCount), ubo({transform, glm::inverse(glm::mat3(transform))}), uniformBuffer(nullptr),
+      descriptorSet(nullptr), initialized(false)
 {
 }
 

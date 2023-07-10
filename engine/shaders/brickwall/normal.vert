@@ -3,16 +3,14 @@
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
-layout (location = 3) in vec4 inColor;
-layout (location = 4) in vec3 inTangent;
-layout (location = 5) in vec3 inBitangent;
+layout (location = 3) in vec3 inTangent;
+layout (location = 4) in vec3 inBitangent;
 
 layout (location = 0) out vec3 outWorldPos;
 layout (location = 1) out vec2 outUV;
-layout (location = 2) out vec4 outColor;
-layout (location = 3) out vec3 outTangentLightPos;
-layout (location = 4) out vec3 outTangentViewPos;
-layout (location = 5) out vec3 outTangentFragPos;
+layout (location = 2) out vec3 outTangentLightPos;
+layout (location = 3) out vec3 outTangentViewPos;
+layout (location = 4) out vec3 outTangentFragPos;
 
 
 layout(set = 0, binding = 0) uniform GlobalUBO_1
@@ -34,6 +32,7 @@ layout(set = 0, binding = 1) uniform GlobalUBO_2
 
 layout(set = 1, binding = 0) uniform LocalUniformBufferObject {
     mat4 transform;
+    mat3 transform_inverse;
 } lubo;
 
 void main() 
@@ -42,18 +41,24 @@ void main()
     outWorldPos = world_pos.xyz;
     outUV = inUV;
 
-    mat3 normalMatrix = transpose(inverse(mat3(lubo.transform)));
+    //mat3 normalMatrix = transpose(inverse(mat3(lubo.transform)));
+    /*
+    mat3 normalMatrix = transpose(lubo.transform_inverse);
     vec3 T = normalize(normalMatrix * inTangent);
     vec3 N = normalize(normalMatrix * inNormal);
     T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
+    */
 
-    mat3 TBN = transpose(mat3(T, B, N));
+    vec3 N = normalize(inNormal);
+    vec3 T = normalize(inTangent);
+    vec3 B = cross(N, T);
+    mat3 TBN = mat3(T, B, N);
+
+
+    //mat3 TBN = transpose(mat3(T, B, N));
     outTangentLightPos = TBN * sceneLight.lightPosition.xyz;
     outTangentViewPos = TBN * sceneView.cam_pos.xyz;
     outTangentFragPos = TBN * outWorldPos;
-
-    outColor = inColor;
 
     gl_Position = sceneView.view_proj * world_pos;
 }

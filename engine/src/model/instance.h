@@ -61,6 +61,7 @@ class Instance
     struct UniformBufferObject
     {
         glm::mat4 transform;
+        glm::mat3 transform_inverse;
     } ubo;
 
     util::Transform transform;

@@ -17,17 +17,12 @@
 
 namespace scene
 {
-Result TutorialScene::postInit(platform::Context* context)
-{
-    return Result::Continue;
-}
-
 Result TutorialScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    //if (false)
-    {        
+    // if (false)
+    {
         model::Material* material = new model::Material();
         try(material->init(context));
         try(material->update(context));
@@ -35,17 +30,17 @@ Result TutorialScene::load(platform::Context* platformContext)
         rhi::ShaderParameters shaderParameters;
         shaderParameters.vertexShader = context->allocateVertexShader(
             "brickwall/pbr.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                            rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
+                                          rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
         shaderParameters.pixelShader = context->allocatePixelShader("brickwall/pbr.frag.spv");
 
         auto loader = model::gltf::Loader::Builder()
-                        .setPath("")
-                        .setFileName("sphere.gltf")
-                        .setMaterialFlags(model::MaterialFlag::NONE)
-                        .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
-                        .setShaderParameters(&shaderParameters)
-                        .addExternalMaterial(material)
-                        .build();
+                          .setPath("")
+                          .setFileName("sphere.gltf")
+                          .setMaterialFlags(model::MaterialFlag::NONE)
+                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .setShaderParameters(&shaderParameters)
+                          .addExternalMaterial(material)
+                          .build();
 
         model::Object* object = loader->load(context, this);
         registerObject(context, object);
@@ -92,13 +87,5 @@ Result TutorialScene::udpate(platform::Context* context)
 
     try(view->updateUniformBuffer(context));
     return Result::Continue;
-}
-
-void TutorialScene::preTerminate(platform::Context* context)
-{
-}
-
-void TutorialScene::postTerminate(platform::Context* context)
-{
 }
 } // namespace scene

@@ -62,8 +62,8 @@ model::Object* Loader::load(platform::Context* context, scene::SceneInfo* sceneI
 
     if (material)
     {
-        try_call(material->init(context));
-        try_call(material->update(context));
+        // try_call(material->init(context));
+        // try_call(material->update(context));
         newObject->addMaterial(material);
     }
     else
