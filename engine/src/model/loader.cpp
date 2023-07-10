@@ -9,6 +9,7 @@ Result Loader::loadMaterial(platform::Context* context, Object* object)
     Material* material = new Material();
 
     try(material->init(context));
+    try(material->update(context));
 
     object->addMaterial(material);
 

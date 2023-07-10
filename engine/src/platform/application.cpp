@@ -15,7 +15,7 @@ Application::Application() : sceneInfo(nullptr), baseRenderpass(nullptr)
 
 Result Application::init(Context* context)
 {
-    sceneInfo = new scene::TutorialScene();
+    sceneInfo = new scene::TriangleScene();
     try(sceneInfo->init(context));
     try(sceneInfo->load(context));
 
