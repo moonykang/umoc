@@ -22,6 +22,8 @@ class RealBuffer : public WrappedObject<RealBuffer, VkBuffer>
 
     Result map(Context* context, size_t offset, size_t size, void* mapData);
 
+    Result rmap(Context* context, size_t offset, size_t size, void* mapData);
+
     Result copy(Context* context, RealBuffer* srcBuffer, VkDeviceSize offset, VkDeviceSize size);
 
   private:

@@ -65,6 +65,8 @@ class Context : public platform::Context
     virtual Result copyImage(Image* srcImage, ImageSubResource srcRange, Image* dstImage, ImageSubResource dstRagne,
                              Extent3D extent) = 0;
 
+    virtual Result readBackImage(Image* srcImage, ImageSubResource srcRange, void* data) = 0;
+
     virtual Result viewport(Extent2D extent) = 0;
 
   public:

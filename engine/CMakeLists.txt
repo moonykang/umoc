@@ -75,11 +75,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 ### End of third party libraries
 
-# Shaders
+# Assets
 ADD_SUBDIRECTORY(shaders)
 ADD_DEFINITIONS(-DSHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 ADD_DEFINITIONS(-DTEXTURE_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/textures")
 ADD_DEFINITIONS(-DMODEL_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/models")
+ADD_DEFINITIONS(-DPPM_PATH="${CMAKE_CURRENT_SOURCE_DIR}/ppm")
 
 # Engine
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)

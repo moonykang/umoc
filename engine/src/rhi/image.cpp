@@ -12,6 +12,11 @@ Image::Image(std::string name, DescriptorType descriptorType)
 {
 }
 
+Extent3D Image::getExtent()
+{
+    return extent;
+}
+
 Texture::Texture(std::string name) : image(nullptr), name(name)
 {
 }

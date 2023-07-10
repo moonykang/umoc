@@ -23,6 +23,10 @@ class Image : public Descriptor
 
     virtual void terminate(Context* context) = 0;
 
+    virtual size_t getSize(rhi::ImageSubResource subResource) = 0;
+
+    Extent3D getExtent();
+
   protected:
     std::string name;
     Format format;

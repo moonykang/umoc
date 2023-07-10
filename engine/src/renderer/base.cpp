@@ -6,9 +6,12 @@
 #include "platform/context.h"
 #include "preFilterPass.h"
 #include "rhi/context.h"
+#include "rhi/image.h"
 #include "rhi/rendertarget.h"
 #include "scene/scene.h"
 #include "ui.h"
+
+#include <fstream>
 
 namespace renderer
 {
@@ -52,6 +55,45 @@ Result BaseRenderPass::render(platform::Context* platformContext, scene::SceneIn
         try(pass->render(platformContext, sceneInfo));
     }
 
+    /*
+        auto surfaceImage = context->getCurrentSurfaceImage();
+        static bool bCapture = true;
+
+        // Do one time
+        if (bCapture)
+        {
+            rhi::ImageSubResource imageSubResource = {};
+            imageSubResource.layerCount = 1;
+            imageSubResource.levelCount = 1;
+
+            size_t surfaceImageSize = surfaceImage->getSize(imageSubResource);
+            char* captureData = new char[surfaceImageSize];
+
+            try(context->readBackImage(surfaceImage, imageSubResource, captureData));
+
+            LOGD("Success to capture");
+            rhi::Extent3D extent = surfaceImage->getExtent();
+            std::ofstream fout;
+            fout.open(std::string(PPM_PATH) + "/temp.ppm");
+
+            if (fout.is_open())
+            {
+                fout << "P3\n" << extent.width << ' ' << extent.height << "\n255\n";
+
+                size_t numPixels = surfaceImageSize / 4;
+
+                size_t pixel = 0;
+                for (int i = 0; i < numPixels; i++)
+                {
+                    fout << captureData[pixel++] << ' ' << captureData[pixel++] << ' ' << captureData[pixel++];
+                    pixel++;
+                }
+                fout.close();
+            }
+            delete[] captureData;
+            bCapture = false;
+        }
+    */
     try(context->present());
 
     return Result::Continue;

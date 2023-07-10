@@ -81,6 +81,16 @@ Result RealBuffer::map(Context* context, size_t offset, size_t size, void* mapDa
     return Result::Continue;
 }
 
+Result RealBuffer::rmap(Context* context, size_t offset, size_t size, void* mapData)
+{
+    void* data = nullptr;
+    try(deviceMemory->map(context, offset, size, 0, &data));
+    memcpy(mapData, data, size);
+    deviceMemory->unmap(context);
+
+    return Result::Continue;
+}
+
 Result RealBuffer::copy(Context* context, RealBuffer* srcBuffer, VkDeviceSize offset, VkDeviceSize size)
 {
     VkBufferCopy copyRegion = {};

@@ -147,6 +147,13 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         vkCmdCopyImage(mHandle, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage,
                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
     }
+
+    inline void copyImageToBuffer(VkImage srcImage, VkBuffer dstBuffer, const VkBufferImageCopy& copyRegion)
+    {
+        ASSERT(valid());
+        vkCmdCopyImageToBuffer(mHandle, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstBuffer, 1, &copyRegion);
+    }
+
     /*
     End of command functions
     */

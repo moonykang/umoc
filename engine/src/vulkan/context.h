@@ -72,6 +72,8 @@ class Context : public rhi::Context
     Result copyImage(rhi::Image* srcImage, rhi::ImageSubResource srcRange, rhi::Image* dstImage,
                      rhi::ImageSubResource dstRange, rhi::Extent3D extent) override;
 
+    Result readBackImage(rhi::Image* srcImage, rhi::ImageSubResource srcRange, void* data) override;
+
     Result viewport(rhi::Extent2D extent) override;
     // factory
   public:

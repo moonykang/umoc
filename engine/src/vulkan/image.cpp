@@ -60,6 +60,45 @@ Result Context::copyImage(rhi::Image* rhiSrcImage, rhi::ImageSubResource srcRang
     return Result::Continue;
 }
 
+Result Context::readBackImage(rhi::Image* rhiSrcImage, rhi::ImageSubResource srcRange, void* data)
+{
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+
+    Image* srcImage = reinterpret_cast<Image*>(rhiSrcImage);
+    commandBuffer->addTransition(srcImage->updateImageLayoutAndBarrier(rhi::ImageLayout::TransferSrc));
+    commandBuffer->flushTransitions();
+
+    const auto& extent = srcImage->getExtent();
+    uint32_t formatSize = 4; // TODO
+    size_t size = formatSize * extent.width * extent.height;
+
+    RealBuffer* stagingBuffer = new RealBuffer();
+
+    try(stagingBuffer->init(this, rhi::BufferUsage::TRANSFER_DST,
+                            rhi::MemoryProperty::HOST_COHERENT | rhi::MemoryProperty::HOST_VISIBLE, size));
+    try(stagingBuffer->map(this, 0, size, data));
+
+    VkBufferImageCopy copyRegion = {};
+    copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.imageSubresource.baseArrayLayer = srcRange.baseArrayLayer;
+    copyRegion.imageSubresource.mipLevel = srcRange.baseMipLevel;
+    copyRegion.imageSubresource.layerCount = srcRange.layerCount;
+    copyRegion.imageOffset = {0, 0, 0};
+    copyRegion.imageExtent = {extent.width, extent.height, extent.depth};
+
+    commandBuffer->copyImageToBuffer(srcImage->getHandle(), stagingBuffer->getHandle(), copyRegion);
+
+    try(submitActiveCommandBuffer());
+
+    try(waitIdle());
+
+    try(stagingBuffer->rmap(this, 0, size, data));
+
+    TERMINATE(stagingBuffer, this);
+
+    return Result::Continue;
+}
+
 Result ImageView::init(Context* context, VkImage image, Format format, VkComponentMapping components,
                        VkImageSubresourceRange subresourceRange, VkImageViewType viewType)
 {
@@ -291,6 +330,11 @@ VkImageSubresourceRange Image::getWholeImageSubresourceRange()
     VkImageSubresourceRange wholeImageSubresourceRange = {getAspectFlags(), 0, mipLevels, 0, layers};
 
     return wholeImageSubresourceRange;
+}
+
+size_t Image::getSize(rhi::ImageSubResource subResource)
+{
+    return 4 * extent.width * extent.height; // TODO
 }
 
 Result Image::initImage(Context* context)
