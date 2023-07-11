@@ -7,11 +7,11 @@ It supports Windows & Mac at this time.
 
 | Quad | Normal mapping  | Basic PBR |
 |---|---|---|
-| ![quad](https://github.com/moonykang/umoc/blob/main/engine/ppm/quad.png) | ![normalmap](https://github.com/moonykang/umoc/blob/main/engine/ppm/normalmapping.png) | ![pbr](https://github.com/moonykang/umoc/blob/main/engine/ppm/pbr.png) |
+| ![quad](engine/ppm/quad.png) | ![normalmap](engine/ppm/normalmapping.png) | ![pbr](engine/ppm/pbr.png) |
 
 | Skybox (Environment Refraction) | Bloom | IBL |
 |---|---|---|
-| ![skybox](https://github.com/moonykang/umoc/blob/main/engine/ppm/skybox.png) | ![bloom](https://github.com/moonykang/umoc/blob/main/engine/ppm/bloom.png) |   |
+| ![skybox](engine/ppm/skybox.png) | ![bloom](engine/ppm/bloom.png) |   |
 
 | Deferred shading | SSAO | Ray tracing |
 |---|---|---|
