@@ -83,7 +83,8 @@ void Object::addLinearNode(Node* node)
     linearNodes.push_back(node);
 }
 
-Instance* Object::instantiate(platform::Context* context, glm::mat4 transform, bool initDescriptor)
+Instance* Object::instantiate(platform::Context* context, glm::mat4 transform, bool initDescriptor,
+                              bool ignoreHierarchy)
 {
     Instance* prevInstance = nullptr;
 
@@ -91,7 +92,7 @@ Instance* Object::instantiate(platform::Context* context, glm::mat4 transform, b
     {
         if (node->hasMesh())
         {
-            const glm::mat4 localMatrix = transform * node->getTransform();
+            const glm::mat4 localMatrix = ignoreHierarchy ? transform : transform * node->getTransform();
 
             for (Primitive* primitive : node->getPrimitives())
             {

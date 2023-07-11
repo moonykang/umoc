@@ -53,7 +53,8 @@ class Object
     void addLinearNode(Node* node);
 
   public:
-    Instance* instantiate(platform::Context* context, glm::mat4 transform, bool initDescriptor);
+    Instance* instantiate(platform::Context* context, glm::mat4 transform, const bool initDescriptor,
+                          const bool ignoreHierarchy = false);
 
     std::vector<Instance*>& getInstances();
 

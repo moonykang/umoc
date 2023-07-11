@@ -2,3 +2,4 @@
 #include "sceneList/normal.h"
 #include "sceneList/pbr.h"
 #include "sceneList/quad.h"
+#include "sceneList/skybox.h"

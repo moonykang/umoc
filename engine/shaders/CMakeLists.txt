@@ -8,6 +8,7 @@ SET(SUBDIRECTORIES
 	brickwall
 	normal
 	screen
+	skybox
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})

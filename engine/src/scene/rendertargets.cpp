@@ -8,7 +8,8 @@
 namespace scene
 {
 RenderTargets::RenderTargets()
-    : sceneColor(nullptr), sceneDepth(nullptr), brdfLutTexture(nullptr), environmentCube(nullptr), irradianceCube(nullptr), preFilterCube(nullptr)
+    : sceneColor(nullptr), sceneDepth(nullptr), brdfLutTexture(nullptr), environmentCube(nullptr),
+      irradianceCube(nullptr), preFilterCube(nullptr)
 {
 }
 
@@ -34,30 +35,31 @@ Result RenderTargets::init(platform::Context* platformContext)
         environmentCube = new rhi::Texture("Environment Cube Texture");
         try(environmentCube->init(context, "gcanyon_cube.ktx", platform::ImageLoader::KTX));
 
-        // Irradiance
-        {
-            uint32_t dim = 64;
-            uint32_t layers = 6;
-            uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
-            rhi::Extent3D extent = {dim, dim, 1};
 
-            irradianceCube = new rhi::Texture("Irradiance Cube Texture");
-            try(irradianceCube->init(context, rhi::Format::R32G32B32A32_FLOAT, extent, mipLevels, layers,
-                                     rhi::ImageUsage::TRANSFER_DST));
-        }
+    // Irradiance
+    {
+        uint32_t dim = 64;
+        uint32_t layers = 6;
+        uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
+        rhi::Extent3D extent = {dim, dim, 1};
 
-        // PreFilter
-        {
-            uint32_t dim = 512;
-            uint32_t layers = 6;
-            uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
-            rhi::Extent3D extent = {dim, dim, 1};
+        irradianceCube = new rhi::Texture("Irradiance Cube Texture");
+        try(irradianceCube->init(context, rhi::Format::R32G32B32A32_FLOAT, extent, mipLevels, layers,
+                                 rhi::ImageUsage::TRANSFER_DST));
+    }
 
-            preFilterCube = new rhi::Texture("PreFilter Cube Texture");
-            try(preFilterCube->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels, layers,
-                                    rhi::ImageUsage::TRANSFER_DST));
-        }
-    */
+    // PreFilter
+    {
+        uint32_t dim = 512;
+        uint32_t layers = 6;
+        uint32_t mipLevels = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
+        rhi::Extent3D extent = {dim, dim, 1};
+
+        preFilterCube = new rhi::Texture("PreFilter Cube Texture");
+        try(preFilterCube->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels, layers,
+                                rhi::ImageUsage::TRANSFER_DST));
+    }
+        */
     return Result::Continue;
 }
 
