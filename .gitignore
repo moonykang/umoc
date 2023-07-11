@@ -38,6 +38,7 @@ android/app/assets
 output
 
 .DS_Store
+engine/.DS_Store
 
 engine/external
 xcode
