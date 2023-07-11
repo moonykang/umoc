@@ -7,9 +7,9 @@ It supports Windows & Mac at this time.
 
 | Quad | Normal mapping  | Basic PBR |
 |---|---|---|
-| ![quad](engine/ppm/quad.png) | ![normalmap](engine/ppm/normalmapping.png) | ![pbr](engine/ppm/pbr.png) |
+| ![quad](engine/ppm/quad.png) | ![normalmap](captures/normal.gif) | ![pbr](captures/pbr.gif) |
 
-| Skybox (Environment Refraction) | Bloom | IBL |
+| Skybox<br/>(Environment Refraction) | Bloom | IBL |
 |---|---|---|
 | ![skybox](engine/ppm/skybox.png) | ![bloom](engine/ppm/bloom.png) |   |
 
