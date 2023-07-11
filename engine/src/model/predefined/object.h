@@ -13,7 +13,7 @@ class Object : public model::Object
 
     Result loadMesh();
 
-    virtual Result loadVertexBuffer(platform::Context* context) = 0;
+    virtual Result loadVertexBuffer(platform::Context* context, double uvScale) = 0;
 
     virtual Result loadIndexBuffer(platform::Context* context) = 0;
 

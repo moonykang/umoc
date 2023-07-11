@@ -10,7 +10,7 @@ class Cube : public Object
   public:
     Cube();
 
-    Result loadVertexBuffer(platform::Context* context);
+    Result loadVertexBuffer(platform::Context* context, double uvScale);
 
     Result loadIndexBuffer(platform::Context* context);
 };

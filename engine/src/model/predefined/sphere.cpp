@@ -13,7 +13,7 @@ Sphere::Sphere() : Object(4, 6)
 {
 }
 
-Result Sphere::loadVertexBuffer(platform::Context* context)
+Result Sphere::loadVertexBuffer(platform::Context* context, double uvScale)
 {
     const uint32_t slices = 2;
     const uint32_t stacks = 2;

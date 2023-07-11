@@ -24,16 +24,19 @@ class Loader : public model::Loader
 
         Builder& setShaderParameters(rhi::ShaderParameters* shaderParameters);
 
+        Builder& setUvScale(double uvScale);
+
         std::shared_ptr<Loader> build();
 
       private:
         PredefinedModel predefinedType;
         Material* material;
         rhi::ShaderParameters* shaderParameters;
+        double uvScale;
     };
 
   public:
-    Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters);
+    Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters, double uvScale);
 
     Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
@@ -41,6 +44,7 @@ class Loader : public model::Loader
     PredefinedModel predefinedType;
     Material* material;
     rhi::ShaderParameters* shaderParameters;
+    double uvScale;
 };
 } // namespace predefined
 } // namespace model

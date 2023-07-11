@@ -26,6 +26,14 @@ Result RenderTargets::init(platform::Context* platformContext)
     try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
                          rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
 
+    // G buffers
+    gBufferA = new rhi::Texture("gBufferA");
+    try(gBufferA->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    gBufferB = new rhi::Texture("gBufferB");
+    try(gBufferB->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    gBufferC = new rhi::Texture("gBufferC");
+    try(gBufferC->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+
     // Bloom
     bloomSetup = new rhi::Texture("BloomSetup");
     try(bloomSetup->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
@@ -78,6 +86,11 @@ void RenderTargets::terminate(platform::Context* platformContext)
 
     TERMINATE(sceneColor, context);
     TERMINATE(sceneDepth, context);
+
+    TERMINATE(gBufferA, context);
+    TERMINATE(gBufferB, context);
+    TERMINATE(gBufferC, context);
+
     TERMINATE(brdfLutTexture, context);
     TERMINATE(environmentCube, context);
     TERMINATE(irradianceCube, context);

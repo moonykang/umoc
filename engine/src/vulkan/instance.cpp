@@ -52,37 +52,39 @@ Result Instance::init(Context* context)
         requestedExtensions.push_back(extension.c_str());
     }
 
+    const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
+    const char* renderdocLayerName = "VK_LAYER_RENDERDOC_Capture";
+
+    std::vector<const char*> requestedLayers;
+    std::vector<const char*> enabledLayers;
+
+    requestedLayers.push_back(validationLayerName);
+    requestedLayers.push_back(renderdocLayerName);
+
     if (true) // enableValidationLayer)
     {
         LOGD("Finding layers...");
-        const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
+
+        uint32_t instanceLayerCount;
+        vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
+        std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
+        vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
+
+        for (auto requestedLayer : requestedLayers)
         {
-            uint32_t instanceLayerCount;
-            vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
-            std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
-            vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
-            bool validationLayerPresent = false;
             for (VkLayerProperties layer : instanceLayerProperties)
             {
-                LOGD("Layers : %s", layer.layerName);
-
-                if (strcmp(layer.layerName, validationLayerName) == 0)
+                if (strcmp(layer.layerName, requestedLayer) == 0)
                 {
-                    validationLayerPresent = true;
+                    LOGD("Layers : %s", layer.layerName);
+                    enabledLayers.push_back(requestedLayer);
                     break;
                 }
             }
-            if (validationLayerPresent)
-            {
-                instanceCreateInfo.ppEnabledLayerNames = &validationLayerName;
-                instanceCreateInfo.enabledLayerCount = 1;
-            }
-            else
-            {
-                LOGE("Validation layer VK_LAYER_KHRONOS_validation not present, "
-                     "validation is disabled");
-            }
         }
+
+        instanceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(enabledLayers.size());
+        instanceCreateInfo.ppEnabledExtensionNames = enabledLayers.data();
     }
 
     LOGD("==== List of enabled instance extensions ====");

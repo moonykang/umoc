@@ -13,7 +13,7 @@ Quad::Quad() : Object(4, 6)
 {
 }
 
-Result Quad::loadVertexBuffer(platform::Context* context)
+Result Quad::loadVertexBuffer(platform::Context* context, double uvScale)
 {
     const uint32_t slices = 2;
     const uint32_t stacks = 2;
@@ -27,7 +27,7 @@ Result Quad::loadVertexBuffer(platform::Context* context)
     const glm::vec3 positions[vertexCount] = {
         {-1.0f, -1.0f, 0.0f}, {1.0f, -1.0f, 0.0f}, {-1.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 0.0f}};
 
-    const glm::vec2 uvs[vertexCount] = {{0.0f, 0.0f}, {1.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}};
+    const glm::vec2 uvs[vertexCount] = {{0.0f, 0.0f}, {uvScale, 0.0f}, {0.0f, uvScale}, {uvScale, uvScale}};
 
     const glm::vec4 colors[vertexCount] = {
         {0.0f, 0.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 1.0f, 1.0f}, {0.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f, 1.0f}};

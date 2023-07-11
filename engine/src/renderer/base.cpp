@@ -1,6 +1,7 @@
 #include "base.h"
 #include "bloom.h"
 #include "brdfLutPass.h"
+#include "deferred.h"
 #include "forward.h"
 #include "irradiancePass.h"
 #include "platform/context.h"
@@ -20,7 +21,8 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     // passes.push_back(new BrdfLutPass());
     // passes.push_back(new IrradiancePass());
     // passes.push_back(new PreFilterPass());
-    passes.push_back(new Forward());
+    // passes.push_back(new Forward());
+    passes.push_back(new Deferred());
     passes.push_back(new BloomPass());
     // passes.push_back(new UIPass());
 

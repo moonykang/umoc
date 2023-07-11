@@ -9,7 +9,7 @@ namespace model
 {
 namespace predefined
 {
-Loader::Builder::Builder() : predefinedType(PredefinedModel::Quad), material(nullptr)
+Loader::Builder::Builder() : predefinedType(PredefinedModel::Quad), material(nullptr), uvScale(1.0f)
 {
 }
 
@@ -31,13 +31,20 @@ Loader::Builder& Loader::Builder::setShaderParameters(rhi::ShaderParameters* sha
     return *this;
 }
 
-std::shared_ptr<Loader> Loader::Builder::build()
+Loader::Builder& Loader::Builder::setUvScale(double uvScale)
 {
-    return std::make_shared<Loader>(predefinedType, material, shaderParameters);
+    this->uvScale = uvScale;
+    return *this;
 }
 
-Loader::Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters)
-    : predefinedType(predefinedType), material(material), shaderParameters(shaderParameters)
+std::shared_ptr<Loader> Loader::Builder::build()
+{
+    return std::make_shared<Loader>(predefinedType, material, shaderParameters, uvScale);
+}
+
+Loader::Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters,
+               double uvScale)
+    : predefinedType(predefinedType), material(material), shaderParameters(shaderParameters), uvScale(uvScale)
 {
 }
 
@@ -57,7 +64,7 @@ model::Object* Loader::load(platform::Context* context, scene::SceneInfo* sceneI
     Object* newObject = createObject(predefinedType);
 
     try_call(newObject->init(context));
-    try_call(newObject->loadVertexBuffer(context));
+    try_call(newObject->loadVertexBuffer(context, uvScale));
     try_call(newObject->loadIndexBuffer(context));
 
     if (material)
