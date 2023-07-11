@@ -37,6 +37,9 @@ class RenderTargets
 
     REGISTER_TEXTURE(sceneColor, getSceneColor);
     REGISTER_TEXTURE(sceneDepth, getSceneDepth);
+    REGISTER_TEXTURE(bloomSetup, getBloomSetup);
+    REGISTER_TEXTURE(bloomHorizontal, getBloomHorizontal);
+    REGISTER_TEXTURE(bloomVertical, getBloomVertical);
     REGISTER_TEXTURE(brdfLutTexture, getBrdfLutTexture);
     REGISTER_TEXTURE(environmentCube, getEnvironmentCube);
     REGISTER_TEXTURE(irradianceCube, getIrradianceCube);

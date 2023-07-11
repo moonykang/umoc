@@ -4,6 +4,7 @@ SET(HLSL_SHADERS)
 FILE(GLOB GLSL_SHADERS *.vert *.frag *.comp *.rgen *.rchit *.rint *.rmiss)
 
 SET(SUBDIRECTORIES
+	bloom
     quad
 	brickwall
 	normal

@@ -11,7 +11,7 @@ It supports Windows & Mac at this time.
 
 | Skybox (Environment Refraction) | Bloom | IBL |
 |---|---|---|
-| ![skybox](https://github.com/moonykang/umoc/blob/main/engine/ppm/skybox.png) |   |   |
+| ![skybox](https://github.com/moonykang/umoc/blob/main/engine/ppm/skybox.png) | ![bloom](https://github.com/moonykang/umoc/blob/main/engine/ppm/bloom.png) |   |
 
 | Deferred shading | SSAO | Ray tracing |
 |---|---|---|

@@ -26,6 +26,15 @@ Result RenderTargets::init(platform::Context* platformContext)
     try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
                          rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
 
+    // Bloom
+    bloomSetup = new rhi::Texture("BloomSetup");
+    try(bloomSetup->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+
+    bloomHorizontal = new rhi::Texture("bloomHorizontal");
+    try(bloomHorizontal->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+
+    bloomVertical = new rhi::Texture("bloomVertical");
+    try(bloomVertical->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
     /*
         rhi::Extent3D brdfExtent = {512, 512, 1};
         brdfLutTexture = new rhi::Texture("BRDF LUT Texture");
@@ -73,5 +82,9 @@ void RenderTargets::terminate(platform::Context* platformContext)
     TERMINATE(environmentCube, context);
     TERMINATE(irradianceCube, context);
     TERMINATE(preFilterCube, context);
+
+    TERMINATE(bloomSetup, context);
+    TERMINATE(bloomHorizontal, context);
+    TERMINATE(bloomVertical, context);
 }
 } // namespace scene

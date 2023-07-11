@@ -13,7 +13,7 @@ Application::Application() : sceneInfo(nullptr), baseRenderpass(nullptr)
 
 Result Application::init(Context* context)
 {
-    sceneInfo = new scene::SkyBoxScene();
+    sceneInfo = new scene::BloomScene();
     try(sceneInfo->init(context));
     try(sceneInfo->load(context));
 

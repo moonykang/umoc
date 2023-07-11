@@ -20,7 +20,16 @@ class BloomPass : public Base
     Result render(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
   private:
-    model::Object* object;
-    model::Instance* instance;
+    model::Object* bloomSetupObject;
+    model::Instance* bloomSetupInstance;
+
+    model::Object* bloomHorizontalObject;
+    model::Instance* bloomHorizontalInstance;
+
+    model::Object* bloomVerticalObject;
+    model::Instance* bloomVerticalInstance;
+
+    model::Object* bloomCompositeObject;
+    model::Instance* bloomCompositeInstance;
 };
 } // namespace renderer
