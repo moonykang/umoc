@@ -12,6 +12,7 @@
 #include "rhi/rendertarget.h"
 #include "scene/scene.h"
 #include "screen.h"
+#include "ssao.h"
 #include "ui.h"
 
 #include <fstream>
@@ -32,6 +33,7 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     else
     {
         passes.push_back(new Deferred());
+        passes.push_back(new SSAOPass());
         passes.push_back(new Lighting());
     }
 

@@ -82,6 +82,7 @@ void View::updateViewMatrix()
     ubo.view_proj = projection * view;
     ubo.view_proj_inverse = glm::inverse(ubo.view_proj);
     ubo.prev_view_proj = glm::mat4(1.f);
+    ubo.proj = projection;
     ubo.view_pos = glm::vec4(position, 1.f);
 
     {
@@ -93,6 +94,8 @@ void View::updateViewMatrix()
 void View::setPerspective(float fov, float ratio, float minDepth, float maxDepth)
 {
     projection = glm::perspective(glm::radians(fov), ratio, minDepth, maxDepth);
+    ubo.nearPlane = minDepth;
+    ubo.farPlane = maxDepth;
     // projection[1][1] *= -1;
 
     // lock

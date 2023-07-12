@@ -67,4 +67,29 @@ std::pair<model::TextureID, rhi::Texture*> Textures::get(platform::Context* plat
     }
     return {id, texture};
 }
+
+std::pair<model::TextureID, rhi::Texture*> Textures::get(platform::Context* platformContext, std::string name,
+                                                         rhi::Format format, rhi::Extent3D extent, size_t size,
+                                                         void* data)
+{
+    LOGD("name %s", name.c_str());
+
+    static const size_t keySize = 64; // name.size()
+    name.reserve(keySize);
+    model::TextureID id = util::computeGenericHash(name.data(), keySize);
+
+    rhi::Texture* texture = get(id);
+
+    if (!texture)
+    {
+        rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
+
+        texture = new rhi::Texture(name);
+        try_call(texture->init(context, format, extent, rhi::ImageUsage::SAMPLED | rhi::ImageUsage::TRANSFER_DST, size,
+                               data));
+
+        textureMap[id] = texture;
+    }
+    return {id, texture};
+}
 } // namespace scene

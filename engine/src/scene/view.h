@@ -57,7 +57,11 @@ class View
         ALIGNED(16)
         glm::mat4 view_proj;
         ALIGNED(16)
+        glm::mat4 proj;
+        ALIGNED(16)
         glm::vec4 view_pos;
+        float nearPlane;
+        float farPlane;
     } ubo;
 
     rhi::UniformBuffer* uniformBuffer;

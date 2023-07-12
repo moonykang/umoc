@@ -34,7 +34,11 @@ Result RenderTargets::init(platform::Context* platformContext)
     gBufferC = new rhi::Texture("gBufferC");
     try(gBufferC->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
 
-    // Bloom
+    // SSAO
+    ssao = new rhi::Texture("SSAO");
+    try(ssao->init(context, rhi::Format::R8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+
+    // Bloomp
     bloomSetup = new rhi::Texture("BloomSetup");
     try(bloomSetup->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
 
@@ -100,6 +104,8 @@ void RenderTargets::terminate(platform::Context* platformContext)
     TERMINATE(gBufferA, context);
     TERMINATE(gBufferB, context);
     TERMINATE(gBufferC, context);
+
+    TERMINATE(ssao, context);
 
     TERMINATE(brdfLutTexture, context);
     TERMINATE(environmentCube, context);
