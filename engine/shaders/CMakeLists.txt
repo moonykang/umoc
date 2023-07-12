@@ -11,6 +11,7 @@ SET(SUBDIRECTORIES
 	normal
 	screen
 	skybox
+	ssao
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})

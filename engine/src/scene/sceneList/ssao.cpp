@@ -21,27 +21,25 @@ Result SSAOScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    // Skybox
+    rhi::ShaderParameters shaderParameters;
+    shaderParameters.vertexShader = context->allocateVertexShader(
+        "ssao/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal |
+                                      rhi::VertexChannel::Tangent | rhi::VertexChannel::Bitangent);
+    shaderParameters.pixelShader = context->allocatePixelShader("ssao/geometry.frag.spv");
+    /*
+    rhi::ShaderParameters shaderParameters;
+    shaderParameters.vertexShader = context->allocateVertexShader(
+        "forward.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+    shaderParameters.pixelShader = context->allocatePixelShader("forward.frag.spv");
+    */
+    // Sponza
     {
-        model::Material* material = new model::Material();
-        try(material->init(context));
-        // albedo 0
-        {
-            auto [id, texture] = textures->get(context, "Environment Cube Texture", "gcanyon_cube.ktx");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
-        }
-        try(material->update(context));
-
-        rhi::ShaderParameters shaderParameters;
-        shaderParameters.vertexShader = context->allocateVertexShader(
-            "skybox/skybox.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv);
-        shaderParameters.pixelShader = context->allocatePixelShader("skybox/skybox.frag.spv");
-
         auto loader = model::gltf::Loader::Builder()
-                          .setFileName("cube.gltf")
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
-                          .addExternalMaterial(material)
+                          .setPath("sponza/")
+                          .setFileName("sponza.gltf")
+                          .setMaterialFlags(model::MaterialFlag::All)
                           .setShaderParameters(&shaderParameters)
+                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
@@ -49,53 +47,63 @@ Result SSAOScene::load(platform::Context* platformContext)
 
         util::Transform transform;
         transform.scale(glm::vec3(1.0f));
-        model::Instance* instance = object->instantiate(context, transform.get(), true, true);
+        model::Instance* instance = object->instantiate(context, transform.get(), true);
     }
 
-    // Reflection sphere
-    {
-        model::Material* material = new model::Material();
-        try(material->init(context));
-        // albedo 0
-        {
-            auto [id, texture] = textures->get(context, "Environment Cube Texture", "gcanyon_cube.ktx");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
-        }
-        try(material->update(context));
-
-        rhi::ShaderParameters shaderParameters;
-        shaderParameters.vertexShader = context->allocateVertexShader(
-            "skybox/reflection.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Normal);
-        shaderParameters.pixelShader = context->allocatePixelShader("skybox/refraction.frag.spv");
-
-        auto loader = model::gltf::Loader::Builder()
-                          .setPath("")
-                          .setFileName("sphere.gltf")
-                          .setMaterialFlags(model::MaterialFlag::NONE)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
-                          .setShaderParameters(&shaderParameters)
-                          .addExternalMaterial(material)
-                          .build();
-
-        model::Object* object = loader->load(context, this);
-        registerObject(context, object);
-
-        util::Transform transform;
-        transform.scale(glm::vec3(1.0f));
-        model::Instance* instance = object->instantiate(context, transform.get(), true, true);
-    }
-
-    view->setView(glm::vec3(-4.2f, 0.05f, -4.3f), glm::vec3(-0.10f, -45.0f, 0.0f));
+    view->setView(glm::vec3(5.0f, 1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();
 
     try(view->updateUniformBuffer(context));
 
-    light->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
+    light->setLightPosition(0, glm::vec4(-1.0f, -3.0f, 0.0f, 1.0f));
 
     try(light->updateUniformBuffer(context));
 
     try(updateDescriptor(context));
+
+    return Result::Continue;
+}
+
+Result SSAOScene::udpate(platform::Context* context)
+{
+    timer++;
+
+    // White
+    light->setLightPosition(
+        0, glm::vec4(sin(glm::radians(360.0f * timer)) * 5.0f, 2.0f, cos(glm::radians(360.0f * timer)) * 5.0f, 0.0f));
+    light->setLightColor(0, glm::vec3(1.5f));
+    light->setLightRadius(0, 15.0f);
+
+    // Red
+    light->setLightPosition(1, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
+                                         0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
+    light->setLightColor(1, glm::vec3(1.0f, 0.0f, 0.0f));
+    light->setLightRadius(1, 10.0f);
+    // Blue
+    light->setLightPosition(2, glm::vec4(4.0f + sin(glm::radians(360.0f * timer)) * 2.0f, 2.0f,
+                                         0.0f + cos(glm::radians(360.0f * timer)) * 2.0f, 0.0f));
+    light->setLightColor(2, glm::vec3(0.0f, 0.0f, 2.5f));
+    light->setLightRadius(2, 5.0f);
+    // Yellow
+    light->setLightPosition(3, glm::vec4(0.0f + sin(glm::radians(360.0f * timer + 90.0f)) * 5.0f, 20.0f,
+                                         0.0f - cos(glm::radians(360.0f * timer + 45.0f)) * 5.0f, 0.0f));
+    light->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.0f));
+    light->setLightRadius(3, 5.0f);
+    // Green
+    light->setLightPosition(4, glm::vec4(0.0f + sin(glm::radians(-360.0f * timer + 135.0f)) * 10.0f, 2.5f,
+                                         0.0f - cos(glm::radians(-360.0f * timer - 45.0f)) * 10.0f, 0.0f));
+    light->setLightColor(4, glm::vec3(0.0f, 1.0f, 0.2f));
+    light->setLightRadius(4, 15.0f);
+
+    // Yellow
+    light->setLightPosition(5, glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
+    light->setLightColor(5, glm::vec3(1.0f, 0.7f, 0.3f));
+    light->setLightRadius(5, 25.0f);
+
+    try(light->updateUniformBuffer(context));
+
+    try(view->updateUniformBuffer(context));
 
     return Result::Continue;
 }
