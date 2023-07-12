@@ -43,6 +43,16 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     bloomVertical = new rhi::Texture("bloomVertical");
     try(bloomVertical->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+
+    uint32_t white = -1;
+    whiteDummy = new rhi::Texture("whiteDummy");
+    try(whiteDummy->init(context, rhi::Format::R8G8B8A8_UNORM, {1, 1, 1},
+                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sizeof(uint32_t), &white));
+
+    uint32_t black = 0;
+    blackDummy = new rhi::Texture("blackDummy");
+    try(blackDummy->init(context, rhi::Format::R8G8B8A8_UNORM, {1, 1, 1},
+                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sizeof(uint32_t), &black));
     /*
         rhi::Extent3D brdfExtent = {512, 512, 1};
         brdfLutTexture = new rhi::Texture("BRDF LUT Texture");
@@ -99,5 +109,8 @@ void RenderTargets::terminate(platform::Context* platformContext)
     TERMINATE(bloomSetup, context);
     TERMINATE(bloomHorizontal, context);
     TERMINATE(bloomVertical, context);
+
+    TERMINATE(whiteDummy, context);
+    TERMINATE(blackDummy, context);
 }
 } // namespace scene

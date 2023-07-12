@@ -127,6 +127,54 @@ Result DeferredScene::load(platform::Context* platformContext)
         model::Instance* instance = object->instantiate(context, transform.get(), true);
     }
 
+    // sphere
+    {
+        model::Material* material = new model::Material();
+        try(material->init(context));
+        // albedo 0
+        {
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, renderTargets->getWhiteDummy());
+        }
+        // albedo 0
+        {
+            material->updateTexture(model::MaterialFlag::NormalTexture, renderTargets->getWhiteDummy());
+        }
+        try(material->update(context));
+
+        rhi::ShaderParameters shaderParameters;
+        shaderParameters.vertexShader = context->allocateVertexShader(
+            "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                              rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
+                                              rhi::VertexChannel::Bitangent);
+        shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+
+        auto loader = model::gltf::Loader::Builder()
+                          .setPath("")
+                          .setFileName("sphere.gltf")
+                          .setMaterialFlags(model::MaterialFlag::NONE)
+                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .setShaderParameters(&shaderParameters)
+                          .addExternalMaterial(material)
+                          .build();
+
+        model::Object* object = loader->load(context, this);
+        registerObject(context, object);
+
+        const uint32_t num_sphere = 15;
+        glm::vec3 transforms[num_sphere] = {{2, -0.7, 2},     {7, -0.6, 2},    {3, -0.5f, -1},  {0, -0.55f, 0},
+                                            {-5, -0.35f, -3}, {1, -0.65, 1},   {-2, -0.25, 1},  {5, -0.55f, -2},
+                                            {1, -0.67f, -1},  {6, -0.45f, -2}, {-1, -0.5f, -1}, {2, -0.29, -1},
+                                            {-5, -0.2f, 2},   {-1, -0.3f, 1},  {-6, -0.4f, 2}};
+
+        for (int i = 0; i < num_sphere; i++)
+        {
+            util::Transform transform;
+            transform.translate(glm::vec3(transforms[i].x, transforms[i].y, transforms[i].z));
+            transform.scale(glm::vec3(-transforms[i].y));
+            model::Instance* instance = object->instantiate(context, transform.get(), true, true);
+        }
+    }
+
     view->setView(glm::vec3(-9.0f, 4.5f, -5.5f), glm::vec3(-9.9f, -70.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();

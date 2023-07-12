@@ -49,5 +49,8 @@ class RenderTargets
     REGISTER_TEXTURE(environmentCube, getEnvironmentCube);
     REGISTER_TEXTURE(irradianceCube, getIrradianceCube);
     REGISTER_TEXTURE(preFilterCube, getPreFilterCube);
+
+    REGISTER_TEXTURE(whiteDummy, getWhiteDummy);
+    REGISTER_TEXTURE(blackDummy, getBlackDummy);
 };
 } // namespace scene
