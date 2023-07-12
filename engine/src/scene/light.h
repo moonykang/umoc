@@ -3,6 +3,8 @@
 #include "common/util.h"
 #include <mutex>
 
+#define NUM_LIGHTS 6
+
 namespace rhi
 {
 class UniformBuffer;
@@ -20,13 +22,33 @@ class Light
   public:
     Light();
 
-    virtual ~Light() = default;
+    glm::vec4 position;
+    glm::vec3 color;
+    float radius;
+};
+
+class Lights
+{
+  public:
+    Lights();
+
+    virtual ~Lights() = default;
 
     Result init(platform::Context* context);
 
     void terminate(platform::Context* context);
 
-    void setLight(glm::vec4 position);
+    void setLightPosition(uint32_t index, const glm::vec4& position);
+
+    glm::vec4& getLightPosition(uint32_t index);
+
+    void setLightColor(uint32_t index, const glm::vec3& color);
+
+    glm::vec3& getLightColor(uint32_t index);
+
+    void setLightRadius(uint32_t index, const float& radius);
+
+    float& getLightRadius(uint32_t index);
 
     Result updateUniformBuffer(platform::Context* context);
 
@@ -38,18 +60,12 @@ class Light
 
     struct UniformBufferObject
     {
-        ALIGNED(4)
-        glm::vec4 position;
-        float gamma = 0.1f;
-        float exposure = 0.1f;
-
+        Light light[NUM_LIGHTS];
+        uint32_t numLights;
     } ubo;
 
     rhi::UniformBuffer* uniformBuffer;
 
     static constexpr size_t uniformDataSize = sizeof(UniformBufferObject);
-
-    // input
-    glm::vec3 position;
 };
 } // namespace scene

@@ -40,7 +40,7 @@ Result SceneInfo::init(platform::Context* platformContext)
     view = new View();
     try(view->init(platformContext));
 
-    light = new Light();
+    light = new Lights();
     try(light->init(platformContext));
 
     try(platformContext->getWindow()->getInput()->attach(view));

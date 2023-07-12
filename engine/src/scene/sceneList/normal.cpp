@@ -61,7 +61,7 @@ Result NormalScene::load(platform::Context* platformContext)
 
     try(view->updateUniformBuffer(context));
 
-    light->setLight(glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
+    light->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
 
     try(light->updateUniformBuffer(context));
 
@@ -81,7 +81,7 @@ Result NormalScene::udpate(platform::Context* context)
     lightPos.y = sin(glm::radians(rotation * 1.0f)) * 4.0f;
     lightPos.z = -4.0f;
 
-    light->setLight(glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
+    light->setLightPosition(0, glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
 
     try(light->updateUniformBuffer(context));
 

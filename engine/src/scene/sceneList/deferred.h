@@ -20,5 +20,7 @@ class DeferredScene : public SceneInfo
 {
   public:
     Result load(platform::Context* context) override;
+
+    Result udpate(platform::Context* context) override;
 };
 } // namespace scene

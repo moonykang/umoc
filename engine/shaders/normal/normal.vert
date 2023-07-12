@@ -1,3 +1,5 @@
+#include "../common.hlsl"
+
 struct VSInput
 {
     [[vk::location(0)]] float3 pos : POSITION;
@@ -17,31 +19,14 @@ struct VSOutput
     [[vk::location(4)]] float3 tangentFragPos : POSITION3;
 };
 
-struct SceneUBO
-{
-    float4x4 view_inverse;
-    float4x4 proj_inverse;
-    float4x4 view_proj_inverse;
-    float4x4 prev_view_proj;
-    float4x4 view_proj;
-    float4 view_pos;
-};
-
 [[vk::binding(0, 0)]] cbuffer ubo
 {
-    SceneUBO sceneUBO;
+    SceneView sceneUBO;
 }
-
-struct LightUBO
-{
-    float4 pos;
-    float gamma;
-    float exposure;
-};
 
 [[vk::binding(1, 0)]] cbuffer ubo
 {
-    LightUBO lightUBO;
+    SceneLight lightUBO;
 }
 
 struct ModelUBO
@@ -70,8 +55,8 @@ VSOutput main(VSInput input)
     float3x3 TBN = float3x3(T, B, N);
 
 
-    output.tangentLightPos = mul(TBN, lightUBO.pos.xyz);
-    output.tangentViewPos = mul(TBN, sceneUBO.view_pos.xyz);
+    output.tangentLightPos = mul(TBN, lightUBO.lights[0].pos.xyz);
+    output.tangentViewPos = mul(TBN, sceneUBO.pos.xyz);
     output.tangentFragPos = mul(TBN, worldPos.xyz);
 
     output.pos = mul(sceneUBO.view_proj, worldPos);

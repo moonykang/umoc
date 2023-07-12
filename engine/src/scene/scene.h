@@ -20,7 +20,7 @@ class DescriptorSet;
 
 namespace scene
 {
-class Light;
+class Lights;
 class View;
 class RenderTargets;
 class Textures;
@@ -56,7 +56,7 @@ class SceneInfo
         return view;
     }
 
-    Light* getLight()
+    Lights* getLight()
     {
         return light;
     }
@@ -81,7 +81,7 @@ class SceneInfo
   protected:
     std::vector<model::Object*> models;
     View* view;
-    Light* light;
+    Lights* light;
     RenderTargets* renderTargets;
     rhi::DescriptorSet* sceneDescriptorSet;
     Textures* textures;

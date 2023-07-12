@@ -91,7 +91,7 @@ Result BloomScene::load(platform::Context* platformContext)
 
     try(view->updateUniformBuffer(context));
 
-    light->setLight(glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
+    light->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
 
     try(light->updateUniformBuffer(context));
 

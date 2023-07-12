@@ -1,3 +1,5 @@
+#include "../common.hlsl"
+
 struct VSInput
 {
     [[vk::location(0)]] float3 pos : POSITION0;
@@ -10,19 +12,9 @@ struct VSOutput
     [[vk::location(0)]] float3 uvw : TEXCOORD0;
 };
 
-struct SceneUBO
-{
-    float4x4 view_inverse;
-    float4x4 proj_inverse;
-    float4x4 view_proj_inverse;
-    float4x4 prev_view_proj;
-    float4x4 view_proj;
-    float4 cam_pos;
-};
-
 [[vk::binding(0, 0)]] cbuffer ubo
 {
-    SceneUBO sceneUBO;
+    SceneView sceneUBO;
 }
 
 struct ModelUBO
@@ -41,7 +33,6 @@ VSOutput main(VSInput input)
     VSOutput output = (VSOutput) 0;
     output.uvw = input.pos;
 
-    //output.pos = mul(sceneUBO.view_proj, mul(modelUBO.transform, float4(input.pos.xzy, 1.0)));
     output.pos = mul(sceneUBO.view_proj, float4(input.pos, 1.0f));
     return output;
 }

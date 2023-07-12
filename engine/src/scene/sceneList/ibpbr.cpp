@@ -117,7 +117,7 @@ Result IBPBRScene::load(platform::Context* platformContext)
 
     try(view->updateUniformBuffer(context));
 
-    light->setLight(glm::vec4(-1.0f, -3.0f, 0.0f, 1.0f));
+    light->setLightPosition(0, glm::vec4(-1.0f, -3.0f, 0.0f, 1.0f));
 
     try(light->updateUniformBuffer(context));
 

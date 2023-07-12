@@ -21,6 +21,7 @@ Result DeferredScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
+    const bool bDeferred = true;
     // Floor
     {
         model::Material* material = new model::Material();
@@ -40,11 +41,24 @@ Result DeferredScene::load(platform::Context* platformContext)
         try(material->update(context));
 
         rhi::ShaderParameters shaderParameters;
-        shaderParameters.vertexShader = context->allocateVertexShader(
-            "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+
+        if (bDeferred)
+        {
+            shaderParameters.vertexShader = context->allocateVertexShader(
+                "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                                  rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
+                                                  rhi::VertexChannel::Bitangent);
+            shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+        }
+        else
+        {
+
+            shaderParameters.vertexShader = context->allocateVertexShader(
+                "normal/normal.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
                                               rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                              rhi::VertexChannel::Color);
-        shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+                                              rhi::VertexChannel::Bitangent);
+            shaderParameters.pixelShader = context->allocatePixelShader("normal/normal.frag.spv");
+        }
 
         auto loader = model::predefined::Loader::Builder()
                           .setPredefineModelType(model::PredefinedModel::Quad)
@@ -79,11 +93,23 @@ Result DeferredScene::load(platform::Context* platformContext)
         try(material->update(context));
 
         rhi::ShaderParameters shaderParameters;
-        shaderParameters.vertexShader = context->allocateVertexShader(
-            "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+        if (bDeferred)
+        {
+            shaderParameters.vertexShader = context->allocateVertexShader(
+                "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                                  rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
+                                                  rhi::VertexChannel::Bitangent);
+            shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+        }
+        else
+        {
+
+            shaderParameters.vertexShader = context->allocateVertexShader(
+                "normal/normal.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
                                               rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                              rhi::VertexChannel::Color);
-        shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+                                              rhi::VertexChannel::Bitangent);
+            shaderParameters.pixelShader = context->allocatePixelShader("normal/normal.frag.spv");
+        }
 
         auto loader = model::gltf::Loader::Builder()
                           .setPath("armor/")
@@ -107,11 +133,54 @@ Result DeferredScene::load(platform::Context* platformContext)
 
     try(view->updateUniformBuffer(context));
 
-    light->setLight(glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
+    light->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
 
     try(light->updateUniformBuffer(context));
 
     try(updateDescriptor(context));
+
+    return Result::Continue;
+}
+
+Result DeferredScene::udpate(platform::Context* context)
+{
+    timer++;
+
+    // White
+    light->setLightPosition(
+        0, glm::vec4(sin(glm::radians(360.0f * timer)) * 5.0f, 2.0f, cos(glm::radians(360.0f * timer)) * 5.0f, 0.0f));
+    light->setLightColor(0, glm::vec3(1.5f));
+    light->setLightRadius(0, 15.0f);
+
+    // Red
+    light->setLightPosition(1, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
+                                         0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
+    light->setLightColor(1, glm::vec3(1.0f, 0.0f, 0.0f));
+    light->setLightRadius(1, 30.0f);
+    // Blue
+    light->setLightPosition(2, glm::vec4(4.0f + sin(glm::radians(360.0f * timer)) * 2.0f, 2.0f,
+                                         0.0f + cos(glm::radians(360.0f * timer)) * 2.0f, 0.0f));
+    light->setLightColor(2, glm::vec3(0.0f, 0.0f, 2.5f));
+    light->setLightRadius(2, 25.0f);
+    // Yellow
+    light->setLightPosition(3, glm::vec4(0.0f + sin(glm::radians(360.0f * timer + 90.0f)) * 5.0f, 20.0f,
+                                         0.0f - cos(glm::radians(360.0f * timer + 45.0f)) * 5.0f, 0.0f));
+    light->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.0f));
+    light->setLightRadius(3, 15.0f);
+    // Green
+    light->setLightPosition(4, glm::vec4(0.0f + sin(glm::radians(-360.0f * timer + 135.0f)) * 10.0f, 2.5f,
+                                         0.0f - cos(glm::radians(-360.0f * timer - 45.0f)) * 10.0f, 0.0f));
+    light->setLightColor(4, glm::vec3(0.0f, 1.0f, 0.2f));
+    light->setLightRadius(4, 45.0f);
+
+    // Yellow
+    light->setLightPosition(5, glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
+    light->setLightColor(5, glm::vec3(1.0f, 0.7f, 0.3f));
+    light->setLightRadius(5, 25.0f);
+
+    try(light->updateUniformBuffer(context));
+
+    try(view->updateUniformBuffer(context));
 
     return Result::Continue;
 }

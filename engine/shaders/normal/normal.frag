@@ -1,3 +1,5 @@
+#include "../common.hlsl"
+
 struct VSOutput
 {
     [[vk::location(0)]] float3 worldPos : POSITION0;
@@ -6,33 +8,6 @@ struct VSOutput
     [[vk::location(3)]] float3 tangentViewPos : POSITION2;
     [[vk::location(4)]] float3 tangentFragPos : POSITION3;
 };
-
-struct SceneUBO
-{
-    float4x4 view_inverse;
-    float4x4 proj_inverse;
-    float4x4 view_proj_inverse;
-    float4x4 prev_view_proj;
-    float4x4 view_proj;
-    float4 view_pos;
-};
-
-[[vk::binding(0, 0)]] cbuffer ubo
-{
-    SceneUBO sceneUBO;
-}
-
-struct LightUBO
-{
-    float4 pos;
-    float gamma;
-    float exposure;
-};
-
-[[vk::binding(1, 0)]] cbuffer ubo
-{
-    LightUBO lightUBO;
-}
 
 [[vk::binding(0, 2)]] Texture2D albedoMapTexture;
 [[vk::binding(0, 2)]] SamplerState albedoMapSampler;

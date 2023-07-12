@@ -29,7 +29,6 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     for (auto& pass : passes)
     {
         try(pass->init(context, sceneInfo));
-        // delete pass;
     }
 
     return Result::Continue;

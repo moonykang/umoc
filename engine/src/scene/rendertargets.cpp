@@ -28,11 +28,11 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     // G buffers
     gBufferA = new rhi::Texture("gBufferA");
-    try(gBufferA->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(gBufferA->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
     gBufferB = new rhi::Texture("gBufferB");
-    try(gBufferB->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(gBufferB->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
     gBufferC = new rhi::Texture("gBufferC");
-    try(gBufferC->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(gBufferC->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
 
     // Bloom
     bloomSetup = new rhi::Texture("BloomSetup");

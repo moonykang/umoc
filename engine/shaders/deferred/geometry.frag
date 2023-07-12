@@ -1,12 +1,10 @@
 // Copyright 2020 Google LLC
-
 struct VSOutput
 {
-    [[vk::location(0)]] float3 normal : NORMAL0;
-    [[vk::location(1)]] float2 uv : TEXCOORD0;
-    [[vk::location(2)]] float3 color : COLOR0;
-    [[vk::location(3)]] float3 worldPos : POSITION0;
-    [[vk::location(4)]] float3 tangent : TEXCOORD1;
+    [[vk::location(0)]] float3 worldPos : POSITION0;
+    [[vk::location(1)]] float3 normal : NORMAL0;
+    [[vk::location(2)]] float2 uv : TEXCOORD0;
+    [[vk::location(3)]] float3 tangent : TEXCOORD1;
 };
 
 struct FSOutput

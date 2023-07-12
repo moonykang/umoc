@@ -1,47 +1,26 @@
+#include "../common.hlsl"
+
 struct VSInput
 {
-    [[vk::location(0)]] float3 pos : POSITION0;
-    [[vk::location(1)]] float2 uv : TEXCOORD0;
-    [[vk::location(2)]] float3 color : COLOR0;
-    [[vk::location(3)]] float3 normal : NORMAL0;
-    [[vk::location(4)]] float3 tangent : TEXCOORD1;
+    [[vk::location(0)]] float3 pos : POSITION;
+    [[vk::location(1)]] float3 normal : NORMAL;
+    [[vk::location(2)]] float2 uv : TEXCOORD;
+    [[vk::location(3)]] float3 tangent : TANGENT;
+    [[vk::location(4)]] float3 bitangent : BINORMAL;
 };
 
 struct VSOutput
 {
 	float4 pos : SV_POSITION;
-    [[vk::location(0)]] float3 normal : NORMAL0;
-    [[vk::location(1)]] float2 uv : TEXCOORD0;
-    [[vk::location(2)]] float3 color : COLOR0;
-    [[vk::location(3)]] float3 worldPos : POSITION0;
-    [[vk::location(4)]] float3 tangent : TEXCOORD1;
-};
-
-struct SceneUBO
-{
-    float4x4 view_inverse;
-    float4x4 proj_inverse;
-    float4x4 view_proj_inverse;
-    float4x4 prev_view_proj;
-    float4x4 view_proj;
-    float4 view_pos;
+    [[vk::location(0)]] float3 worldPos : POSITION0;
+    [[vk::location(1)]] float3 normal : NORMAL0;
+    [[vk::location(2)]] float2 uv : TEXCOORD0;
+    [[vk::location(3)]] float3 tangent : TEXCOORD1;
 };
 
 [[vk::binding(0, 0)]] cbuffer ubo
 {
-    SceneUBO sceneUBO;
-}
-
-struct LightUBO
-{
-    float4 pos;
-    float gamma;
-    float exposure;
-};
-
-[[vk::binding(1, 0)]] cbuffer ubo
-{
-    LightUBO lightUBO;
+    SceneView sceneUBO;
 }
 
 struct ModelUBO
@@ -70,7 +49,5 @@ VSOutput main(VSInput input)
 	output.normal = normalize(input.normal);
 	output.tangent = normalize(input.tangent);
 
-	// Currently just vertex color
-	output.color = input.color;
 	return output;
 }
