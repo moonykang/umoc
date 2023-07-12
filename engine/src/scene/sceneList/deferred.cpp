@@ -21,7 +21,13 @@ Result DeferredScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    const bool bDeferred = true;
+    rhi::ShaderParameters shaderParameters;
+    shaderParameters.vertexShader = context->allocateVertexShader(
+        "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                          rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
+                                          rhi::VertexChannel::Bitangent);
+    shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+
     // Floor
     {
         model::Material* material = new model::Material();
@@ -39,26 +45,6 @@ Result DeferredScene::load(platform::Context* platformContext)
             material->updateTexture(model::MaterialFlag::NormalTexture, texture);
         }
         try(material->update(context));
-
-        rhi::ShaderParameters shaderParameters;
-
-        if (bDeferred)
-        {
-            shaderParameters.vertexShader = context->allocateVertexShader(
-                "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                                  rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                                  rhi::VertexChannel::Bitangent);
-            shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
-        }
-        else
-        {
-
-            shaderParameters.vertexShader = context->allocateVertexShader(
-                "normal/normal.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                              rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                              rhi::VertexChannel::Bitangent);
-            shaderParameters.pixelShader = context->allocatePixelShader("normal/normal.frag.spv");
-        }
 
         auto loader = model::predefined::Loader::Builder()
                           .setPredefineModelType(model::PredefinedModel::Quad)
@@ -92,25 +78,6 @@ Result DeferredScene::load(platform::Context* platformContext)
         }
         try(material->update(context));
 
-        rhi::ShaderParameters shaderParameters;
-        if (bDeferred)
-        {
-            shaderParameters.vertexShader = context->allocateVertexShader(
-                "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                                  rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                                  rhi::VertexChannel::Bitangent);
-            shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
-        }
-        else
-        {
-
-            shaderParameters.vertexShader = context->allocateVertexShader(
-                "normal/normal.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                              rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                              rhi::VertexChannel::Bitangent);
-            shaderParameters.pixelShader = context->allocatePixelShader("normal/normal.frag.spv");
-        }
-
         auto loader = model::gltf::Loader::Builder()
                           .setPath("armor/")
                           .setFileName("armor.gltf")
@@ -140,13 +107,6 @@ Result DeferredScene::load(platform::Context* platformContext)
             material->updateTexture(model::MaterialFlag::NormalTexture, renderTargets->getWhiteDummy());
         }
         try(material->update(context));
-
-        rhi::ShaderParameters shaderParameters;
-        shaderParameters.vertexShader = context->allocateVertexShader(
-            "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                              rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                              rhi::VertexChannel::Bitangent);
-        shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
 
         auto loader = model::gltf::Loader::Builder()
                           .setPath("")

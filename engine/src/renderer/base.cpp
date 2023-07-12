@@ -10,6 +10,7 @@
 #include "rhi/image.h"
 #include "rhi/rendertarget.h"
 #include "scene/scene.h"
+#include "screen.h"
 #include "ui.h"
 
 #include <fstream>
@@ -23,7 +24,8 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     // passes.push_back(new PreFilterPass());
     // passes.push_back(new Forward());
     passes.push_back(new Deferred());
-    passes.push_back(new BloomPass());
+    // passes.push_back(new BloomPass());
+    passes.push_back(new ScreenPass());
     // passes.push_back(new UIPass());
 
     for (auto& pass : passes)

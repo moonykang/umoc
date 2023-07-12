@@ -18,11 +18,9 @@ class Texture;
 
 namespace scene
 {
-class PBRScene : public SceneInfo
+class SSAOScene : public SceneInfo
 {
   public:
     Result load(platform::Context* context) override;
-
-    Result udpate(platform::Context* context) override;
 };
 } // namespace scene
