@@ -7,15 +7,15 @@ It supports Windows & Mac at this time.
 
 | Quad | Normal mapping  | Basic PBR |
 |---|---|---|
-| ![quad](engine/ppm/quad.png) | ![normalmap](captures/normal.gif) | ![pbr](captures/pbr.gif) |
+| ![quad](captures/quad.png) | ![normalmap](captures/normalmapping.png) | ![pbr](captures/pbr.png) |
 
 | Skybox<br/>(Environment Refraction) | Bloom | IBL |
 |---|---|---|
-| ![skybox](engine/ppm/skybox.png) | ![bloom](engine/ppm/bloom.png) |   |
+| ![skybox](captures/skybox.png) | ![bloom](captures/bloom.png) |   |
 
 | Deferred shading | SSAO | Ray tracing |
 |---|---|---|
-|   |   |   |
+| ![deferred](captures/deferred.png) |   |   |
 
 ## Git clone
 
