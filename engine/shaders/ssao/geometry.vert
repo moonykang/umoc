@@ -5,8 +5,6 @@ struct VSInput
     [[vk::location(0)]] float3 pos : POSITION;
     [[vk::location(1)]] float3 normal : NORMAL;
     [[vk::location(2)]] float2 uv : TEXCOORD;
-    [[vk::location(3)]] float3 tangent : TANGENT;
-    [[vk::location(4)]] float3 bitangent : BINORMAL;
 };
 
 struct VSOutput
@@ -15,7 +13,6 @@ struct VSOutput
     [[vk::location(0)]] float3 viewPos : POSITION0;
     [[vk::location(1)]] float3 normal : NORMAL0;
     [[vk::location(2)]] float2 uv : TEXCOORD0;
-    [[vk::location(3)]] float3 tangent : TEXCOORD1;
 };
 
 [[vk::binding(0, 0)]] cbuffer ubo
@@ -38,13 +35,16 @@ VSOutput main(VSInput input)
 {
 	VSOutput output = (VSOutput)0;
 
-    float4 viewPos = mul(sceneUBO.view, mul(modelUBO.transform, float4(input.pos, 1.0f)));
-    output.viewPos = viewPos.xyz;
-    output.uv = input.uv;
+	output.pos = mul(sceneUBO.proj, mul(sceneUBO.view, mul(modelUBO.transform, float4(input.pos, 1.0f))));
 
-    float3x3 normalMatrix = transpose(inverse((float3x3) mul(sceneUBO.view, modelUBO.transform)));
-    output.normal = mul(normalMatrix, input.normal);
-    output.pos = mul(sceneUBO.proj, viewPos);
+	output.uv = input.uv;
+
+	// Vertex position in view space
+	output.viewPos = mul(sceneUBO.view, mul(modelUBO.transform, float4(input.pos, 1.0f))).xyz;
+
+	// Normal in view space
+	float3x3 normalMatrix = (float3x3)mul(sceneUBO.view, modelUBO.transform);
+	output.normal = mul(normalMatrix, input.normal);
 
 	return output;
 }

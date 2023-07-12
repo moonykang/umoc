@@ -32,3 +32,8 @@ git submodule update
 ```
 { BasedOnStyle: MicroSoft, Language: Cpp, PointerAlignment: Left, IndentWidth: 4, ColumnLimit: 120 }
 ```
+## Reference
+
+https://learnopengl.com
+
+https://github.com/SaschaWillems/Vulkan

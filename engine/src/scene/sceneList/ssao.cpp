@@ -23,12 +23,11 @@ Result SSAOScene::load(platform::Context* platformContext)
 
     renderingOptions.enableDeferredRendering();
     renderingOptions.enableSSAO();
-    // renderingOptions.setFinalTarget(renderTargets->getSSAOBlur());
+    renderingOptions.setFinalTarget(renderTargets->getSSAOBlur());
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(
-        "ssao/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal |
-                                      rhi::VertexChannel::Tangent | rhi::VertexChannel::Bitangent);
+        "ssao/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
     shaderParameters.pixelShader = context->allocatePixelShader("ssao/geometry.frag.spv");
     /*
     rhi::ShaderParameters shaderParameters;
