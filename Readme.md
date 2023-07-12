@@ -9,13 +9,13 @@ It supports Windows & Mac at this time.
 |---|---|---|
 | ![quad](captures/quad.png) | ![normalmap](captures/normalmapping.png) | ![skybox](captures/skybox.png) |
 
-| Bloom | Deferred shading | PBR |
+| Bloom | Deferred shading | SSAO |
 |---|---|---|
-| ![bloom](captures/bloom.png) | ![deferred](captures/deferred.png) | ![pbr](captures/pbr.png) |
+| ![bloom](captures/bloom.png) | ![deferred](captures/deferred.png) | ![ssao](captures/ssao.png) |
 
-| SSAO | IBL | Ray tracing |
+| PBR | IBL | Ray tracing |
 |---|---|---|
-|  |   |   |
+| ![pbr](captures/pbr.png) |   |   |
 
 ## Git clone
 
