@@ -21,6 +21,9 @@ Result PBRScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
+    renderingOptions.enableForwardRendering();
+    renderingOptions.enableBloom();
+
     // if (false)
     {
         model::Material* material = new model::Material();

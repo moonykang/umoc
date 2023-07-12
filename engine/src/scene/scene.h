@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/util.h"
+#include "renderer/option.h"
 #include <vector>
 
 namespace platform
@@ -75,6 +76,11 @@ class SceneInfo
         return textures;
     }
 
+    renderer::Option& getRenderingOptions()
+    {
+        return renderingOptions;
+    }
+
   protected:
     void registerObject(platform::Context* context, model::Object* object);
 
@@ -86,5 +92,6 @@ class SceneInfo
     rhi::DescriptorSet* sceneDescriptorSet;
     Textures* textures;
     uint64_t timer;
+    renderer::Option renderingOptions;
 };
 } // namespace scene

@@ -21,6 +21,8 @@ Result BloomScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
+    renderingOptions.enableBloom();
+
     // Skybox
     {
         model::Material* material = new model::Material();

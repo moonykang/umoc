@@ -4,6 +4,7 @@
 #include "deferred.h"
 #include "forward.h"
 #include "irradiancePass.h"
+#include "lighting.h"
 #include "platform/context.h"
 #include "preFilterPass.h"
 #include "rhi/context.h"
@@ -19,13 +20,29 @@ namespace renderer
 {
 Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneInfo)
 {
+    auto renderingOptions = sceneInfo->getRenderingOptions();
     // passes.push_back(new BrdfLutPass());
     // passes.push_back(new IrradiancePass());
     // passes.push_back(new PreFilterPass());
-    // passes.push_back(new Forward());
-    passes.push_back(new Deferred());
-    // passes.push_back(new BloomPass());
-    passes.push_back(new ScreenPass());
+
+    if (renderingOptions.useForwardRendering())
+    {
+        passes.push_back(new Forward());
+    }
+    else
+    {
+        passes.push_back(new Deferred());
+        passes.push_back(new Lighting());
+    }
+
+    if (renderingOptions.useBloom())
+    {
+        passes.push_back(new BloomPass());
+    }
+    else
+    {
+        passes.push_back(new ScreenPass());
+    }
     // passes.push_back(new UIPass());
 
     for (auto& pass : passes)
