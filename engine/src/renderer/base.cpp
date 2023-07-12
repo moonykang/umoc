@@ -33,8 +33,15 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     else
     {
         passes.push_back(new Deferred());
-        passes.push_back(new SSAOPass());
-        passes.push_back(new Lighting());
+
+        if (renderingOptions.useSSAO())
+        {
+            passes.push_back(new SSAOPass());
+        }
+        else
+        {
+            passes.push_back(new Lighting());
+        }
     }
 
     if (renderingOptions.useBloom())
@@ -43,7 +50,7 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     }
     else
     {
-        passes.push_back(new ScreenPass());
+        passes.push_back(new ScreenPass(renderingOptions.getFinalTarget()));
     }
     // passes.push_back(new UIPass());
 

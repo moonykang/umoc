@@ -13,6 +13,10 @@
 
 namespace renderer
 {
+ScreenPass::ScreenPass(rhi::Texture* finalTarget) : finalTarget(finalTarget)
+{
+}
+
 Result ScreenPass::init(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = platformContext->getRHI();
@@ -21,7 +25,16 @@ Result ScreenPass::init(platform::Context* platformContext, scene::SceneInfo* sc
     {
         model::Material* material = new model::Material();
         try(material->init(platformContext));
-        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSceneColor());
+
+        if (finalTarget)
+        {
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, finalTarget);
+        }
+        else
+        {
+            material->updateTexture(model::MaterialFlag::BaseColorTexture,
+                                    sceneInfo->getRenderTargets()->getSceneColor());
+        }
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -62,8 +75,15 @@ Result ScreenPass::render(platform::Context* platformContext, scene::SceneInfo* 
         subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
 
         try(context->addTransition(context->getCurrentSurfaceImage(), rhi::ImageLayout::ColorAttachment));
-        try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
-                                   rhi::ImageLayout::FragmentShaderReadOnly));
+        if (finalTarget)
+        {
+            try(context->addTransition(finalTarget->getImage(), rhi::ImageLayout::FragmentShaderReadOnly));
+        }
+        else
+        {
+            try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
+                                       rhi::ImageLayout::FragmentShaderReadOnly));
+        }
 
         try(context->beginRenderpass(renderpassInfo));
 

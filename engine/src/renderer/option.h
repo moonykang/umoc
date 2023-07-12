@@ -1,5 +1,10 @@
 #pragma once
 
+namespace rhi
+{
+class Texture;
+}
+
 namespace renderer
 {
 enum class SceneRendering
@@ -11,53 +16,33 @@ enum class SceneRendering
 class Option
 {
   public:
-    Option() : sceneRendering(SceneRendering::Forward), ssao(false)
-    {
-    }
+    Option();
 
-    void enableForwardRendering()
-    {
-        sceneRendering = SceneRendering::Forward;
-    }
+    void enableForwardRendering();
 
-    bool useForwardRendering()
-    {
-        return sceneRendering == SceneRendering::Forward;
-    }
+    bool useForwardRendering();
 
-    void enableDeferredRendering()
-    {
-        sceneRendering = SceneRendering::Deferred;
-    }
+    void enableDeferredRendering();
 
-    bool useDeferredRendering()
-    {
-        return sceneRendering == SceneRendering::Deferred;
-    }
+    bool useDeferredRendering();
 
-    void enableSSAO()
-    {
-        ssao = true;
-    }
+    void enableSSAO();
 
-    bool useSSAO()
-    {
-        return ssao;
-    }
+    bool useSSAO();
 
-    void enableBloom()
-    {
-        bloom = true;
-    }
+    void enableBloom();
 
-    bool useBloom()
-    {
-        return bloom;
-    }
+    bool useBloom();
+
+    void setFinalTarget(rhi::Texture* target);
+
+    rhi::Texture* getFinalTarget();
 
   private:
     SceneRendering sceneRendering;
     bool ssao;
     bool bloom;
+
+    rhi::Texture* finalTarget;
 };
 } // namespace renderer

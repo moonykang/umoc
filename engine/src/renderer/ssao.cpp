@@ -105,7 +105,7 @@ Result SSAOPass::init(platform::Context* platformContext, scene::SceneInfo* scen
 {
     rhi::Context* context = platformContext->getRHI();
 
-    // setup
+    // ssao
     {
         SSAOMaterial* material = new SSAOMaterial();
         try(material->init(platformContext));
@@ -128,19 +128,64 @@ Result SSAOPass::init(platform::Context* platformContext, scene::SceneInfo* scen
         instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
     }
 
+    // blur
+    {
+        model::Material* material = new model::Material();
+        try(material->init(platformContext));
+        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSSAO());
+        try(material->update(platformContext));
+
+        rhi::ShaderParameters shaderParameters;
+        shaderParameters.vertexShader = context->allocateVertexShader(
+            "screen/screen.vert.spv",
+            rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+        shaderParameters.pixelShader = context->allocatePixelShader("ssao/blur.frag.spv");
+
+        auto loader =
+            model::predefined::Loader::Builder().setMaterial(material).setShaderParameters(&shaderParameters).build();
+
+        blurObject = loader->load(platformContext, sceneInfo);
+        blurInstance = blurObject->instantiate(platformContext, glm::mat4(1.0f), true);
+    }
+
+    // Lighting
+    {
+        model::Material* material = new model::Material();
+        try(material->init(platformContext));
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferA());
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferB());
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferC());
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getSSAOBlur());
+        try(material->update(platformContext));
+
+        rhi::ShaderParameters shaderParameters;
+        shaderParameters.vertexShader = context->allocateVertexShader(
+            "screen/screen.vert.spv",
+            rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+        shaderParameters.pixelShader = context->allocatePixelShader("ssao/lighting.frag.spv");
+
+        auto loader =
+            model::predefined::Loader::Builder().setMaterial(material).setShaderParameters(&shaderParameters).build();
+
+        lightingObject = loader->load(platformContext, sceneInfo);
+        lightingInstance = lightingObject->instantiate(platformContext, glm::mat4(1.0f), true);
+    }
+
     return Result::Continue;
 }
 
 void SSAOPass::terminate(platform::Context* context)
 {
     TERMINATE(object, context);
+    TERMINATE(blurObject, context);
+    TERMINATE(lightingObject, context);
 }
 
 Result SSAOPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = platformContext->getRHI();
 
-    // setup
+    // ssao
     {
         rhi::RenderPassInfo renderpassInfo;
         renderpassInfo.name = "SSAO Pass";
@@ -183,6 +228,95 @@ Result SSAOPass::render(platform::Context* platformContext, scene::SceneInfo* sc
 
         object->draw(context);
         instance->draw(context);
+
+        try(context->endRenderpass());
+    }
+
+    // blur
+    {
+        rhi::RenderPassInfo renderpassInfo;
+        renderpassInfo.name = "SSAO Blur Pass";
+
+        rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
+            {sceneInfo->getRenderTargets()->getSSAOBlur()->getImage(), rhi::AttachmentLoadOp::Clear,
+             rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
+
+        auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
+        subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
+
+        try(context->addTransition(sceneInfo->getRenderTargets()->getSSAOBlur()->getImage(),
+                                   rhi::ImageLayout::ColorAttachment));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getSSAO()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+
+        try(context->beginRenderpass(renderpassInfo));
+
+        auto material = blurInstance->getMaterial();
+        auto materialDescriptor = material->getDescriptorSet();
+
+        rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+        shaderParameters->materialDescriptor = materialDescriptor;
+
+        rhi::GraphicsPipelineState graphicsPipelineState;
+        graphicsPipelineState.shaderParameters = shaderParameters;
+        graphicsPipelineState.colorBlendState.attachmentCount = 1;
+        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+
+        context->createGfxPipeline(graphicsPipelineState);
+
+        materialDescriptor->bind(context, 0);
+
+        blurObject->draw(context);
+        blurInstance->draw(context);
+
+        try(context->endRenderpass());
+    }
+
+    // SSAO lighting pass
+    {
+        rhi::RenderPassInfo renderpassInfo;
+        renderpassInfo.name = "Deferred lighting pass (SSAO)";
+
+        rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
+            {sceneInfo->getRenderTargets()->getSceneColor()->getImage(), rhi::AttachmentLoadOp::Clear,
+             rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
+
+        auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
+        subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
+
+        try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
+                                   rhi::ImageLayout::ColorAttachment));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getGBufferA()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getGBufferB()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getGBufferC()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getSSAOBlur()->getImage(),
+                                   rhi::ImageLayout::FragmentShaderReadOnly));
+        try(context->beginRenderpass(renderpassInfo));
+
+        auto material = lightingInstance->getMaterial();
+        auto materialDescriptor = material->getDescriptorSet();
+
+        rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+        shaderParameters->globalDescriptor = sceneInfo->getDescriptorSet();
+        shaderParameters->materialDescriptor = materialDescriptor;
+
+        rhi::GraphicsPipelineState graphicsPipelineState;
+        graphicsPipelineState.shaderParameters = shaderParameters;
+        graphicsPipelineState.colorBlendState.attachmentCount = 1;
+        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
+
+        context->createGfxPipeline(graphicsPipelineState);
+
+        sceneInfo->getDescriptorSet()->bind(context, 0);
+        materialDescriptor->bind(context, 1);
+
+        lightingObject->draw(context);
+        lightingInstance->draw(context);
 
         try(context->endRenderpass());
     }

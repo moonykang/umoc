@@ -43,6 +43,7 @@ class RenderTargets
     REGISTER_TEXTURE(gBufferC, getGBufferC);
 
     REGISTER_TEXTURE(ssao, getSSAO);
+    REGISTER_TEXTURE(ssaoBlur, getSSAOBlur);
 
     REGISTER_TEXTURE(bloomSetup, getBloomSetup);
     REGISTER_TEXTURE(bloomHorizontal, getBloomHorizontal);

@@ -23,6 +23,7 @@ Result SSAOScene::load(platform::Context* platformContext)
 
     renderingOptions.enableDeferredRendering();
     renderingOptions.enableSSAO();
+    // renderingOptions.setFinalTarget(renderTargets->getSSAOBlur());
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(

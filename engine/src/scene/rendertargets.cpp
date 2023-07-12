@@ -37,6 +37,8 @@ Result RenderTargets::init(platform::Context* platformContext)
     // SSAO
     ssao = new rhi::Texture("SSAO");
     try(ssao->init(context, rhi::Format::R8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    ssaoBlur = new rhi::Texture("ssaoBlur");
+    try(ssaoBlur->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
 
     // Bloomp
     bloomSetup = new rhi::Texture("BloomSetup");

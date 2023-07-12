@@ -82,6 +82,7 @@ void View::updateViewMatrix()
     ubo.view_proj = projection * view;
     ubo.view_proj_inverse = glm::inverse(ubo.view_proj);
     ubo.prev_view_proj = glm::mat4(1.f);
+    ubo.view = view;
     ubo.proj = projection;
     ubo.view_pos = glm::vec4(position, 1.f);
 

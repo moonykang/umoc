@@ -12,7 +12,7 @@ struct VSInput
 struct VSOutput
 {
 	float4 pos : SV_POSITION;
-    [[vk::location(0)]] float3 viewPos : POSITION0;
+    [[vk::location(0)]] float3 worldPos : POSITION0;
     [[vk::location(1)]] float3 normal : NORMAL0;
     [[vk::location(2)]] float2 uv : TEXCOORD0;
     [[vk::location(3)]] float3 tangent : TEXCOORD1;
@@ -38,13 +38,18 @@ VSOutput main(VSInput input)
 {
 	VSOutput output = (VSOutput)0;
 
-    float4 viewPos = mul(sceneUBO.view, mul(modelUBO.transform, float4(input.pos, 1.0f)));
-    output.viewPos = viewPos.xyz;
-    output.uv = input.uv;
+    // view space
+    float4 worldPos = mul(sceneUBO.view, mul(modelUBO.transform, float4(input.pos, 1.0f)));
+    output.worldPos = worldPos.xyz;
 
-    float3x3 normalMatrix = transpose(inverse((float3x3) mul(sceneUBO.view, modelUBO.transform)));
-    output.normal = mul(normalMatrix, input.normal);
-    output.pos = mul(sceneUBO.proj, viewPos);
+	output.pos = mul(sceneUBO.proj, worldPos);
+
+	output.uv = input.uv;
+
+	// Normal in world space
+	float3x3 normalMatrix = (float3x3)mul(sceneUBO.view, modelUBO.transform);
+	output.normal = mul(normalMatrix, input.normal);
+	output.tangent = mul(normalMatrix, input.tangent);
 
 	return output;
 }

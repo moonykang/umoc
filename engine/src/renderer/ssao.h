@@ -22,5 +22,11 @@ class SSAOPass : public Base
   private:
     model::Object* object;
     model::Instance* instance;
+
+    model::Object* blurObject;
+    model::Instance* blurInstance;
+
+    model::Object* lightingObject;
+    model::Instance* lightingInstance;
 };
 } // namespace renderer
