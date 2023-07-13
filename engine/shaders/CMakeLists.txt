@@ -12,6 +12,7 @@ SET(SUBDIRECTORIES
 	screen
 	skybox
 	ssao
+	ibl
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})

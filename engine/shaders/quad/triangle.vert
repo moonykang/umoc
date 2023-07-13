@@ -11,15 +11,9 @@ struct VSInput
     SceneView sceneUBO;
 }
 
-struct ModelUBO
-{
-    float4x4 transform;
-    float3x3 transform_inverse;
-};
-
 [[vk::binding(0, 1)]] cbuffer ubo
 {
-    ModelUBO modelUBO;
+    Model modelUBO;
 }
 
 

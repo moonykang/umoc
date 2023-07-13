@@ -12,6 +12,10 @@ class Transform
     {
     }
 
+    Transform(glm::mat4 transform) : transform(transform), vPosition(0.f), vRotate(0.f), vScale(1.f), dirty(false)
+    {
+    }
+
     ~Transform()
     {
     }

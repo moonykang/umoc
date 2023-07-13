@@ -60,36 +60,23 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
     subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
 
-    /*
-        try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
-                                   rhi::ImageLayout::ColorAttachment));
-        try(context->addTransition(sceneInfo->getRenderTargets()->getSceneDepth()->getImage(),
-                                   rhi::ImageLayout::DepthStencilAttachment));
-
-        try(context->addTransition(sceneInfo->getRenderTargets()->getIrradianceCube()->getImage(),
-                                   rhi::ImageLayout::FragmentShaderReadOnly));
-        try(context->addTransition(sceneInfo->getRenderTargets()->getBrdfLutTexture()->getImage(),
-                                   rhi::ImageLayout::FragmentShaderReadOnly));
-        try(context->addTransition(sceneInfo->getRenderTargets()->getPreFilterCube()->getImage(),
-                                   rhi::ImageLayout::FragmentShaderReadOnly));
-    */
     try(context->beginRenderpass(renderpassInfo));
 
     float specular = 1.0f;
-    pbr::PushBlock pushblocks[25];
-    for (int i = 0; i < 5; i++)
+    pbr::PushBlock pushblocks[49];
+    for (int i = 0; i < 7; i++)
     {
-        for (int j = 0; j < 5; j++)
+        for (int j = 0; j < 7; j++)
         {
-            pbr::PushBlock& pushblock = pushblocks[i * 5 + j];
-            pushblock.roughness = i * 0.2f + 0.1f;
-            pushblock.metallic = j * 0.2f + 0.1f;
+            pbr::PushBlock& pushblock = pushblocks[i * 7 + j];
+            pushblock.roughness = i * 0.13f + 0.1f;
+            pushblock.metallic = j * 0.13f + 0.1f;
             pushblock.specular = specular;
             pushblock.r = 0.8f;
             pushblock.b = 0.8f;
             pushblock.g = 0.8f;
         }
-        specular *= 2.0f;
+        specular *= 1.5f;
     }
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
@@ -120,7 +107,8 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
 
             context->createGfxPipeline(graphicsPipelineState);
             context->pushConstant(rhi::ShaderStage::Pixel, sizeof(pbr::PushBlock), &pushblocks[idx]);
-            idx = (idx + 1) % 25;
+
+            idx = idx >= 48 ? 48 : idx + 1;
 
             sceneInfo->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);

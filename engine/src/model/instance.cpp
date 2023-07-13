@@ -12,8 +12,8 @@ namespace model
 Instance::Instance(Object* object, Material* material, uint32_t firstIndex, uint32_t indexCount, uint32_t firstVertex,
                    uint32_t vertexCount, glm::mat4 transform)
     : object(object), material(material), firstIndex(firstIndex), indexCount(indexCount), firstVertex(firstVertex),
-      vertexCount(vertexCount), ubo({transform, glm::inverse(glm::mat3(transform))}), uniformBuffer(nullptr),
-      descriptorSet(nullptr), initialized(false)
+      vertexCount(vertexCount), transform(transform), uniformBuffer(nullptr), descriptorSet(nullptr),
+      initialized(false), dirty(false)
 {
 }
 
@@ -34,6 +34,8 @@ Result Instance::init(platform::Context* platformContext, bool initDescriptor)
             rhi::DescriptorInfoList descriptorInfoList;
             descriptorInfoList.push_back({0, rhi::ShaderStage::Vertex, rhi::DescriptorType::Uniform_Buffer_Dynamic});
             descriptorSet->init(context, descriptorInfoList);
+
+            dirty = true;
         }
 
         initialized = true;
@@ -58,10 +60,14 @@ Result Instance::updateUniformBuffer(platform::Context* platformContext)
 {
     // std::lock_guard<std::mutex> lock(mutex);
 
-    // if (dirty)
+    if (dirty)
     {
         std::vector<uint32_t> offsets;
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
+
+        ubo.transform = transform.get();
+        ubo.normalMatrix = glm::transpose(glm::inverse(glm::mat3(transform.get())));
+
         try(uniformBuffer->update(context, sizeof(UniformBufferObject), &ubo));
         offsets.push_back(uniformBuffer->getOffset());
 

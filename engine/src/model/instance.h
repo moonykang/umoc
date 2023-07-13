@@ -61,7 +61,7 @@ class Instance
     struct UniformBufferObject
     {
         glm::mat4 transform;
-        glm::mat3 transform_inverse;
+        glm::mat3 normalMatrix;
     } ubo;
 
     util::Transform transform;
@@ -71,5 +71,6 @@ class Instance
 
     std::mutex mutex;
     bool initialized;
+    bool dirty;
 };
 } // namespace model

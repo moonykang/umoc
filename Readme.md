@@ -15,7 +15,7 @@ It supports Windows & Mac at this time.
 
 | PBR | IBL | Ray tracing |
 |---|---|---|
-| ![pbr](captures/pbr.png) | ![todo](captures/todo.png) | ![todo](captures/todo.png) |
+| ![pbr](captures/pbr.png) | ![ibl](captures/ibl.png) | ![todo](captures/todo.png) |
 
 ## Git clone
 

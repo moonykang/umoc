@@ -27,6 +27,12 @@ struct SceneView
 	float farPlane;
 };
 
+struct Model
+{
+    float4x4 transform;
+    float3x3 normalMatrix;
+};
+
 float4x4 inverse(float4x4 m) {
     float n11 = m[0][0], n12 = m[1][0], n13 = m[2][0], n14 = m[3][0];
     float n21 = m[0][1], n22 = m[1][1], n23 = m[2][1], n24 = m[3][1];
@@ -85,4 +91,24 @@ float3x3 inverse(float3x3 m) {
     ret[2][2] = (m[0][0] * m[1][1] - m[1][0] * m[0][1]) * inv;
 
     return ret;
+}
+
+float mix(float x, float y, float a)
+{
+    return x * (1-a) + y * a;
+}  
+
+float2 mix(float2 x, float2 y, float a)
+{
+    return x * (1-a) + y * a;
+} 
+
+float3 mix(float3 x, float3 y, float a)
+{
+    return x * (1-a) + y * a;
+}
+
+float4 mix(float4 x, float4 y, float a)
+{
+    return x * (1-a) + y * a;
 }

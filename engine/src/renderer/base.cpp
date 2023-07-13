@@ -22,9 +22,13 @@ namespace renderer
 Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneInfo)
 {
     auto renderingOptions = sceneInfo->getRenderingOptions();
-    // passes.push_back(new BrdfLutPass());
-    // passes.push_back(new IrradiancePass());
-    // passes.push_back(new PreFilterPass());
+
+    if (renderingOptions.useEnvironmap())
+    {
+        passes.push_back(new BrdfLutPass());
+        passes.push_back(new IrradiancePass());
+        passes.push_back(new PreFilterPass());
+    }
 
     if (renderingOptions.useForwardRendering())
     {

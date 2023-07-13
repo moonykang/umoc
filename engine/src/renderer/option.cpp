@@ -46,6 +46,16 @@ bool Option::useBloom()
     return bloom;
 }
 
+void Option::enableEnvironmap()
+{
+    environmap = true;
+}
+
+bool Option::useEnvironmap()
+{
+    return environmap;
+}
+
 void Option::setFinalTarget(rhi::Texture* target)
 {
     finalTarget = target;

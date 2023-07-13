@@ -34,6 +34,10 @@ class Option
 
     bool useBloom();
 
+    void enableEnvironmap();
+
+    bool useEnvironmap();
+
     void setFinalTarget(rhi::Texture* target);
 
     rhi::Texture* getFinalTarget();
@@ -42,6 +46,7 @@ class Option
     SceneRendering sceneRendering;
     bool ssao;
     bool bloom;
+    bool environmap;
 
     rhi::Texture* finalTarget;
 };

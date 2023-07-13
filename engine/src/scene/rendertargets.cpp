@@ -59,15 +59,17 @@ Result RenderTargets::init(platform::Context* platformContext)
     blackDummy = new rhi::Texture("blackDummy");
     try(blackDummy->init(context, rhi::Format::R8G8B8A8_UNORM, {1, 1, 1},
                          rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sizeof(uint32_t), &black));
-    /*
+
+    // BRDF
+    {
         rhi::Extent3D brdfExtent = {512, 512, 1};
         brdfLutTexture = new rhi::Texture("BRDF LUT Texture");
         try(brdfLutTexture->init(context, rhi::Format::R16G16_FLOAT, brdfExtent, 1, 1,
-       rhi::ImageUsage::COLOR_ATTACHMENT));
+                                 rhi::ImageUsage::COLOR_ATTACHMENT));
 
         environmentCube = new rhi::Texture("Environment Cube Texture");
         try(environmentCube->init(context, "gcanyon_cube.ktx", platform::ImageLoader::KTX));
-
+    }
 
     // Irradiance
     {
@@ -92,7 +94,7 @@ Result RenderTargets::init(platform::Context* platformContext)
         try(preFilterCube->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels, layers,
                                 rhi::ImageUsage::TRANSFER_DST));
     }
-        */
+
     return Result::Continue;
 }
 

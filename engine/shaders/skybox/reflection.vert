@@ -18,22 +18,16 @@ struct VSOutput
     SceneView sceneUBO;
 }
 
-struct ModelUBO
-{
-    float4x4 transform;
-    float3x3 transform_inverse;
-};
-
 [[vk::binding(0, 1)]] cbuffer ubo
 {
-    ModelUBO modelUBO;
+    Model modelUBO;
 }
 
 VSOutput main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
 
-    output.normal = mul(modelUBO.transform_inverse, input.normal);
+    output.normal = mul(modelUBO.normalMatrix, input.normal);
     float3 worldPos = mul(modelUBO.transform, float4(input.pos, 1.0f)).xyz;
 
     output.pos = mul(sceneUBO.view_proj, float4(worldPos, 1.0f));
