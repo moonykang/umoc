@@ -20,7 +20,7 @@ It supports Windows & Mac at this time.
 ## Git clone
 
 ```
-git clone --recursive https://github.com/Umocmin/Umoc.git
+git clone --recursive https://github.com/moonykang/umoc.git
 git submodule init
 git submodule update
 ```
