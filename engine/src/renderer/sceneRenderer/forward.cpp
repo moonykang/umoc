@@ -106,7 +106,6 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
 
             context->createGfxPipeline(graphicsPipelineState);
             context->pushConstant(rhi::ShaderStage::Pixel, sizeof(pbr::PushBlock), &pushblocks[idx]);
-            LOGD("%f %f %f", pushblocks[idx].metallic, pushblocks[idx].roughness, pushblocks[idx].specular);
 
             idx = idx >= 48 ? 48 : idx + 1;
 

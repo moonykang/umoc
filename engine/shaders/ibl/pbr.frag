@@ -100,7 +100,7 @@ float3 prefilteredReflection(float3 R, float roughness)
 	return lerp(a, b, lod - lodf);
 }
 
-float3 specularContribution(float3 L, float3 V, float3 N, float3 F0, float metallic, float roughness)
+float3 specularContribution(float3 L, float3 V, float3 N, float3 F0, float3 lightColor, float metallic, float roughness)
 {
 	// Precalculate vectors and dot products
 	float3 H = normalize (V + L);
@@ -111,7 +111,7 @@ float3 specularContribution(float3 L, float3 V, float3 N, float3 F0, float metal
 	float3 albedo = materialcolor();
 
 	// Light color fixed
-	float3 lightColor = float3(1.0, 1.0, 1.0);
+	//float3 lightColor = float3(1.0, 1.0, 1.0);
 
 	float3 color = float3(0.0, 0.0, 0.0);
 
@@ -124,7 +124,7 @@ float3 specularContribution(float3 L, float3 V, float3 N, float3 F0, float metal
 		float3 F = F_Schlick(dotNV, F0);
 		float3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);
 		float3 kD = (float3(1.0, 1.0, 1.0) - F) * (1.0 - metallic);
-		color += (kD * albedo / PI + spec) * dotNL;
+		color += (kD * albedo / PI + spec) * dotNL * lightColor;
 	}
 
 	return color;
@@ -146,7 +146,7 @@ float4 main(VSOutput input) : SV_TARGET
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	for(int i = 0; i < 4; i++) {
 		float3 L = normalize(sceneLight.lights[i].pos.xyz - input.worldPos);
-		Lo += specularContribution(L, V, N, F0, metallic, roughness);
+		Lo += specularContribution(L, V, N, F0, sceneLight.lights[i].color.xyz, metallic, roughness);
 	}
 
 	float2 brdf = textureBRDFLUT.Sample(samplerBRDFLUT, float2(max(dot(N, V), 0.0), roughness)).rg;

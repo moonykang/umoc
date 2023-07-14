@@ -102,7 +102,7 @@ Result IBLScene::load(platform::Context* platformContext)
         }
     }
 
-    view->setView(glm::vec3(1.950f, 0.1f, -3.7f), glm::vec3(-1.10f, 25.0f, 0.0f));
+    view->setView(glm::vec3(1.56, 0.08f, -2.88f), glm::vec3(-1.10f, 25.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 512.f);
     view->updateViewMatrix();
 
@@ -124,23 +124,23 @@ Result IBLScene::udpate(platform::Context* context)
     // White
     light->setLightPosition(
         0, glm::vec4(sin(glm::radians(360.0f * timer)) * 5.0f, cos(glm::radians(360.0f * timer)) * 5.0f, -10.0f, 0.0f));
-    light->setLightColor(0, glm::vec3(1.5f));
+    light->setLightColor(0, glm::vec3(1.0f));
     light->setLightRadius(0, 15.0f);
 
     // Red
     light->setLightPosition(1, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
                                          0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
-    light->setLightColor(1, glm::vec3(1.0f, 0.0f, 0.0f));
+    light->setLightColor(1, glm::vec3(1.0f, 0.6f, 0.6f));
     light->setLightRadius(1, 30.0f);
     // Blue
     light->setLightPosition(2, glm::vec4(4.0f + sin(glm::radians(360.0f * timer)) * 2.0f, 2.0f,
                                          0.0f + cos(glm::radians(360.0f * timer)) * 2.0f, 0.0f));
-    light->setLightColor(2, glm::vec3(0.0f, 0.0f, 2.5f));
+    light->setLightColor(2, glm::vec3(0.7f, 0.7f, 1.0f));
     light->setLightRadius(2, 25.0f);
     // Yellow
     light->setLightPosition(3, glm::vec4(0.0f + sin(glm::radians(360.0f * timer + 90.0f)) * 5.0f, 20.0f,
                                          0.0f - cos(glm::radians(360.0f * timer + 45.0f)) * 5.0f, 0.0f));
-    light->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.0f));
+    light->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.6f));
     light->setLightRadius(3, 15.0f);
     // Green
     light->setLightPosition(4, glm::vec4(0.0f + sin(glm::radians(-360.0f * timer + 135.0f)) * 10.0f, 2.5f,
