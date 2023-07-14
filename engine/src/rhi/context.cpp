@@ -45,6 +45,12 @@ Result Context::initRHI(platform::Window* window)
         uniformScratchBuffer->init(this);
     }
 
+    if (storageScratchBuffer == nullptr)
+    {
+        storageScratchBuffer = new StorageScratchBuffer();
+        storageScratchBuffer->init(this);
+    }
+
     return Result::Continue;
 }
 
@@ -61,6 +67,7 @@ void Context::terminateRHI()
     TERMINATE(vertexScratchBuffer, this);
     TERMINATE(indexScratchBuffer, this);
     TERMINATE(uniformScratchBuffer, this);
+    TERMINATE(storageScratchBuffer, this);
 
     terminateRHIImplementation();
 }

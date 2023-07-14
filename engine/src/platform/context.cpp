@@ -29,7 +29,7 @@ void Context::terminate()
 Result Context::loop()
 {
     ASSERT(window);
-
+    timer.tick();
     return window->valid() ? Result::Continue : Result::Fail;
 }
 
@@ -47,5 +47,10 @@ Asset* Context::getAssetManager()
 Window* Context::getWindow()
 {
     return window;
+}
+
+Timer& Context::getTimer()
+{
+    return timer;
 }
 } // namespace platform

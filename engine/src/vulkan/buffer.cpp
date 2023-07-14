@@ -209,6 +209,11 @@ Result UniformBuffer::update(rhi::Context* rhiContext, size_t offset, size_t siz
     return Result::Continue;
 }
 
+StorageBuffer::StorageBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
+    : Buffer(bufferUsage, memoryProperty, size)
+{
+}
+
 void VertexBuffer::updateAlignmentSize(Context* context)
 {
     alignmentSize = 4;
@@ -222,5 +227,10 @@ void IndexBuffer::updateAlignmentSize(Context* context)
 void UniformBuffer::updateAlignmentSize(Context* context)
 {
     alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minUniformBufferOffsetAlignment;
+}
+
+void StorageBuffer::updateAlignmentSize(Context* context)
+{
+    alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minStorageBufferOffsetAlignment;
 }
 } // namespace vk

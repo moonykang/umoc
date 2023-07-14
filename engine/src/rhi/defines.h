@@ -334,8 +334,8 @@ typedef uint32_t VertexChannelFlags;
 class Vertex
 {
   public:
-    glm::vec3 position;
-    glm::vec3 normal;
+    glm::vec3 position; // 0, 12
+    glm::vec3 normal;   // 12, 12
     glm::vec2 uv;
     glm::vec4 color;
     glm::vec4 joint0;

@@ -232,7 +232,7 @@ Result DescriptorPool::init(Context* context)
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes;
     {
         auto& descriptorPoolSize = descriptorPoolSizes.emplace_back();
-        descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
         descriptorPoolSize.descriptorCount = 1000;
     }
 

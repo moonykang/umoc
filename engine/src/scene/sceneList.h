@@ -3,7 +3,6 @@
 #include "sceneList/bloom.h"
 #include "sceneList/deferred.h"
 #include "sceneList/ibl.h"
-#include "sceneList/ibpbr.h"
 #include "sceneList/normal.h"
 #include "sceneList/pbr.h"
 #include "sceneList/quad.h"

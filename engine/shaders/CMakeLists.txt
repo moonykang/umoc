@@ -13,6 +13,7 @@ SET(SUBDIRECTORIES
 	skybox
 	ssao
 	ibl
+	particle
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})
@@ -96,6 +97,8 @@ FOREACH(shader ${HLSL_SHADERS})
 		SET(SHADER_PROFILE "-T vs_6_1")
 	ELSEIF (${file_last_ext} STREQUAL ".frag")
 		SET(SHADER_PROFILE "-T ps_6_1")
+	ELSEIF (${file_last_ext} STREQUAL ".comp")
+			SET(SHADER_PROFILE "-T cs_6_1")
 	ENDIF ()
 
 	ADD_CUSTOM_COMMAND(

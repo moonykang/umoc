@@ -1,19 +1,21 @@
 #include "base.h"
-#include "bloom.h"
-#include "brdfLutPass.h"
-#include "deferred.h"
-#include "forward.h"
-#include "irradiancePass.h"
-#include "lighting.h"
 #include "platform/context.h"
-#include "preFilterPass.h"
 #include "rhi/context.h"
 #include "rhi/image.h"
 #include "rhi/rendertarget.h"
 #include "scene/scene.h"
-#include "screen.h"
-#include "ssao.h"
 #include "ui.h"
+
+#include "compute/particle.h"
+#include "environment/brdfLutPass.h"
+#include "environment/irradiancePass.h"
+#include "environment/preFilterPass.h"
+#include "postprocess/bloom.h"
+#include "postprocess/screen.h"
+#include "sceneRenderer/deferred.h"
+#include "sceneRenderer/forward.h"
+#include "sceneRenderer/lighting.h"
+#include "sceneRenderer/ssao.h"
 
 #include <fstream>
 
@@ -30,6 +32,7 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
         passes.push_back(new PreFilterPass());
     }
 
+    // passes.push_back(new ParticlePass());
     if (renderingOptions.useForwardRendering())
     {
         passes.push_back(new Forward());

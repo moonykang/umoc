@@ -54,6 +54,9 @@ Object* createObject(PredefinedModel predefinedType)
     {
     case PredefinedModel::Quad:
         return new Quad();
+    case PredefinedModel::Cube:
+    case PredefinedModel::Sphere:
+        return nullptr; // TODO
     }
 
     return nullptr; // need dummy

@@ -8,6 +8,7 @@ const size_t MAX_SUB_BLOCK_SIZE = 4 * 1024 * 1024;
 const size_t VERTEX_SCRATCH_BUFFER_SIZE = 512 * 1024 * 1024;
 const size_t INDEX_SCRATCH_BUFFER_SIZE = 512 * 1024 * 1024;
 const size_t UNIFORM_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
+const size_t STORAGE_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
 
 VertexBuffer* Context::allocateVertexBuffer(size_t size, void* data)
 {
@@ -25,6 +26,12 @@ UniformBuffer* Context::allocateUniformBuffer(size_t size, void* data)
 {
     ASSERT(uniformScratchBuffer);
     return reinterpret_cast<rhi::UniformBuffer*>(uniformScratchBuffer->subAllocate(this, size, data));
+}
+
+StorageBuffer* Context::allocateStorageBuffer(size_t size, void* data)
+{
+    ASSERT(storageScratchBuffer);
+    return reinterpret_cast<rhi::StorageBuffer*>(storageScratchBuffer->subAllocate(this, size, data));
 }
 
 SubAllocatedBuffer::SubAllocatedBuffer(ScratchBuffer* buffer, size_t offset, size_t size)
@@ -70,6 +77,16 @@ UniformBuffer::UniformBuffer(ScratchBuffer* buffer, size_t offset, size_t size)
 BufferDescriptor* UniformBuffer::getBufferDescriptor()
 {
     return new BufferDescriptor(rhi::DescriptorType::Uniform_Buffer_Dynamic, buffer->getBuffer(), offset, size);
+}
+
+StorageBuffer::StorageBuffer(ScratchBuffer* buffer, size_t offset, size_t size)
+    : SubAllocatedBuffer(buffer, offset, size)
+{
+}
+
+BufferDescriptor* StorageBuffer::getBufferDescriptor()
+{
+    return new BufferDescriptor(rhi::DescriptorType::Storage_Buffer_Dynamic, buffer->getBuffer(), offset, size);
 }
 
 Buffer::Buffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size)
@@ -185,6 +202,35 @@ Result UniformScratchBuffer::init(Context* context)
     buffer = context->allocateBuffer(BufferUsage::UNIFORM_BUFFER | BufferUsage::TRANSFER_DST,
                                      MemoryProperty::HOST_COHERENT | MemoryProperty::HOST_VISIBLE,
                                      UNIFORM_SCRATCH_BUFFER_SIZE);
+
+    try(buffer->init(context));
+    return Result::Continue;
+}
+
+SubAllocatedBuffer* StorageScratchBuffer::subAllocate(Context* context, size_t size, void* data)
+{
+    SubAllocatedBuffer* subAllocatedBuffer = new UniformBuffer(this, offset, size);
+    subAllocatedBuffers.push_back(subAllocatedBuffer);
+
+    // TODO
+    size_t alignmentSize = buffer->getAlignmentSize();
+    size_t aligned_size = ((size + alignmentSize - 1) / alignmentSize) * alignmentSize;
+
+    if (buffer->update(context, offset, size, data) != Result::Continue)
+    {
+        ASSERT(true);
+        return nullptr;
+    }
+    offset += aligned_size;
+
+    return subAllocatedBuffer;
+}
+
+Result StorageScratchBuffer::init(Context* context)
+{
+    buffer =
+        context->allocateBuffer(BufferUsage::VERTEX_BUFFER | BufferUsage::STORAGE_BUFFER | BufferUsage::TRANSFER_DST,
+                                MemoryProperty::DEVICE_LOCAL, STORAGE_SCRATCH_BUFFER_SIZE);
 
     try(buffer->init(context));
     return Result::Continue;

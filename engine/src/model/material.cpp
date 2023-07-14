@@ -47,9 +47,16 @@ Result Material::update(platform::Context* platformContext)
         offsets.push_back(uniformBuffer->getOffset());
         auto bufferDescriptor = uniformBuffer->getBufferDescriptor();
 
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic});
+        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel | rhi::ShaderStage::Compute, rhi::DescriptorType::Uniform_Buffer_Dynamic});
         descriptorList.push_back(
             {{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic}, bufferDescriptor});
+    }
+
+    for (auto storageBuffer : externalStorageBuffers)
+    {
+        descriptorInfoList.push_back({binding, rhi::ShaderStage::Compute, rhi::DescriptorType::Storage_Buffer_Dynamic});
+        descriptorList.push_back({{binding++, rhi::ShaderStage::Compute, rhi::DescriptorType::Storage_Buffer_Dynamic},
+                                  storageBuffer->getBufferDescriptor()});
     }
 
     if (baseColorTexture)
@@ -150,6 +157,11 @@ void Material::updateTexture(MaterialFlag materialFlag, rhi::Texture* texture)
         externalTextures.push_back(texture);
         break;
     }
+}
+
+void Material::updateStorageBuffer(rhi::StorageBuffer* storageBuffer)
+{
+    externalStorageBuffers.push_back(storageBuffer);
 }
 
 rhi::Texture* Material::getTexture(MaterialFlag materialFlag)

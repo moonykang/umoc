@@ -68,22 +68,13 @@ class ShaderBase : public Resource
 class VertexShaderBase : public ShaderBase
 {
   public:
-    VertexShaderBase(ResourceID id, std::string name, VertexChannelFlags vertexChannelFlags)
-        : ShaderBase(id, name, ShaderStage::Vertex), vertexChannelFlags(vertexChannelFlags)
+    VertexShaderBase(ResourceID id, std::string name) : ShaderBase(id, name, ShaderStage::Vertex)
     {
     }
 
     virtual Result initRHI(Context* context) = 0;
 
     virtual void terminateRHI(Context* context) = 0;
-
-    VertexChannelFlags getVertexChannelFlags()
-    {
-        return vertexChannelFlags;
-    }
-
-  protected:
-    VertexChannelFlags vertexChannelFlags;
 };
 
 class PixelShaderBase : public ShaderBase
@@ -98,12 +89,24 @@ class PixelShaderBase : public ShaderBase
     virtual void terminateRHI(Context* context) = 0;
 };
 
+class ComputeShaderBase : public ShaderBase
+{
+  public:
+    ComputeShaderBase(ResourceID id, std::string name) : ShaderBase(id, name, ShaderStage::Compute)
+    {
+    }
+
+    virtual Result initRHI(Context* context) = 0;
+
+    virtual void terminateRHI(Context* context) = 0;
+};
+
 class ShaderParameters
 {
   public:
     ShaderParameters()
-        : vertexShader(nullptr), pixelShader(nullptr), globalDescriptor(nullptr), localDescriptor(nullptr),
-          materialDescriptor(nullptr)
+        : vertexShader(nullptr), pixelShader(nullptr), computeShader(nullptr), globalDescriptor(nullptr),
+          localDescriptor(nullptr), materialDescriptor(nullptr)
     {
     }
 
@@ -111,6 +114,7 @@ class ShaderParameters
     {
         this->vertexShader = other.vertexShader;
         this->pixelShader = other.pixelShader;
+        this->computeShader = other.computeShader;
         this->globalDescriptor = other.globalDescriptor;
         this->localDescriptor = other.localDescriptor;
         this->materialDescriptor = other.materialDescriptor;
@@ -142,6 +146,7 @@ class ShaderParameters
   public:
     VertexShaderBase* vertexShader;
     PixelShaderBase* pixelShader;
+    ComputeShaderBase* computeShader;
 
     rhi::DescriptorSet* globalDescriptor;
     rhi::DescriptorSet* localDescriptor;

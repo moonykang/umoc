@@ -60,10 +60,14 @@ class Context : public rhi::Context
 
     Result createGfxPipeline(rhi::GraphicsPipelineState gfxPipelineState) override final;
 
+    Result createComputePipeline(rhi::ComputePipelineState pipelineState) override final;
+
     void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) override;
 
     void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
                      uint32_t firstInstance) override;
+
+    void dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) override;
 
     Result addTransition(rhi::Image* image, rhi::ImageLayout layout) override;
 
@@ -87,7 +91,12 @@ class Context : public rhi::Context
     rhi::VertexShaderBase* createVertexShader(rhi::ResourceID id, std::string name,
                                               rhi::VertexChannelFlags vertexChannelFlags) override final;
 
+    rhi::VertexShaderBase* createVertexShader(rhi::ResourceID id, std::string name, std::vector<uint32_t>& components,
+                                              size_t size) override final;
+
     rhi::PixelShaderBase* createPixelShader(rhi::ResourceID id, std::string name) override final;
+
+    rhi::ComputeShaderBase* createComputeShader(rhi::ResourceID id, std::string name) override final;
 
   public:
     Instance* getInstance() const;

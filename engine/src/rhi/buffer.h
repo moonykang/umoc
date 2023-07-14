@@ -102,6 +102,14 @@ class UniformBuffer : public SubAllocatedBuffer
     BufferDescriptor* getBufferDescriptor();
 };
 
+class StorageBuffer : public SubAllocatedBuffer
+{
+  public:
+    StorageBuffer(ScratchBuffer* buffer, size_t offset, size_t size);
+
+    BufferDescriptor* getBufferDescriptor();
+};
+
 class Buffer
 {
   public:
@@ -182,6 +190,14 @@ class IndexScratchBuffer : public ScratchBuffer
 };
 
 class UniformScratchBuffer : public ScratchBuffer
+{
+  public:
+    Result init(Context* context) override;
+
+    SubAllocatedBuffer* subAllocate(Context* context, size_t size, void* data) override;
+};
+
+class StorageScratchBuffer : public ScratchBuffer
 {
   public:
     Result init(Context* context) override;

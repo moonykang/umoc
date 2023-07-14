@@ -70,7 +70,7 @@ class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
 
     VkImageSubresourceRange getWholeImageSubresourceRange();
 
-    size_t getSize(rhi::ImageSubResource subResource);
+    size_t getSize(rhi::ImageSubResource subResource) override;
 
   private:
     Result initImage(Context* context);

@@ -68,7 +68,7 @@ Result RenderTargets::init(platform::Context* platformContext)
                                  rhi::ImageUsage::COLOR_ATTACHMENT));
 
         environmentCube = new rhi::Texture("Environment Cube Texture");
-        try(environmentCube->init(context, "gcanyon_cube.ktx", platform::ImageLoader::KTX));
+        try(environmentCube->init(context, "uffizi_cube.ktx", platform::ImageLoader::KTX));
     }
 
     // Irradiance

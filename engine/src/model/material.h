@@ -13,6 +13,7 @@ class Texture;
 class UniformBuffer;
 class DescriptorSet;
 class ShaderParameters;
+class StorageBuffer;
 } // namespace rhi
 
 namespace model
@@ -32,6 +33,8 @@ class Material
     void terminate(platform::Context* context);
 
     void updateTexture(MaterialFlag materialFlag, rhi::Texture* texture);
+
+    void updateStorageBuffer(rhi::StorageBuffer* storageBuffer);
 
     rhi::Texture* getTexture(MaterialFlag materialFlag);
 
@@ -53,6 +56,7 @@ class Material
     std::vector<rhi::Texture*> externalTextures;
 
     rhi::UniformBuffer* uniformBuffer;
+    std::vector<rhi::StorageBuffer*> externalStorageBuffers;
     rhi::DescriptorSet* descriptorSet;
 
     rhi::ShaderParameters* shaderParameters;

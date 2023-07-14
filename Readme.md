@@ -13,9 +13,13 @@ It supports Windows & Mac at this time.
 |---|---|---|
 | ![bloom](captures/bloom.png) | ![deferred](captures/deferred.png) | ![ssao](captures/ssao.png) |
 
-| PBR | IBL | Ray tracing |
+| PBR | IBL | Compute particles |
 |---|---|---|
 | ![pbr](captures/pbr.png) | ![ibl](captures/ibl.png) | ![todo](captures/todo.png) |
+
+| Compute cloth | Ray marching | Ray tracing |
+|---|---|---|
+| ![pbr](captures/todo.png) | ![ibl](captures/todo.png) | ![todo](captures/todo.png) |
 
 ## Git clone
 

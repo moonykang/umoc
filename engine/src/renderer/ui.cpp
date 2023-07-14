@@ -152,9 +152,9 @@ Result UIPass::updateBuffers(platform::Context* context)
     VkDeviceSize vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
     VkDeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
 
-    LOGD("indexBufferSize %zu", indexBufferSize);
-    LOGD("vertexBufferSize %zu", vertexBufferSize);
-    LOGD("imDrawData->CmdListsCount %zu", imDrawData->CmdListsCount);
+    //LOGD("indexBufferSize %zu", indexBufferSize);
+    //LOGD("vertexBufferSize %zu", vertexBufferSize);
+    //LOGD("imDrawData->CmdListsCount %zu", imDrawData->CmdListsCount);
     if ((vertexBufferSize == 0) || (indexBufferSize == 0))
     {
         Result::Continue;

@@ -34,15 +34,36 @@ class VertexShader : public rhi::VertexShaderBase, public Shader
   public:
     VertexShader(rhi::ResourceID id, std::string name, rhi::VertexChannelFlags vertexChannelFlags);
 
+    VertexShader(rhi::ResourceID id, std::string name, std::vector<uint32_t>& components, size_t size);
+
     Result initRHI(rhi::Context* context) override;
 
     void terminateRHI(rhi::Context* context) override;
+
+    void generateInputAttributeDescriptions(rhi::VertexChannelFlags vertexChannelFlags);
+
+    void generateInputAttributeDescriptions(std::vector<uint32_t>& components, uint32_t size);
+
+    std::vector<VkVertexInputAttributeDescription>& getVertexInputAttributes();
+
+  private:
+    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
 };
 
 class FragmentShader : public rhi::PixelShaderBase, public Shader
 {
   public:
     FragmentShader(rhi::ResourceID id, std::string name);
+
+    Result initRHI(rhi::Context* context) override;
+
+    void terminateRHI(rhi::Context* context) override;
+};
+
+class ComputeShader : public rhi::ComputeShaderBase, public Shader
+{
+  public:
+    ComputeShader(rhi::ResourceID id, std::string name);
 
     Result initRHI(rhi::Context* context) override;
 
@@ -75,6 +96,9 @@ class Pipeline : public WrappedObject<Pipeline, VkPipeline>
 
     VkResult createGraphics(VkDevice device, const VkGraphicsPipelineCreateInfo& createInfo,
                             const VkPipelineCache& pipelineCache);
+
+    VkResult createCompute(VkDevice device, const VkComputePipelineCreateInfo& createInfo,
+                           const VkPipelineCache& pipelineCache);
 
     PipelineLayout* getLayout()
     {
@@ -112,8 +136,12 @@ class PipelineMap
 
     Pipeline* getPipeline(Context* context, rhi::GraphicsPipelineState& gfxPipelineState);
 
+    Pipeline* getPipeline(Context* context, rhi::ComputePipelineState& pipelineState);
+
   private:
     std::unordered_map<size_t, Pipeline*> pipelineMap;
+
+    std::unordered_map<size_t, Pipeline*> computePipelineMap;
     PipelineCache* pipelineCache;
 };
 } // namespace vk

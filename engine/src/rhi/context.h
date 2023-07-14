@@ -11,11 +11,14 @@ class Image;
 class VertexBuffer;
 class IndexBuffer;
 class UniformBuffer;
+class StorageBuffer;
 class VertexScratchBuffer;
 class IndexScratchBuffer;
 class UniformScratchBuffer;
+class StorageScratchBuffer;
 class VertexShaderBase;
 class PixelShaderBase;
+class ComputeShaderBase;
 
 class Buffer;
 class DescriptorSetLayout;
@@ -53,10 +56,14 @@ class Context : public platform::Context
 
     virtual Result createGfxPipeline(GraphicsPipelineState gfxPipelineState) = 0;
 
+    virtual Result createComputePipeline(ComputePipelineState pipelineState) = 0;
+
     virtual void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) = 0;
 
     virtual void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset,
                              uint32_t firstInstance) = 0;
+
+    virtual void dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ) = 0;
 
     virtual Result addTransition(Image* image, ImageLayout layout) = 0;
 
@@ -76,9 +83,13 @@ class Context : public platform::Context
 
     UniformBuffer* allocateUniformBuffer(size_t size, void* data);
 
+    StorageBuffer* allocateStorageBuffer(size_t size, void* data);
+
     VertexShaderBase* allocateVertexShader(std::string name, VertexChannelFlags vertexChannelFlags);
 
     PixelShaderBase* allocatePixelShader(std::string name);
+
+    ComputeShaderBase* allocateComputeShader(std::string name);
     // factory
   public:
     virtual Buffer* allocateBuffer(BufferUsageFlags bufferUsage, MemoryPropertyFlags memoryProperty, size_t size) = 0;
@@ -90,12 +101,18 @@ class Context : public platform::Context
     virtual VertexShaderBase* createVertexShader(ResourceID id, std::string name,
                                                  VertexChannelFlags vertexChannelFlags) = 0;
 
+    virtual VertexShaderBase* createVertexShader(ResourceID id, std::string name, std::vector<uint32_t>& components,
+                                                 size_t size) = 0;
+
     virtual PixelShaderBase* createPixelShader(ResourceID id, std::string name) = 0;
+
+    virtual ComputeShaderBase* createComputeShader(ResourceID id, std::string name) = 0;
 
   private:
     VertexScratchBuffer* vertexScratchBuffer;
     IndexScratchBuffer* indexScratchBuffer;
     UniformScratchBuffer* uniformScratchBuffer;
+    StorageScratchBuffer* storageScratchBuffer;
     std::unordered_map<ResourceID, ShaderBase*> shaderMap;
 };
 } // namespace rhi

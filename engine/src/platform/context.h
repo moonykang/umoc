@@ -1,6 +1,7 @@
 #pragma once
 
 #include "asset.h"
+#include "timer.h"
 #include "window.h"
 
 namespace rhi
@@ -33,8 +34,11 @@ class Context
 
     Window* getWindow();
 
+    Timer& getTimer();
+
   protected:
     Window* window;
     Asset* asset;
+    Timer timer;
 };
 } // namespace platform

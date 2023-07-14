@@ -18,14 +18,32 @@ rhi::VertexShaderBase* Context::createVertexShader(rhi::ResourceID id, std::stri
     return new VertexShader(id, name, vertexChannelFlags);
 }
 
+rhi::VertexShaderBase* Context::createVertexShader(rhi::ResourceID id, std::string name,
+                                                   std::vector<uint32_t>& components, size_t size)
+{
+    return new VertexShader(id, name, components, size);
+}
+
 rhi::PixelShaderBase* Context::createPixelShader(rhi::ResourceID id, std::string name)
 {
     return new FragmentShader(id, name);
 }
 
-VertexShader::VertexShader(rhi::ResourceID id, std::string name, rhi::VertexChannelFlags vertexChannelFlags)
-    : rhi::VertexShaderBase(id, name, vertexChannelFlags), Shader()
+rhi::ComputeShaderBase* Context::createComputeShader(rhi::ResourceID id, std::string name)
 {
+    return new ComputeShader(id, name);
+}
+
+VertexShader::VertexShader(rhi::ResourceID id, std::string name, rhi::VertexChannelFlags vertexChannelFlags)
+    : rhi::VertexShaderBase(id, name), Shader()
+{
+    generateInputAttributeDescriptions(vertexChannelFlags);
+}
+
+VertexShader::VertexShader(rhi::ResourceID id, std::string name, std::vector<uint32_t>& components, size_t size)
+    : rhi::VertexShaderBase(id, name), Shader()
+{
+    generateInputAttributeDescriptions(components, size);
 }
 
 Result VertexShader::initRHI(rhi::Context* rhiContext)
@@ -40,6 +58,88 @@ void VertexShader::terminateRHI(rhi::Context* rhiContext)
     Shader::terminate(context->getDevice()->getHandle());
 }
 
+void VertexShader::generateInputAttributeDescriptions(rhi::VertexChannelFlags vertexChannelFlags)
+{
+    uint32_t location = 0;
+    if ((vertexChannelFlags & rhi::VertexChannel::Position) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back(
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, position)});
+    }
+
+    if ((vertexChannelFlags & rhi::VertexChannel::Normal) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back(
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, normal)});
+    }
+
+    if ((vertexChannelFlags & rhi::VertexChannel::Uv) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back({location++, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(rhi::Vertex, uv)});
+    }
+
+    if ((vertexChannelFlags & rhi::VertexChannel::Color) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back(
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, color)});
+    }
+
+    if ((vertexChannelFlags & rhi::VertexChannel::Tangent) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back(
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, tangent)});
+    }
+
+    if ((vertexChannelFlags & rhi::VertexChannel::Bitangent) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back(
+            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, tangent)});
+    }
+
+    if ((vertexChannelFlags & rhi::VertexChannel::Joint0) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back(
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, joint0)});
+    }
+
+    if ((vertexChannelFlags & rhi::VertexChannel::Weight0) != 0)
+    {
+        vertexInputAttributeDescriptions.push_back(
+            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, weight0)});
+    }
+}
+
+void VertexShader::generateInputAttributeDescriptions(std::vector<uint32_t>& components, uint32_t size)
+{
+    uint32_t location = 0;
+    uint32_t offset = 0;
+    for (uint32_t component : components)
+    {
+        VkFormat format = VK_FORMAT_R32_SFLOAT;
+        switch (component)
+        {
+        case 1:
+            format = VK_FORMAT_R32_SFLOAT;
+        case 2:
+            format = VK_FORMAT_R32G32_SFLOAT;
+        case 3:
+            format = VK_FORMAT_R32G32B32_SFLOAT;
+        case 4:
+            format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        default:
+            UNREACHABLE();
+        }
+
+        vertexInputAttributeDescriptions.push_back({location++, 0, format, offset});
+        offset = component * size;
+    }
+}
+
+std::vector<VkVertexInputAttributeDescription>& VertexShader::getVertexInputAttributes()
+{
+    return vertexInputAttributeDescriptions;
+}
+
 FragmentShader::FragmentShader(rhi::ResourceID id, std::string name) : rhi::PixelShaderBase(id, name), Shader()
 {
 }
@@ -51,6 +151,22 @@ Result FragmentShader::initRHI(rhi::Context* rhiContext)
 }
 
 void FragmentShader::terminateRHI(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    Shader::terminate(context->getDevice()->getHandle());
+}
+
+ComputeShader::ComputeShader(rhi::ResourceID id, std::string name) : rhi::ComputeShaderBase(id, name), Shader()
+{
+}
+
+Result ComputeShader::initRHI(rhi::Context* rhiContext)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    return Shader::init(context, this);
+}
+
+void ComputeShader::terminateRHI(rhi::Context* rhiContext)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
     Shader::terminate(context->getDevice()->getHandle());
@@ -145,6 +261,23 @@ class PipelineHashStruct
     size_t renderpassHash;
 };
 
+class ComputePipelineHashStruct
+{
+  public:
+    ComputePipelineHashStruct()
+    {
+        memset(this, 0, sizeof(ComputePipelineHashStruct));
+    }
+
+    size_t getHash()
+    {
+        return util::computeGenericHash(this, sizeof(ComputePipelineHashStruct));
+    }
+
+    size_t pipelineStateHash;
+    size_t computeShaderHash;
+};
+
 void PipelineCache::terminate(VkDevice device)
 {
     if (valid())
@@ -186,6 +319,20 @@ Result Context::createGfxPipeline(rhi::GraphicsPipelineState gfxPipelineState)
     return Result::Continue;
 }
 
+Result Context::createComputePipeline(rhi::ComputePipelineState pipelineState)
+{
+    Pipeline* pipeline = pipelineMap->getPipeline(this, pipelineState);
+
+    if (!pipeline)
+    {
+        return Result::Fail;
+    }
+
+    pendingState->setPipeline(pipeline);
+
+    return Result::Continue;
+}
+
 void Context::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
     CommandBuffer* commandBuffer = getActiveCommandBuffer();
@@ -201,6 +348,14 @@ void Context::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t 
     Pipeline* bindPipeline = pendingState->getPipeline();
     bindPipeline->bind(commandBuffer);
     commandBuffer->drawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+}
+
+void Context::dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
+{
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+    Pipeline* bindPipeline = pendingState->getPipeline();
+    bindPipeline->bind(commandBuffer);
+    commandBuffer->dispatch(groupCountX, groupCountY, groupCountZ);
 }
 
 void Context::pushConstant(rhi::ShaderStageFlags shaderStage, size_t size, void* data)
@@ -231,60 +386,62 @@ void PipelineMap::terminate(VkDevice device)
     TERMINATE(pipelineCache, device);
 }
 
-std::vector<VkVertexInputAttributeDescription> generateVertexInputDescription(
-    rhi::VertexChannelFlags vertexChannelFlags)
+Pipeline* PipelineMap::getPipeline(Context* context, rhi::ComputePipelineState& pipelineState)
 {
-    std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
+    ComputePipelineHashStruct pipelineHashStruct;
+    pipelineHashStruct.pipelineStateHash = pipelineState.getHash();
+    pipelineHashStruct.computeShaderHash = pipelineState.shaderParameters->computeShader->getID();
 
-    uint32_t location = 0;
-    if ((vertexChannelFlags & rhi::VertexChannel::Position) != 0)
+    size_t pipelineHash = pipelineHashStruct.getHash();
+
+    if (auto search = pipelineMap.find(pipelineHash); search != pipelineMap.end())
     {
-        vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, position)});
+        return search->second;
     }
 
-    if ((vertexChannelFlags & rhi::VertexChannel::Normal) != 0)
+    try
     {
-        vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, normal)});
+        ComputeShader* computeShader = reinterpret_cast<ComputeShader*>(pipelineState.shaderParameters->computeShader);
+
+        VkPipelineShaderStageCreateInfo shaderStageCreateInfo = computeShader->getPipelineShaderStageCreateInfo();
+
+        auto rhiDescriptorSets = pipelineState.shaderParameters->getDescriptorSets();
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
+        for (auto rhiDescriptorSet : rhiDescriptorSets)
+        {
+            DescriptorSet* descriptorSet = reinterpret_cast<DescriptorSet*>(rhiDescriptorSet);
+            descriptorSetLayouts.push_back(descriptorSet->getLayout()->getHandle());
+        }
+
+        if (descriptorSetLayouts.empty())
+        {
+            descriptorSetLayouts.push_back(context->getEmptyDescriptorSetLayout()->getHandle());
+        }
+
+        Pipeline* newPipeline = new Pipeline();
+        newPipeline->init(context);
+        newPipeline->getLayout()->init(context, descriptorSetLayouts, pipelineState.pushConstants);
+
+        VkComputePipelineCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+        createInfo.pNext = nullptr;
+        createInfo.flags = 0;
+        createInfo.stage = shaderStageCreateInfo;
+        createInfo.layout = newPipeline->getLayout()->getHandle();
+        createInfo.basePipelineHandle = VK_NULL_HANDLE;
+
+        call(newPipeline->createCompute(context->getDevice()->getHandle(), createInfo, nullptr));
+
+        computePipelineMap.insert({pipelineHash, newPipeline});
+
+        return newPipeline;
+    }
+    catch (std::exception& e)
+    {
+        LOGE("Exception %s", e.what());
     }
 
-    if ((vertexChannelFlags & rhi::VertexChannel::Uv) != 0)
-    {
-        vertexInputAttributeDescriptions.push_back({location++, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(rhi::Vertex, uv)});
-    }
-
-    if ((vertexChannelFlags & rhi::VertexChannel::Color) != 0)
-    {
-        vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, color)});
-    }
-
-    if ((vertexChannelFlags & rhi::VertexChannel::Tangent) != 0)
-    {
-        vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, tangent)});
-    }
-
-    if ((vertexChannelFlags & rhi::VertexChannel::Bitangent) != 0)
-    {
-        vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(rhi::Vertex, tangent)});
-    }
-
-    if ((vertexChannelFlags & rhi::VertexChannel::Joint0) != 0)
-    {
-        vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, joint0)});
-    }
-
-    if ((vertexChannelFlags & rhi::VertexChannel::Weight0) != 0)
-    {
-        vertexInputAttributeDescriptions.push_back(
-            {location++, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(rhi::Vertex, weight0)});
-    }
-
-    return vertexInputAttributeDescriptions;
+    return nullptr;
 }
 
 Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState& gfxPipelineState)
@@ -320,7 +477,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
         std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions =
-            generateVertexInputDescription(gfxPipelineState.shaderParameters->vertexShader->getVertexChannelFlags());
+            vertexShader->getVertexInputAttributes();
 
         VkPipelineVertexInputStateCreateInfo vertexInputState = {};
         vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -520,4 +677,10 @@ VkResult Pipeline::createGraphics(VkDevice device, const VkGraphicsPipelineCreat
     return vkCreateGraphicsPipelines(device, pipelineCache, 1, &createInfo, nullptr, &mHandle);
 }
 
+VkResult Pipeline::createCompute(VkDevice device, const VkComputePipelineCreateInfo& createInfo,
+                                 const VkPipelineCache& pipelineCache)
+{
+    ASSERT(!valid());
+    return vkCreateComputePipelines(device, pipelineCache, 1, &createInfo, nullptr, &mHandle);
+}
 } // namespace vk

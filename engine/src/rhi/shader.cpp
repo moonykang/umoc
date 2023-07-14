@@ -1,10 +1,10 @@
 #include "shader.h"
 #include "common/hash.h"
 #include "context.h"
+#include "defines.h"
 #include "descriptor.h"
 #include "platform/asset.h"
 #include "platform/context.h"
-#include "defines.h"
 
 namespace rhi
 {
@@ -46,6 +46,25 @@ PixelShaderBase* Context::allocatePixelShader(std::string name)
     return pixelShader;
 }
 
+ComputeShaderBase* Context::allocateComputeShader(std::string name)
+{
+    name.reserve(SHADER_KEY_SIZE);
+
+    ResourceID id = Resource::generateID(name.data(), SHADER_KEY_SIZE);
+
+    if (auto shader = shaderMap.find(id); shader != shaderMap.end())
+    {
+        return reinterpret_cast<ComputeShaderBase*>(shader->second);
+    }
+
+    ComputeShaderBase* computeShader = createComputeShader(id, name);
+
+    try_call(computeShader->init(this));
+    shaderMap.insert({computeShader->getID(), computeShader});
+
+    return computeShader;
+}
+
 Result ShaderBase::init(Context* context)
 {
     if (!loaded)
@@ -84,4 +103,9 @@ size_t GraphicsPipelineState::getHash()
     return util::computeGenericHash(this, ((PipelineStateHashSize + 3) / 4) * 4);
 }
 
+size_t ComputePipelineState::getHash()
+{
+    pushConstantsHash = util::computeGenericHash(pushConstants.data(), sizeof(PushConstant) * pushConstants.size());
+    return pushConstantsHash;
+}
 } // namespace rhi

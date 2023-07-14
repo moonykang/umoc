@@ -897,6 +897,23 @@ class GraphicsPipelineState
     */
 };
 
+class ComputePipelineState
+{
+  public:
+    ComputePipelineState() : shaderParameters(nullptr), pushConstantsHash(0)
+    {
+    }
+
+    size_t getHash();
+
+  public:
+    size_t pushConstantsHash;
+    uint64_t padding = 0;
+
+    ShaderParameters* shaderParameters;
+    std::vector<PushConstant> pushConstants;
+};
+
 class DescriptorInfo
 {
   public:

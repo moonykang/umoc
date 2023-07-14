@@ -30,7 +30,7 @@ Result IBLScene::load(platform::Context* platformContext)
         try(material->init(context));
         // albedo 0
         {
-            auto [id, texture] = textures->get(context, "Environment Cube Texture", "gcanyon_cube.ktx");
+            auto [id, texture] = textures->get(context, "Environment Cube Texture", "uffizi_cube.ktx");
             material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
         }
         try(material->update(context));
@@ -51,6 +51,7 @@ Result IBLScene::load(platform::Context* platformContext)
         registerObject(context, object);
 
         util::Transform transform;
+        transform.rotate(glm::vec3(0, 180.0f, 0));
         transform.scale(glm::vec3(15.0f));
         model::Instance* instance = object->instantiate(context, transform.get(), true, true);
     }
