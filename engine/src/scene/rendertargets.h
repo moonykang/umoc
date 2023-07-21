@@ -38,6 +38,8 @@ class RenderTargets
     REGISTER_TEXTURE(sceneColor, getSceneColor);
     REGISTER_TEXTURE(sceneDepth, getSceneDepth);
 
+    REGISTER_TEXTURE(computeTarget, getComputeTarget);
+
     REGISTER_TEXTURE(gBufferA, getGBufferA);
     REGISTER_TEXTURE(gBufferB, getGBufferB);
     REGISTER_TEXTURE(gBufferC, getGBufferC);

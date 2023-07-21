@@ -6,6 +6,7 @@
 #include "scene/scene.h"
 #include "ui.h"
 
+#include "compute/filter.h"
 #include "compute/particle.h"
 #include "environment/brdfLutPass.h"
 #include "environment/irradiancePass.h"
@@ -32,7 +33,6 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
         passes.push_back(new PreFilterPass());
     }
 
-    // passes.push_back(new ParticlePass());
     if (renderingOptions.useForwardRendering())
     {
         passes.push_back(new Forward());
@@ -50,6 +50,8 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
             passes.push_back(new Lighting());
         }
     }
+
+    passes.push_back(new compute::FilterPass());
 
     if (renderingOptions.useBloom())
     {

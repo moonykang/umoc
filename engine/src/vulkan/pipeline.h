@@ -84,9 +84,9 @@ class PipelineLayout : public WrappedObject<PipelineLayout, VkPipelineLayout>
 class Pipeline : public WrappedObject<Pipeline, VkPipeline>
 {
   public:
-    Pipeline();
+    Pipeline(VkPipelineBindPoint pipelineBindPoint);
 
-    ~Pipeline() = default;
+    virtual ~Pipeline() = default;
 
     Result init(Context* context);
 
@@ -105,8 +105,15 @@ class Pipeline : public WrappedObject<Pipeline, VkPipeline>
         return layout;
     }
 
+    VkPipelineBindPoint getPipelineBindPoint()
+    {
+        return pipelineBindPoint;
+    }
+
   private:
     PipelineLayout* layout;
+
+    VkPipelineBindPoint pipelineBindPoint;
 };
 
 class PipelineCache final : public WrappedObject<PipelineCache, VkPipelineCache>

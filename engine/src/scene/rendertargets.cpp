@@ -20,11 +20,16 @@ Result RenderTargets::init(platform::Context* platformContext)
     rhi::Extent3D extent = context->getSurfaceSize();
 
     sceneColor = new rhi::Texture("SceneColor");
-    try(sceneColor->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(sceneColor->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::STORAGE));
 
     sceneDepth = new rhi::Texture("SceneDepth");
     try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
                          rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
+
+    computeTarget = new rhi::Texture("computeTarget");
+    try(computeTarget->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+                            rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::STORAGE));
 
     // G buffers
     gBufferA = new rhi::Texture("gBufferA");

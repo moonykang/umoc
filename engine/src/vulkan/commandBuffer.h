@@ -38,12 +38,16 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
     {
         ASSERT(valid());
         flushTransitions();
+
+        CAPTURE_COMMAND("[vkCmdBeginRenderPass] CB: %p RenderPass: %p", mHandle, beginInfo.renderPass);
+
         vkCmdBeginRenderPass(mHandle, &beginInfo, subpassContents);
     }
 
     inline void endRenderPass()
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdEndRenderPass] CB: %p", mHandle);
         vkCmdEndRenderPass(mHandle);
     }
 
@@ -54,14 +58,15 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
                                 const VkImageMemoryBarrier* imageMemoryBarriers)
     {
         ASSERT(valid());
-        /*
-                for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
-                {
+#if DEBUG_COMMAND_BUFFER
+        for (uint32_t i = 0; i < imageMemoryBarrierCount; i++)
+        {
 
-                    LOGD("CB %p image %p %u > %u", mHandle, imageMemoryBarriers[i].image,
-           imageMemoryBarriers[i].oldLayout, imageMemoryBarriers[i].newLayout);
-                }
-        */
+            CAPTURE_COMMAND("[vkCmdPipelineBarrier] CB: %p, Image: %p, Layout (%u > %u)", mHandle,
+                            imageMemoryBarriers[i].image, imageMemoryBarriers[i].oldLayout,
+                            imageMemoryBarriers[i].newLayout);
+        }
+#endif
         vkCmdPipelineBarrier(mHandle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers,
                              bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount,
                              imageMemoryBarriers);
@@ -70,24 +75,29 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
     inline void bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdBindPipeline] CB: %p, Pipeline: %p", mHandle, pipeline);
         vkCmdBindPipeline(mHandle, pipelineBindPoint, pipeline);
     }
 
     inline void setViewport(const VkViewport& viewport)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdSetViewport] CB: %p", mHandle);
         vkCmdSetViewport(mHandle, 0, 1, &viewport);
     }
 
     inline void setScissor(const VkRect2D& scissor)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdSetScissor] CB: %p", mHandle);
         vkCmdSetScissor(mHandle, 0, 1, &scissor);
     }
 
     inline void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdDraw] CB: %p, vertexCount: %u, instanceCount: %u, firstVertex: %u, firstInstance: %u",
+                        mHandle, vertexCount, instanceCount, firstVertex, firstInstance);
         vkCmdDraw(mHandle, vertexCount, instanceCount, firstVertex, firstInstance);
     }
 
@@ -95,12 +105,17 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
                             uint32_t firstInstance)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdDrawIndexed] CB: %p, indexCount: %u, instanceCount: %u, firstIndex: %u, vertexOffset: "
+                        "%u, firstInstance: %u",
+                        mHandle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
         vkCmdDrawIndexed(mHandle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
     }
 
     inline void dispatch(uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdDispatch] CB: %p, groupCountX: %u, groupCountY: %u, groupCountZ: %u", mHandle,
+                        groupCountX, groupCountY, groupCountZ);
         vkCmdDispatch(mHandle, groupCountX, groupCountY, groupCountZ);
     }
 
@@ -121,12 +136,14 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         ASSERT(valid());
         VkBuffer buffers[] = {buffer};
         VkDeviceSize offsets[] = {offset};
+        CAPTURE_COMMAND("[vkCmdBindVertexBuffers] CB: %p, buffer: %p", mHandle, buffer);
         vkCmdBindVertexBuffers(mHandle, 0, 1, buffers, offsets);
     }
 
     inline void bindIndexBuffers(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdBindIndexBuffer] CB: %p, buffer: %p", mHandle, buffer);
         vkCmdBindIndexBuffer(mHandle, buffer, offset, indexType);
     }
 
@@ -136,6 +153,8 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
                                    const uint32_t* pDynamicOffsets)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdBindDescriptorSets] CB: %p, pipelineLayout: %p, descriptorSets: %p", mHandle,
+                        pipelineLayout, pDescriptorSets[0]);
         vkCmdBindDescriptorSets(mHandle, pipelineBindPoint, pipelineLayout, firstSet, descriptorSetCount,
                                 pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
     }
@@ -144,12 +163,15 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
                               const void* data)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdPushConstants] CB: %p, pipelinelayout: %p, shaderStage: %u, size: %zu, data: %p",
+                        mHandle, pipelinelayout, shaderStage, size, data);
         vkCmdPushConstants(mHandle, pipelinelayout, shaderStage, 0, size, data);
     }
 
     inline void copyImage(VkImage srcImage, VkImage dstImage, const VkImageCopy& copyRegion)
     {
         ASSERT(valid());
+        CAPTURE_COMMAND("[vkCmdCopyImage] CB: %p, srcImage: %p, dstImage: %p", mHandle, srcImage, dstImage);
         vkCmdCopyImage(mHandle, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstImage,
                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
     }

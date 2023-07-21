@@ -1,0 +1,16 @@
+// Copyright 2020 Google LLC
+
+float conv(in float kernel[9], in float data[9], in float denom, in float offset)
+{
+   float res = 0.0;
+   for (int i=0; i<9; ++i)
+   {
+      res += kernel[i] * data[i];
+   }
+   return saturate(res/denom + offset);
+}
+
+[numthreads(16, 16, 1)]
+void main(uint3 GlobalInvocationID : SV_DispatchThreadID)
+{
+}

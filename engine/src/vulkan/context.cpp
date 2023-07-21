@@ -100,8 +100,7 @@ Result Context::flush()
 {
     Queue* presentQueue = queueMap->getQueue(QueueType::GraphicPresent);
     // Queue* queue = queueMap->getQueue();
-
-    return Result::Continue;
+    return submitActiveCommandBuffer();
 }
 
 Result Context::present()

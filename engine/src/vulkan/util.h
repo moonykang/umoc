@@ -3,6 +3,14 @@
 #include "common/util.h"
 #include <vector>
 
+#define DEBUG_COMMAND_BUFFER 1
+
+#if DEBUG_COMMAND_BUFFER
+#define CAPTURE_COMMAND(msg, ...) LOGD(msg, __VA_ARGS__)
+#else
+#define CAPTURE_COMMAND(msg, ...)
+#endif
+
 namespace vk
 {
 class Context;

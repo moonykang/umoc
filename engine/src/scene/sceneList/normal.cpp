@@ -22,6 +22,7 @@ Result NormalScene::load(platform::Context* platformContext)
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
     renderingOptions.enableForwardRendering();
+    renderingOptions.setFinalTarget(getRenderTargets()->getComputeTarget());
 
     {
         model::Material* material = new model::Material();

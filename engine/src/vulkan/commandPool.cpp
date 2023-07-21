@@ -20,6 +20,9 @@ Result CommandPool::init(VkDevice device, uint32_t queueFamilyIndex)
 
     vk_try(vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, &mHandle));
 
+    CAPTURE_COMMAND("[vkCreateCommandPool] device: %p, commandPool: %p, queueFamilyIndex: %u", device, mHandle,
+                    queueFamilyIndex);
+
     try(allocateCommandBuffers(device));
 
     return Result::Continue;

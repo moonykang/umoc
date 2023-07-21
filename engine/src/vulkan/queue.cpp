@@ -132,23 +132,28 @@ void Queue::getDeviceQueue(VkDevice device, uint32_t queueFamilyIndex, uint32_t 
 {
     ASSERT(!valid());
     vkGetDeviceQueue(device, queueFamilyIndex, queueIndex, &mHandle);
+    CAPTURE_COMMAND("[vkGetDeviceQueue] Q: %p, Device: %p, queueFamilyIndex: %u, queueIndex: %u", mHandle, device,
+                    queueFamilyIndex, queueIndex);
 }
 
 VkResult Queue::submit(const VkSubmitInfo& submitInfo, VkFence fence)
 {
     ASSERT(valid());
+    CAPTURE_COMMAND("[vkQueueSubmit] Q: %p", mHandle);
     return vkQueueSubmit(mHandle, 1, &submitInfo, fence);
 }
 
 VkResult Queue::waitIdle()
 {
     ASSERT(valid());
+    CAPTURE_COMMAND("[vkQueueWaitIdle] Q: %p", mHandle);
     return vkQueueWaitIdle(mHandle);
 }
 
 VkResult Queue::present(const VkPresentInfoKHR& presentInfo)
 {
     ASSERT(valid());
+    CAPTURE_COMMAND("[vkQueuePresentKHR] Q: %p", mHandle);
     return vkQueuePresentKHR(mHandle, &presentInfo);
 }
 

@@ -43,7 +43,10 @@ void CommandBuffer::terminate(VkDevice device, VkCommandPool commandPool)
 VkResult CommandBuffer::allocate(VkDevice device, const VkCommandBufferAllocateInfo& allocateInfo)
 {
     ASSERT(!valid());
-    return vkAllocateCommandBuffers(device, &allocateInfo, &mHandle);
+    VkResult result = vkAllocateCommandBuffers(device, &allocateInfo, &mHandle);
+    CAPTURE_COMMAND("[vkAllocateCommandBuffers] device: %p, commandBuffer: %p commandPool: %p", device, mHandle,
+                    allocateInfo.commandPool);
+    return result;
 }
 
 Result CommandBuffer::reset(VkDevice device, const bool bWait)
@@ -77,6 +80,7 @@ VkResult CommandBuffer::begin()
     commandBufferBeginInfo.flags = 0;
     commandBufferBeginInfo.pInheritanceInfo = nullptr;
 
+    CAPTURE_COMMAND("[vkBeginCommandBuffer] CB: %p", mHandle);
     return vkBeginCommandBuffer(mHandle, &commandBufferBeginInfo);
 }
 VkResult CommandBuffer::end()
@@ -84,6 +88,8 @@ VkResult CommandBuffer::end()
     ASSERT(valid());
 
     flushTransitions();
+
+    CAPTURE_COMMAND("[vkEndCommandBuffer] CB: %p", mHandle);
     return vkEndCommandBuffer(mHandle);
 }
 
@@ -135,6 +141,7 @@ void CommandBuffer::flushTransitions()
 VkResult CommandBuffer::reset()
 {
     ASSERT(valid());
+    CAPTURE_COMMAND("[vkResetCommandBuffer] CB: %p", mHandle);
     return vkResetCommandBuffer(mHandle, 0);
 }
 } // namespace vk

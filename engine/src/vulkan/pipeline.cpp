@@ -418,7 +418,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::ComputePipelineState& 
             descriptorSetLayouts.push_back(context->getEmptyDescriptorSetLayout()->getHandle());
         }
 
-        Pipeline* newPipeline = new Pipeline();
+        Pipeline* newPipeline = new Pipeline(VK_PIPELINE_BIND_POINT_COMPUTE);
         newPipeline->init(context);
         newPipeline->getLayout()->init(context, descriptorSetLayouts, pipelineState.pushConstants);
 
@@ -610,7 +610,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
             descriptorSetLayouts.push_back(context->getEmptyDescriptorSetLayout()->getHandle());
         }
 
-        Pipeline* newPipeline = new Pipeline();
+        Pipeline* newPipeline = new Pipeline(VK_PIPELINE_BIND_POINT_GRAPHICS);
         newPipeline->init(context);
         newPipeline->getLayout()->init(context, descriptorSetLayouts, gfxPipelineState.pushConstants);
 
@@ -646,7 +646,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
     return nullptr;
 }
 
-Pipeline::Pipeline() : layout(nullptr)
+Pipeline::Pipeline(VkPipelineBindPoint pipelineBindPoint) : pipelineBindPoint(pipelineBindPoint), layout(nullptr)
 {
 }
 
@@ -660,7 +660,7 @@ Result Pipeline::init(Context* context)
 void Pipeline::bind(CommandBuffer* commandBuffer)
 {
     ASSERT(valid());
-    commandBuffer->bindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, mHandle);
+    commandBuffer->bindPipeline(pipelineBindPoint, mHandle);
 }
 
 void Pipeline::terminate(VkDevice device)
@@ -674,13 +674,18 @@ VkResult Pipeline::createGraphics(VkDevice device, const VkGraphicsPipelineCreat
                                   const VkPipelineCache& pipelineCache)
 {
     ASSERT(!valid());
-    return vkCreateGraphicsPipelines(device, pipelineCache, 1, &createInfo, nullptr, &mHandle);
+
+    VkResult result = vkCreateGraphicsPipelines(device, pipelineCache, 1, &createInfo, nullptr, &mHandle);
+    CAPTURE_COMMAND("[vkCreateGraphicsPipelines] device: %p, pipeline: %p, result: %u", device, mHandle, result);
+    return result;
 }
 
 VkResult Pipeline::createCompute(VkDevice device, const VkComputePipelineCreateInfo& createInfo,
                                  const VkPipelineCache& pipelineCache)
 {
     ASSERT(!valid());
-    return vkCreateComputePipelines(device, pipelineCache, 1, &createInfo, nullptr, &mHandle);
+    VkResult result = vkCreateComputePipelines(device, pipelineCache, 1, &createInfo, nullptr, &mHandle);
+    CAPTURE_COMMAND("[vkCreateComputePipelines] device: %p, pipeline: %p, result: %u", device, mHandle, result);
+    return result;
 }
 } // namespace vk
