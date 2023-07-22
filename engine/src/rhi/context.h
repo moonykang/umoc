@@ -87,6 +87,8 @@ class Context : public platform::Context
 
     VertexShaderBase* allocateVertexShader(std::string name, VertexChannelFlags vertexChannelFlags);
 
+    VertexShaderBase* allocateVertexShader(std::string name, std::vector<uint32_t> components);
+
     PixelShaderBase* allocatePixelShader(std::string name);
 
     ComputeShaderBase* allocateComputeShader(std::string name);

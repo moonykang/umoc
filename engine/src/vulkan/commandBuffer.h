@@ -136,14 +136,14 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         ASSERT(valid());
         VkBuffer buffers[] = {buffer};
         VkDeviceSize offsets[] = {offset};
-        CAPTURE_COMMAND("[vkCmdBindVertexBuffers] CB: %p, buffer: %p", mHandle, buffer);
+        CAPTURE_COMMAND("[vkCmdBindVertexBuffers] CB: %p, buffer: %p %llu", mHandle, buffer, offset);
         vkCmdBindVertexBuffers(mHandle, 0, 1, buffers, offsets);
     }
 
     inline void bindIndexBuffers(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
     {
         ASSERT(valid());
-        CAPTURE_COMMAND("[vkCmdBindIndexBuffer] CB: %p, buffer: %p", mHandle, buffer);
+        CAPTURE_COMMAND("[vkCmdBindIndexBuffer] CB: %p, buffer: %p %llu", mHandle, buffer, offset);
         vkCmdBindIndexBuffer(mHandle, buffer, offset, indexType);
     }
 

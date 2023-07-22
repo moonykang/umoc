@@ -87,7 +87,14 @@ void Instance::draw(platform::Context* platformContext)
 {
     rhi::Context* context = platformContext->getRHI();
 
-    context->drawIndexed(indexCount, 1, firstIndex, 0, 0);
+    if (indexCount > 0)
+    {
+        context->drawIndexed(indexCount, 1, firstIndex, 0, 0);
+    }
+    else
+    {
+        context->draw(vertexCount, 1, firstVertex, 0);
+    }
 }
 
 Material* Instance::getMaterial()

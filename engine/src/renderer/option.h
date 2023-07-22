@@ -10,7 +10,8 @@ namespace renderer
 enum class SceneRendering
 {
     Forward,
-    Deferred
+    Deferred,
+    Particle
 };
 
 enum class ComputePostProcess

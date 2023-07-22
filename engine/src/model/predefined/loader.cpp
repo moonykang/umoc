@@ -4,12 +4,14 @@
 #include "model/object.h"
 #include "model/vertexInput.h"
 #include "quad.h"
+#include "storage.h"
 
 namespace model
 {
 namespace predefined
 {
-Loader::Builder::Builder() : predefinedType(PredefinedModel::Quad), material(nullptr), uvScale(1.0f)
+Loader::Builder::Builder()
+    : predefinedType(PredefinedModel::Quad), material(nullptr), uvScale(1.0f), storageBuffer({nullptr, 0})
 {
 }
 
@@ -37,14 +39,21 @@ Loader::Builder& Loader::Builder::setUvScale(double uvScale)
     return *this;
 }
 
+Loader::Builder& Loader::Builder::setExternalVertexBuffer(std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer)
+{
+    this->storageBuffer = storageBuffer;
+    return *this;
+}
+
 std::shared_ptr<Loader> Loader::Builder::build()
 {
-    return std::make_shared<Loader>(predefinedType, material, shaderParameters, uvScale);
+    return std::make_shared<Loader>(predefinedType, material, shaderParameters, uvScale, storageBuffer);
 }
 
 Loader::Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters,
-               double uvScale)
-    : predefinedType(predefinedType), material(material), shaderParameters(shaderParameters), uvScale(uvScale)
+               double uvScale, std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer)
+    : predefinedType(predefinedType), material(material), shaderParameters(shaderParameters), uvScale(uvScale),
+      storageBuffer(storageBuffer)
 {
 }
 
@@ -57,6 +66,8 @@ Object* createObject(PredefinedModel predefinedType)
     case PredefinedModel::Cube:
     case PredefinedModel::Sphere:
         return nullptr; // TODO
+    case PredefinedModel::Storage:
+        return new Storage(); // TODO
     }
 
     return nullptr; // need dummy
@@ -67,7 +78,15 @@ model::Object* Loader::load(platform::Context* context, scene::SceneInfo* sceneI
     Object* newObject = createObject(predefinedType);
 
     try_call(newObject->init(context));
-    try_call(newObject->loadVertexBuffer(context, uvScale));
+
+    if (storageBuffer.first)
+    {
+        try_call(newObject->loadVertexBuffer(context, storageBuffer));
+    }
+    else
+    {
+        try_call(newObject->loadVertexBuffer(context, uvScale));
+    }
     try_call(newObject->loadIndexBuffer(context));
 
     if (material)

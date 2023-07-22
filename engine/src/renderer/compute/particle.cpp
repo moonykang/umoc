@@ -10,12 +10,27 @@
 #include "rhi/shader.h"
 #include "scene/rendertargets.h"
 #include "scene/scene.h"
+#include "scene/textures.h"
 #include <random>
 
 #define PARTICLE_COUNT 256 * 1024
 
 namespace renderer
 {
+
+struct Particle
+{
+    glm::vec2 pos;
+    glm::vec2 vel;
+    glm::vec4 gradientPos;
+};
+
+struct ParticlePushBlock
+{
+    float width;
+    float height;
+} pushBlock;
+
 class ParticleMaterial : public model::Material
 {
   public:
@@ -27,17 +42,10 @@ class ParticleMaterial : public model::Material
         int32_t particleCount = PARTICLE_COUNT;
     } ubo;
 
-    struct Particle
-    {
-        glm::vec2 pos;
-        glm::vec2 vel;
-        glm::vec4 gradientPos;
-    };
-
     Result init(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        uniformBuffer = {context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo), rhi::ShaderStage::Pixel};
+        uniformBuffer = {context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo), rhi::ShaderStage::Compute};
 
         return model::Material::init(platformContext);
     }
@@ -46,24 +54,6 @@ class ParticleMaterial : public model::Material
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
         try(uniformBuffer.first->update(context, sizeof(MaterialUniformBlock), &ubo));
-
-        std::default_random_engine rndEngine(0);
-        std::uniform_real_distribution<float> rndDist(-1.0f, 1.0f);
-
-        // Initial particle positions
-        std::vector<Particle> particleBuffer(PARTICLE_COUNT);
-        for (auto& particle : particleBuffer)
-        {
-            particle.pos = glm::vec2(rndDist(rndEngine), rndDist(rndEngine));
-            particle.vel = glm::vec2(0.0f);
-            particle.gradientPos.x = particle.pos.x / 2.0f;
-        }
-
-        size_t storageBufferSize = particleBuffer.size() * sizeof(Particle);
-
-        auto storageBuffer = context->allocateStorageBuffer(storageBufferSize, particleBuffer.data());
-
-        updateStorageBuffer(storageBuffer, rhi::ShaderStage::Compute);
 
         return model::Material::update(platformContext);
     }
@@ -83,10 +73,28 @@ Result ParticlePass::init(platform::Context* platformContext, scene::SceneInfo* 
 {
     rhi::Context* context = platformContext->getRHI();
 
-    // setup
+    //
+    std::default_random_engine rndEngine(0);
+    std::uniform_real_distribution<float> rndDist(-1.0f, 1.0f);
+
+    // Initial particle positions
+    std::vector<Particle> particleBuffer(PARTICLE_COUNT);
+    for (auto& particle : particleBuffer)
+    {
+        particle.pos = glm::vec2(rndDist(rndEngine), rndDist(rndEngine));
+        particle.vel = glm::vec2(0.0f);
+        particle.gradientPos.x = particle.pos.x / 2.0f;
+    }
+
+    size_t storageBufferSize = particleBuffer.size() * sizeof(Particle);
+
+    auto storageBuffer = context->allocateStorageBuffer(storageBufferSize, particleBuffer.data());
+
+    // Compute
     {
         ParticleMaterial* material = new ParticleMaterial();
         try(material->init(platformContext));
+        material->updateStorageBuffer(storageBuffer, rhi::ShaderStage::Compute);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -99,12 +107,47 @@ Result ParticlePass::init(platform::Context* platformContext, scene::SceneInfo* 
         instance = object->instantiate(platformContext, glm::mat4(1.0f), true);
     }
 
+    // Graphics
+    {
+        model::Material* material = new model::Material();
+        try(material->init(platformContext));
+        // texture 0
+        {
+            auto [id, texture] =
+                sceneInfo->getTextures()->get(context, "Particle RGBA", "particles/particle01_rgba.ktx");
+            material->updateTexture(model::MaterialFlag::External, texture, rhi::ShaderStage::Pixel);
+        }
+        // texture 1
+        {
+            auto [id, texture] =
+                sceneInfo->getTextures()->get(context, "Particle Gradient", "particles/particle_gradient_rgba.ktx");
+            material->updateTexture(model::MaterialFlag::External, texture, rhi::ShaderStage::Pixel);
+        }
+        try(material->update(platformContext));
+
+        rhi::ShaderParameters shaderParameters;
+        std::vector<uint32_t> components = {2, 2, 4};
+        shaderParameters.vertexShader = context->allocateVertexShader("particle/particle.vert.spv", components);
+        shaderParameters.pixelShader = context->allocatePixelShader("particle/particle.frag.spv");
+
+        auto loader = model::predefined::Loader::Builder()
+                          .setPredefineModelType(model::PredefinedModel::Storage)
+                          .setMaterial(material)
+                          .setShaderParameters(&shaderParameters)
+                          .setExternalVertexBuffer({storageBuffer, PARTICLE_COUNT})
+                          .build();
+
+        graphicsObject = loader->load(platformContext, sceneInfo);
+        graphicsInstance = graphicsObject->instantiate(platformContext, glm::mat4(1.0f), true);
+    }
+
     return Result::Continue;
 }
 
 void ParticlePass::terminate(platform::Context* context)
 {
     TERMINATE(object, context);
+    TERMINATE(graphicsObject, context);
 }
 
 Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
@@ -113,29 +156,87 @@ Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo
 
     uint64_t time = platformContext->getTimer().getCurrentTime();
 
-    ParticleMaterial* material = reinterpret_cast<ParticleMaterial*>(instance->getMaterial());
-
-    auto materialDescriptor = material->getDescriptorSet();
+    // compute
     {
-        float deltaT = time * 2.5f;
-        float destX = sin(glm::radians(time * 360.0f)) * 0.75f;
-        float destY = 0.0f;
-        try(material->updateUniformBuffer(platformContext, deltaT, destX, destY));
+        ParticleMaterial* material = reinterpret_cast<ParticleMaterial*>(instance->getMaterial());
+
+        auto materialDescriptor = material->getDescriptorSet();
+        {
+            float deltaT = time * 2.5f;
+            float destX = sin(glm::radians(time * 360.0f)) * 0.75f;
+            float destY = 0.0f;
+            try(material->updateUniformBuffer(platformContext, deltaT, destX, destY));
+        }
+
+        rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+        shaderParameters->materialDescriptor = materialDescriptor;
+
+        rhi::ComputePipelineState computePipelineState;
+        computePipelineState.shaderParameters = shaderParameters;
+
+        context->createComputePipeline(computePipelineState);
+
+        materialDescriptor->bind(context, 0);
+
+        context->dispatch(PARTICLE_COUNT / 256, 1, 1);
+
+        context->flush();
     }
 
-    rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
-    shaderParameters->materialDescriptor = materialDescriptor;
+    // graphics
+    {
+        ParticlePushBlock pushBlock;
+        pushBlock.width = 1024;
+        pushBlock.height = 1024;
 
-    rhi::ComputePipelineState computePipelineState;
-    computePipelineState.shaderParameters = shaderParameters;
+        rhi::RenderPassInfo renderpassInfo;
+        renderpassInfo.name = "Particle Graphics Pass";
 
-    context->createComputePipeline(computePipelineState);
+        rhi::AttachmentId attachmentId = renderpassInfo.registerColorAttachment(
+            {sceneInfo->getRenderTargets()->getSceneColor()->getImage(), rhi::AttachmentLoadOp::Clear,
+             rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
 
-    materialDescriptor->bind(context, 0);
+        rhi::AttachmentId depthAttachmentId = renderpassInfo.registerDepthStencilAttachment(
+            {sceneInfo->getRenderTargets()->getSceneDepth()->getImage(), rhi::AttachmentLoadOp::Clear,
+             rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::DepthStencilAttachment,
+             rhi::ImageLayout::DepthStencilAttachment});
 
-    context->dispatch(PARTICLE_COUNT / 256, 1, 1);
+        auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
+        subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
+        subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
 
-    context->flush();
+        try(context->beginRenderpass(renderpassInfo));
+
+        rhi::GraphicsPipelineState graphicsPipelineState;
+        graphicsPipelineState.colorBlendState.attachmentCount = 1;
+        graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
+        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
+        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
+        graphicsPipelineState.depthStencilState.depthTestEnable = false;
+        graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::ALWAYS;
+        graphicsPipelineState.depthStencilState.depthWriteEnable = false;
+        graphicsPipelineState.pushConstants.push_back(
+            rhi::PushConstant(rhi::ShaderStage::Pixel, 0, sizeof(ParticlePushBlock)));
+
+        model::Material* material = graphicsInstance->getMaterial();
+        auto materialDescriptor = material->getDescriptorSet();
+
+        rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
+        shaderParameters->materialDescriptor = materialDescriptor;
+
+        graphicsPipelineState.shaderParameters = shaderParameters;
+
+        context->createGfxPipeline(graphicsPipelineState);
+
+        context->pushConstant(rhi::ShaderStage::Pixel, sizeof(ParticlePushBlock), &pushBlock);
+        materialDescriptor->bind(context, 0);
+
+        graphicsObject->draw(context);
+        graphicsInstance->draw(context);
+
+        try(context->endRenderpass());
+    }
 
     return Result::Continue;
 }

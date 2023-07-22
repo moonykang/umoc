@@ -27,6 +27,25 @@ VertexShaderBase* Context::allocateVertexShader(std::string name, VertexChannelF
     return vertexShader;
 }
 
+VertexShaderBase* Context::allocateVertexShader(std::string name, std::vector<uint32_t> components)
+{
+    name.reserve(SHADER_KEY_SIZE);
+
+    ResourceID id = Resource::generateID(name.data(), SHADER_KEY_SIZE);
+
+    if (auto shader = shaderMap.find(id); shader != shaderMap.end())
+    {
+        return reinterpret_cast<VertexShaderBase*>(shader->second);
+    }
+
+    VertexShaderBase* vertexShader = createVertexShader(id, name, components, 1);
+
+    try_call(vertexShader->init(this));
+    shaderMap.insert({vertexShader->getID(), vertexShader});
+
+    return vertexShader;
+}
+
 PixelShaderBase* Context::allocatePixelShader(std::string name)
 {
     name.reserve(SHADER_KEY_SIZE);
