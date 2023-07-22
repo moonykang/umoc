@@ -157,7 +157,8 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         {
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source);
-            material->updateTexture(MaterialFlag::BaseColorTexture, sceneInfo->getTextures()->get(textureID));
+            material->updateTexture(MaterialFlag::BaseColorTexture, sceneInfo->getTextures()->get(textureID),
+                                    rhi::ShaderStage::Pixel);
         }
 
         if ((materialFlags & MaterialFlag::MetalicRoughnessTexture) != 0 &&
@@ -165,14 +166,16 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         {
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["metallicRoughnessTexture"].TextureIndex()].source);
-            material->updateTexture(MaterialFlag::MetalicRoughnessTexture, sceneInfo->getTextures()->get(textureID));
+            material->updateTexture(MaterialFlag::MetalicRoughnessTexture, sceneInfo->getTextures()->get(textureID),
+                                    rhi::ShaderStage::Pixel);
         }
 
         if ((materialFlags & MaterialFlag::NormalTexture) != 0 && mat.values.find("normalTexture") != mat.values.end())
         {
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["normalTexture"].TextureIndex()].source);
-            material->updateTexture(MaterialFlag::NormalTexture, sceneInfo->getTextures()->get(textureID));
+            material->updateTexture(MaterialFlag::NormalTexture, sceneInfo->getTextures()->get(textureID),
+                                    rhi::ShaderStage::Pixel);
         }
 
         if ((materialFlags & MaterialFlag::EmissiveTexture) != 0 &&
@@ -180,7 +183,8 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         {
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["emissiveTexture"].TextureIndex()].source);
-            material->updateTexture(MaterialFlag::EmissiveTexture, sceneInfo->getTextures()->get(textureID));
+            material->updateTexture(MaterialFlag::EmissiveTexture, sceneInfo->getTextures()->get(textureID),
+                                    rhi::ShaderStage::Pixel);
         }
 
         if ((materialFlags & MaterialFlag::OcclusionTexture) != 0 &&
@@ -188,7 +192,8 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         {
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["occlusionTexture"].TextureIndex()].source);
-            material->updateTexture(MaterialFlag::OcclusionTexture, sceneInfo->getTextures()->get(textureID));
+            material->updateTexture(MaterialFlag::OcclusionTexture, sceneInfo->getTextures()->get(textureID),
+                                    rhi::ShaderStage::Pixel);
         }
 
         if (mat.values.find("roughnessFactor") != mat.values.end())

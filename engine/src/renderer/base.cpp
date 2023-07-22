@@ -3,6 +3,7 @@
 #include "rhi/context.h"
 #include "rhi/image.h"
 #include "rhi/rendertarget.h"
+#include "scene/rendertargets.h"
 #include "scene/scene.h"
 #include "ui.h"
 
@@ -51,7 +52,11 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
         }
     }
 
-    passes.push_back(new compute::FilterPass());
+    if (renderingOptions.getComputePostProcess() != ComputePostProcess::None)
+    {
+        passes.push_back(new compute::FilterPass());
+        renderingOptions.setFinalTarget(sceneInfo->getRenderTargets()->getComputeTarget());
+    }
 
     if (renderingOptions.useBloom())
     {

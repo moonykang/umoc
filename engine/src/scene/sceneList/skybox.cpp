@@ -31,7 +31,7 @@ Result SkyBoxScene::load(platform::Context* platformContext)
         // albedo 0
         {
             auto [id, texture] = textures->get(context, "Environment Cube Texture", "gcanyon_cube.ktx");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture, rhi::ShaderStage::Pixel);
         }
         try(material->update(context));
 
@@ -62,7 +62,7 @@ Result SkyBoxScene::load(platform::Context* platformContext)
         // albedo 0
         {
             auto [id, texture] = textures->get(context, "Environment Cube Texture", "gcanyon_cube.ktx");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture, rhi::ShaderStage::Pixel);
         }
         try(material->update(context));
 

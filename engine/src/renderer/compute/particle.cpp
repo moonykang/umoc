@@ -37,7 +37,7 @@ class ParticleMaterial : public model::Material
     Result init(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        uniformBuffer = context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo);
+        uniformBuffer = {context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo), rhi::ShaderStage::Pixel};
 
         return model::Material::init(platformContext);
     }
@@ -45,7 +45,7 @@ class ParticleMaterial : public model::Material
     Result update(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        try(uniformBuffer->update(context, sizeof(MaterialUniformBlock), &ubo));
+        try(uniformBuffer.first->update(context, sizeof(MaterialUniformBlock), &ubo));
 
         std::default_random_engine rndEngine(0);
         std::uniform_real_distribution<float> rndDist(-1.0f, 1.0f);
@@ -63,7 +63,7 @@ class ParticleMaterial : public model::Material
 
         auto storageBuffer = context->allocateStorageBuffer(storageBufferSize, particleBuffer.data());
 
-        updateStorageBuffer(storageBuffer);
+        updateStorageBuffer(storageBuffer, rhi::ShaderStage::Compute);
 
         return model::Material::update(platformContext);
     }
@@ -75,7 +75,7 @@ class ParticleMaterial : public model::Material
         ubo.destY = destY;
 
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        return uniformBuffer->update(context, sizeof(MaterialUniformBlock), &ubo);
+        return uniformBuffer.first->update(context, sizeof(MaterialUniformBlock), &ubo);
     }
 };
 

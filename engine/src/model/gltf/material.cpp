@@ -15,7 +15,8 @@ MaterialUniformBlock::MaterialUniformBlock()
 Result Material::init(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-    uniformBuffer = context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo);
+    uniformBuffer = {context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo),
+                     rhi::ShaderStage::Pixel}; // TODO
 
     return model::Material::init(platformContext);
 }
@@ -23,7 +24,7 @@ Result Material::init(platform::Context* platformContext)
 Result Material::update(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-    try(uniformBuffer->update(context, sizeof(MaterialUniformBlock), &ubo));
+    try(uniformBuffer.first->update(context, sizeof(MaterialUniformBlock), &ubo));
 
     return model::Material::update(platformContext);
 }

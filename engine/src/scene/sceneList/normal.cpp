@@ -22,7 +22,6 @@ Result NormalScene::load(platform::Context* platformContext)
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
     renderingOptions.enableForwardRendering();
-    renderingOptions.setFinalTarget(getRenderTargets()->getComputeTarget());
 
     {
         model::Material* material = new model::Material();
@@ -30,12 +29,12 @@ Result NormalScene::load(platform::Context* platformContext)
         // albedo 0
         {
             auto [id, texture] = textures->get(context, "brickwall diffuse", "brickwall/diffuse.png");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture, rhi::ShaderStage::Pixel);
         }
         // normal 1
         {
             auto [id, texture] = textures->get(context, "brickwall normal", "brickwall/normal.png");
-            material->updateTexture(model::MaterialFlag::NormalTexture, texture);
+            material->updateTexture(model::MaterialFlag::NormalTexture, texture, rhi::ShaderStage::Pixel);
         }
         try(material->update(context));
 

@@ -2,7 +2,9 @@
 
 namespace renderer
 {
-Option::Option() : sceneRendering(SceneRendering::Forward), ssao(false), finalTarget(nullptr)
+Option::Option()
+    : sceneRendering(SceneRendering::Forward), ssao(false), finalTarget(nullptr),
+      computePostProcess(ComputePostProcess::None)
 {
 }
 
@@ -64,5 +66,15 @@ void Option::setFinalTarget(rhi::Texture* target)
 rhi::Texture* Option::getFinalTarget()
 {
     return finalTarget;
+}
+
+void Option::setComputePostProcess(ComputePostProcess computePostProcess)
+{
+    this->computePostProcess = computePostProcess;
+}
+
+ComputePostProcess Option::getComputePostProcess()
+{
+    return computePostProcess;
 }
 } // namespace renderer

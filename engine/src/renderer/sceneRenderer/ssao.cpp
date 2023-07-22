@@ -44,7 +44,7 @@ class SSAOMaterial : public model::Material
     Result init(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        uniformBuffer = context->allocateUniformBuffer(sizeof(SSAOKernelSample), &ubo);
+        uniformBuffer = {context->allocateUniformBuffer(sizeof(SSAOKernelSample), &ubo), rhi::ShaderStage::Pixel};
 
         return model::Material::init(platformContext);
     }
@@ -52,7 +52,7 @@ class SSAOMaterial : public model::Material
     Result update(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        try(uniformBuffer->update(context, sizeof(SSAOKernelSample), &ubo));
+        try(uniformBuffer.first->update(context, sizeof(SSAOKernelSample), &ubo));
 
         return model::Material::update(platformContext);
     }
@@ -110,9 +110,12 @@ Result SSAOPass::init(platform::Context* platformContext, scene::SceneInfo* scen
         SSAOMaterial* material = new SSAOMaterial();
         try(material->init(platformContext));
         material->initSSAOKernelSamples(context, sceneInfo);
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferA()); // pos
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferB()); // normal
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getTextures()->get(material->noiseTextureId));
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferA(),
+                                rhi::ShaderStage::Pixel); // pos
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferB(),
+                                rhi::ShaderStage::Pixel); // normal
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getTextures()->get(material->noiseTextureId),
+                                rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -132,7 +135,8 @@ Result SSAOPass::init(platform::Context* platformContext, scene::SceneInfo* scen
     {
         model::Material* material = new model::Material();
         try(material->init(platformContext));
-        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSSAO());
+        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSSAO(),
+                                rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -152,10 +156,14 @@ Result SSAOPass::init(platform::Context* platformContext, scene::SceneInfo* scen
     {
         model::Material* material = new model::Material();
         try(material->init(platformContext));
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferA());
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferB());
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferC());
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getSSAOBlur());
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferA(),
+                                rhi::ShaderStage::Pixel);
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferB(),
+                                rhi::ShaderStage::Pixel);
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferC(),
+                                rhi::ShaderStage::Pixel);
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getSSAOBlur(),
+                                rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;

@@ -5,6 +5,7 @@ It supports Windows & Mac at this time.
 
 # Samples
 
+## Basic
 | Quad | Normal mapping  | skybox<br/>(Environment Refraction) |
 |---|---|---|
 | ![quad](captures/quad.png) | ![normalmap](captures/normalmapping.png) | ![skybox](captures/skybox.png) |
@@ -13,13 +14,16 @@ It supports Windows & Mac at this time.
 |---|---|---|
 | ![bloom](captures/bloom.png) | ![deferred](captures/deferred.png) | ![ssao](captures/ssao.png) |
 
-| PBR | IBL | Compute particles |
+## Physically Based Rendering
+| PBR | IBL | TODO |
 |---|---|---|
 | ![pbr](captures/pbr.png) | ![ibl](captures/ibl.png) | ![todo](captures/todo.png) |
 
-| Compute cloth | Ray marching | Ray tracing |
+
+## Compute
+| Sharpen | Emboss | Edge detection |
 |---|---|---|
-| ![pbr](captures/todo.png) | ![ibl](captures/todo.png) | ![todo](captures/todo.png) |
+| ![pbr](captures/sharpen.png) | ![ibl](captures/emboss.png) | ![todo](captures/edgedetect.png) |
 
 ## Git clone
 
