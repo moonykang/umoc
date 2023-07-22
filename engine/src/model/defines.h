@@ -90,6 +90,7 @@ enum class PredefinedModel
 {
     Quad,
     Cube,
-    Sphere
+    Sphere,
+    Storage
 };
 } // namespace model

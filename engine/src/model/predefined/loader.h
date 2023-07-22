@@ -5,6 +5,11 @@
 #include <map>
 #include <memory>
 
+namespace rhi
+{
+class StorageBuffer;
+}
+
 namespace model
 {
 class Material;
@@ -26,17 +31,21 @@ class Loader : public model::Loader
 
         Builder& setUvScale(double uvScale);
 
+        Builder& setExternalVertexBuffer(std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer);
+
         std::shared_ptr<Loader> build();
 
       private:
         PredefinedModel predefinedType;
         Material* material;
         rhi::ShaderParameters* shaderParameters;
+        std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer;
         double uvScale;
     };
 
   public:
-    Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters, double uvScale);
+    Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters, double uvScale,
+           std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer);
 
     Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
@@ -44,6 +53,7 @@ class Loader : public model::Loader
     PredefinedModel predefinedType;
     Material* material;
     rhi::ShaderParameters* shaderParameters;
+    std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer;
     double uvScale;
 };
 } // namespace predefined

@@ -27,5 +27,8 @@ class ParticlePass : public Base
   private:
     model::Object* object;
     model::Instance* instance;
+
+    model::Object* graphicsObject;
+    model::Instance* graphicsInstance;
 };
 } // namespace renderer

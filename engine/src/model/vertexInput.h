@@ -12,6 +12,7 @@ namespace rhi
 class Context;
 class VertexBuffer;
 class IndexBuffer;
+class StorageBuffer;
 } // namespace rhi
 
 namespace model
@@ -26,6 +27,8 @@ class VertexInput
     void terminate(platform::Context* context);
 
     Result loadVertexBuffer(platform::Context* context, std::vector<rhi::Vertex>& vertices);
+
+    Result loadExternalVertexBuffer(platform::Context* context, rhi::StorageBuffer* externalBuffer);
 
     Result loadIndexBuffer(platform::Context* context, std::vector<uint32_t>& indices);
 
