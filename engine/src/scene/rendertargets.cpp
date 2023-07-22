@@ -21,7 +21,7 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     sceneColor = new rhi::Texture("SceneColor");
     try(sceneColor->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
-                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::STORAGE));
+                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     sceneDepth = new rhi::Texture("SceneDepth");
     try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
@@ -29,31 +29,39 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     computeTarget = new rhi::Texture("computeTarget");
     try(computeTarget->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
-                            rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::STORAGE));
+                            rhi::ImageUsage::SAMPLED | rhi::ImageUsage::STORAGE));
 
     // G buffers
     gBufferA = new rhi::Texture("gBufferA");
-    try(gBufferA->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(gBufferA->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
     gBufferB = new rhi::Texture("gBufferB");
-    try(gBufferB->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(gBufferB->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
     gBufferC = new rhi::Texture("gBufferC");
-    try(gBufferC->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(gBufferC->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     // SSAO
     ssao = new rhi::Texture("SSAO");
-    try(ssao->init(context, rhi::Format::R8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(ssao->init(context, rhi::Format::R8_UNORM, extent, 1, 1,
+                   rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
     ssaoBlur = new rhi::Texture("ssaoBlur");
-    try(ssaoBlur->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(ssaoBlur->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     // Bloomp
     bloomSetup = new rhi::Texture("BloomSetup");
-    try(bloomSetup->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(bloomSetup->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     bloomHorizontal = new rhi::Texture("bloomHorizontal");
-    try(bloomHorizontal->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(bloomHorizontal->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+                              rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     bloomVertical = new rhi::Texture("bloomVertical");
-    try(bloomVertical->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1, rhi::ImageUsage::COLOR_ATTACHMENT));
+    try(bloomVertical->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+                            rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     uint32_t white = -1;
     whiteDummy = new rhi::Texture("whiteDummy");
@@ -70,7 +78,7 @@ Result RenderTargets::init(platform::Context* platformContext)
         rhi::Extent3D brdfExtent = {512, 512, 1};
         brdfLutTexture = new rhi::Texture("BRDF LUT Texture");
         try(brdfLutTexture->init(context, rhi::Format::R16G16_FLOAT, brdfExtent, 1, 1,
-                                 rhi::ImageUsage::COLOR_ATTACHMENT));
+                                 rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
         environmentCube = new rhi::Texture("Environment Cube Texture");
         try(environmentCube->init(context, "uffizi_cube.ktx", platform::ImageLoader::KTX));
@@ -85,7 +93,7 @@ Result RenderTargets::init(platform::Context* platformContext)
 
         irradianceCube = new rhi::Texture("Irradiance Cube Texture");
         try(irradianceCube->init(context, rhi::Format::R32G32B32A32_FLOAT, extent, mipLevels, layers,
-                                 rhi::ImageUsage::TRANSFER_DST));
+                                 rhi::ImageUsage::TRANSFER_DST | rhi::ImageUsage::SAMPLED));
     }
 
     // PreFilter
@@ -97,7 +105,7 @@ Result RenderTargets::init(platform::Context* platformContext)
 
         preFilterCube = new rhi::Texture("PreFilter Cube Texture");
         try(preFilterCube->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels, layers,
-                                rhi::ImageUsage::TRANSFER_DST));
+                                rhi::ImageUsage::TRANSFER_DST | rhi::ImageUsage::SAMPLED));
     }
 
     return Result::Continue;

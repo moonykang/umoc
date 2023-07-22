@@ -28,12 +28,12 @@ Result ScreenPass::init(platform::Context* platformContext, scene::SceneInfo* sc
 
         if (finalTarget)
         {
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, finalTarget);
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, finalTarget, rhi::ShaderStage::Pixel);
         }
         else
         {
             material->updateTexture(model::MaterialFlag::BaseColorTexture,
-                                    sceneInfo->getRenderTargets()->getSceneColor());
+                                    sceneInfo->getRenderTargets()->getSceneColor(), rhi::ShaderStage::Pixel);
         }
         try(material->update(platformContext));
 

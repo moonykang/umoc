@@ -9,9 +9,9 @@
 namespace model
 {
 Material::Material()
-    : baseColorTexture(nullptr), metallicRoughnessTexture(nullptr), normalTexture(nullptr), occlusionTexture(nullptr),
-      emissiveTexture(nullptr), specularGlossinessTexture(nullptr), diffuseTexture(nullptr), uniformBuffer(nullptr),
-      descriptorSet(nullptr)
+    : baseColorTexture({nullptr, 0}), metallicRoughnessTexture({nullptr, 0}), normalTexture({nullptr, 0}),
+      occlusionTexture({nullptr, 0}), emissiveTexture({nullptr, 0}), specularGlossinessTexture({nullptr, 0}),
+      diffuseTexture({nullptr, 0}), uniformBuffer({nullptr, 0}), descriptorSet(nullptr)
 {
 }
 
@@ -42,49 +42,52 @@ Result Material::update(platform::Context* platformContext)
     rhi::DescriptorList descriptorList;
 
     std::vector<uint32_t> offsets;
-    if (uniformBuffer)
+    if (uniformBuffer.first)
     {
-        offsets.push_back(uniformBuffer->getOffset());
-        auto bufferDescriptor = uniformBuffer->getBufferDescriptor();
+        offsets.push_back(uniformBuffer.first->getOffset());
+        auto bufferDescriptor = uniformBuffer.first->getBufferDescriptor();
 
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel | rhi::ShaderStage::Compute, rhi::DescriptorType::Uniform_Buffer_Dynamic});
+        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel | rhi::ShaderStage::Compute,
+                                      rhi::DescriptorType::Uniform_Buffer_Dynamic});
         descriptorList.push_back(
             {{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic}, bufferDescriptor});
     }
 
     for (auto storageBuffer : externalStorageBuffers)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Compute, rhi::DescriptorType::Storage_Buffer_Dynamic});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Compute, rhi::DescriptorType::Storage_Buffer_Dynamic},
-                                  storageBuffer->getBufferDescriptor()});
+        descriptorInfoList.push_back({binding, storageBuffer.second, rhi::DescriptorType::Storage_Buffer_Dynamic});
+        descriptorList.push_back({{binding++, storageBuffer.second, rhi::DescriptorType::Storage_Buffer_Dynamic},
+                                  storageBuffer.first->getBufferDescriptor()});
     }
 
-    if (baseColorTexture)
+    if (baseColorTexture.first)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  baseColorTexture->getImageDescriptor()});
+        descriptorInfoList.push_back({binding, baseColorTexture.second, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back({{binding++, baseColorTexture.second, rhi::DescriptorType::Combined_Image_Sampler},
+                                  baseColorTexture.first->getImageDescriptor()});
     }
 
-    if (metallicRoughnessTexture)
+    if (metallicRoughnessTexture.first)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  metallicRoughnessTexture->getImageDescriptor()});
+        descriptorInfoList.push_back(
+            {binding, metallicRoughnessTexture.second, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back(
+            {{binding++, metallicRoughnessTexture.second, rhi::DescriptorType::Combined_Image_Sampler},
+             metallicRoughnessTexture.first->getImageDescriptor()});
     }
 
-    if (normalTexture)
+    if (normalTexture.first)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  normalTexture->getImageDescriptor()});
+        descriptorInfoList.push_back({binding, normalTexture.second, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back({{binding++, normalTexture.second, rhi::DescriptorType::Combined_Image_Sampler},
+                                  normalTexture.first->getImageDescriptor()});
     }
 
-    if (occlusionTexture)
+    if (occlusionTexture.first)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  occlusionTexture->getImageDescriptor()});
+        descriptorInfoList.push_back({binding, occlusionTexture.second, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back({{binding++, occlusionTexture.second, rhi::DescriptorType::Combined_Image_Sampler},
+                                  occlusionTexture.first->getImageDescriptor()});
     }
 
     /*
@@ -95,25 +98,27 @@ Result Material::update(platform::Context* platformContext)
        rhi::DescriptorType::Combined_Image_Sampler}, uniformBuffer->getImageDescriptor()});
         }
     */
-    if (specularGlossinessTexture)
+    if (specularGlossinessTexture.first)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  specularGlossinessTexture->getImageDescriptor()});
+        descriptorInfoList.push_back(
+            {binding, specularGlossinessTexture.second, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back(
+            {{binding++, specularGlossinessTexture.second, rhi::DescriptorType::Combined_Image_Sampler},
+             specularGlossinessTexture.first->getImageDescriptor()});
     }
 
-    if (diffuseTexture)
+    if (diffuseTexture.first)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  diffuseTexture->getImageDescriptor()});
+        descriptorInfoList.push_back({binding, diffuseTexture.second, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back({{binding++, diffuseTexture.second, rhi::DescriptorType::Combined_Image_Sampler},
+                                  diffuseTexture.first->getImageDescriptor()});
     }
 
     for (auto texture : externalTextures)
     {
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-        descriptorList.push_back({{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler},
-                                  texture->getImageDescriptor()});
+        descriptorInfoList.push_back({binding, texture.second, rhi::DescriptorType::Combined_Image_Sampler});
+        descriptorList.push_back({{binding++, texture.second, rhi::DescriptorType::Combined_Image_Sampler},
+                                  texture.first->getImageDescriptor()});
     }
 
     try(descriptorSet->init(context, descriptorInfoList));
@@ -128,40 +133,40 @@ void Material::terminate(platform::Context* platformContext)
     TERMINATE(descriptorSet, context);
 }
 
-void Material::updateTexture(MaterialFlag materialFlag, rhi::Texture* texture)
+void Material::updateTexture(MaterialFlag materialFlag, rhi::Texture* texture, rhi::ShaderStageFlags shaderStageFlags)
 {
     switch (materialFlag.get())
     {
     case MaterialFlag::BaseColorTexture:
-        baseColorTexture = texture;
+        baseColorTexture = {texture, shaderStageFlags};
         break;
     case MaterialFlag::MetalicRoughnessTexture:
-        metallicRoughnessTexture = texture;
+        metallicRoughnessTexture = {texture, shaderStageFlags};
         break;
     case MaterialFlag::NormalTexture:
-        normalTexture = texture;
+        normalTexture = {texture, shaderStageFlags};
         break;
     case MaterialFlag::OcclusionTexture:
-        occlusionTexture = texture;
+        occlusionTexture = {texture, shaderStageFlags};
         break;
     case MaterialFlag::EmissiveTexture:
-        emissiveTexture = texture;
+        emissiveTexture = {texture, shaderStageFlags};
         break;
     case MaterialFlag::SpecularGlossinessTexture:
-        specularGlossinessTexture = texture;
+        specularGlossinessTexture = {texture, shaderStageFlags};
         break;
     case MaterialFlag::DiffuseTexture:
-        diffuseTexture = texture;
+        diffuseTexture = {texture, shaderStageFlags};
         break;
     case MaterialFlag::External:
-        externalTextures.push_back(texture);
+        externalTextures.push_back({texture, shaderStageFlags});
         break;
     }
 }
 
-void Material::updateStorageBuffer(rhi::StorageBuffer* storageBuffer)
+void Material::updateStorageBuffer(rhi::StorageBuffer* storageBuffer, rhi::ShaderStageFlags shaderStageFlags)
 {
-    externalStorageBuffers.push_back(storageBuffer);
+    externalStorageBuffers.push_back({storageBuffer, shaderStageFlags});
 }
 
 rhi::Texture* Material::getTexture(MaterialFlag materialFlag)
@@ -169,19 +174,19 @@ rhi::Texture* Material::getTexture(MaterialFlag materialFlag)
     switch (materialFlag.get())
     {
     case MaterialFlag::BaseColorTexture:
-        return baseColorTexture;
+        return baseColorTexture.first;
     case MaterialFlag::MetalicRoughnessTexture:
-        return metallicRoughnessTexture;
+        return metallicRoughnessTexture.first;
     case MaterialFlag::NormalTexture:
-        return normalTexture;
+        return normalTexture.first;
     case MaterialFlag::OcclusionTexture:
-        return occlusionTexture;
+        return occlusionTexture.first;
     case MaterialFlag::EmissiveTexture:
-        return emissiveTexture;
+        return emissiveTexture.first;
     case MaterialFlag::SpecularGlossinessTexture:
-        return specularGlossinessTexture;
+        return specularGlossinessTexture.first;
     case MaterialFlag::DiffuseTexture:
-        return diffuseTexture;
+        return diffuseTexture.first;
     default:
         UNREACHABLE();
         return nullptr;

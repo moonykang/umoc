@@ -1,4 +1,5 @@
-#include "deferred.h"
+#include "compute.h"
+
 #include "common/util.h"
 #include "model/gltf/loader.h"
 #include "model/gltf/material.h"
@@ -17,11 +18,12 @@
 
 namespace scene
 {
-Result DeferredScene::load(platform::Context* platformContext)
+Result ComputeScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
     renderingOptions.enableDeferredRendering();
+    renderingOptions.setComputePostProcess(renderer::ComputePostProcess::EdgeDetection);
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(
@@ -154,7 +156,7 @@ Result DeferredScene::load(platform::Context* platformContext)
     return Result::Continue;
 }
 
-Result DeferredScene::udpate(platform::Context* context)
+Result ComputeScene::udpate(platform::Context* context)
 {
     timer++;
 

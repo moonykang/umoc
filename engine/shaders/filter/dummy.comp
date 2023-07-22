@@ -1,0 +1,9 @@
+// Copyright 2020 Google LLC
+
+[[vk::binding(0, 0)]] Texture2D inputImage;
+[[vk::binding(1, 0)]] RWTexture2D<float4> resultImage;
+
+[numthreads(16, 16, 1)]
+void main(uint3 GlobalInvocationID : SV_DispatchThreadID)
+{
+}

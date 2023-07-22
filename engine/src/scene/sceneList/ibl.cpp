@@ -31,7 +31,7 @@ Result IBLScene::load(platform::Context* platformContext)
         // albedo 0
         {
             auto [id, texture] = textures->get(context, "Environment Cube Texture", "uffizi_cube.ktx");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture);
+            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture, rhi::ShaderStage::Pixel);
         }
         try(material->update(context));
 
@@ -61,15 +61,18 @@ Result IBLScene::load(platform::Context* platformContext)
         try(material->init(context));
         // Irradiance
         {
-            material->updateTexture(model::MaterialFlag::External, renderTargets->getIrradianceCube());
+            material->updateTexture(model::MaterialFlag::External, renderTargets->getIrradianceCube(),
+                                    rhi::ShaderStage::Pixel);
         }
         // BRDF
         {
-            material->updateTexture(model::MaterialFlag::External, renderTargets->getBrdfLutTexture());
+            material->updateTexture(model::MaterialFlag::External, renderTargets->getBrdfLutTexture(),
+                                    rhi::ShaderStage::Pixel);
         }
         // prefilter
         {
-            material->updateTexture(model::MaterialFlag::External, renderTargets->getPreFilterCube());
+            material->updateTexture(model::MaterialFlag::External, renderTargets->getPreFilterCube(),
+                                    rhi::ShaderStage::Pixel);
         }
         try(material->update(context));
 

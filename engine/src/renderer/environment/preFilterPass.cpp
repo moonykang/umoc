@@ -48,7 +48,7 @@ Result PreFilterPass::init(platform::Context* platformContext, scene::SceneInfo*
     rhi::Context* context = platformContext->getRHI();
 
     PreFilterPassMaterial* material = new PreFilterPassMaterial();
-    material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube());
+    material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube(), rhi::ShaderStage::Pixel);
 
     try(material->init(context));
     try(material->update(context));

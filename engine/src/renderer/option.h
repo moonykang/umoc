@@ -13,6 +13,14 @@ enum class SceneRendering
     Deferred
 };
 
+enum class ComputePostProcess
+{
+    None,
+    Sharpen,
+    Emboss,
+    EdgeDetection
+};
+
 class Option
 {
   public:
@@ -42,11 +50,16 @@ class Option
 
     rhi::Texture* getFinalTarget();
 
+    void setComputePostProcess(ComputePostProcess computePostProcess);
+
+    ComputePostProcess getComputePostProcess();
+
   private:
     SceneRendering sceneRendering;
     bool ssao;
     bool bloom;
     bool environmap;
+    ComputePostProcess computePostProcess;
 
     rhi::Texture* finalTarget;
 };

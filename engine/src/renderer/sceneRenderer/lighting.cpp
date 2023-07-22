@@ -28,9 +28,12 @@ Result Lighting::init(platform::Context* platformContext, scene::SceneInfo* scen
     {
         model::Material* material = new model::Material();
         try(material->init(platformContext));
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferA());
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferB());
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferC());
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferA(),
+                                rhi::ShaderStage::Pixel);
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferB(),
+                                rhi::ShaderStage::Pixel);
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferC(),
+                                rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;

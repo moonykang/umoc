@@ -46,7 +46,8 @@ Result IrradiancePass::init(platform::Context* platformContext, scene::SceneInfo
     rhi::Context* context = platformContext->getRHI();
 
     IrradianceMaterial* material = new IrradianceMaterial();
-    material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube());
+    material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube(),
+                            rhi::ShaderStage::Pixel);
 
     try(material->init(context));
     try(material->update(context));

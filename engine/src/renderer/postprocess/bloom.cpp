@@ -36,7 +36,7 @@ class BloomSetupMaterial : public model::Material
     Result init(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        uniformBuffer = context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo);
+        uniformBuffer = {context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo), rhi::ShaderStage::Pixel};
 
         return model::Material::init(platformContext);
     }
@@ -44,7 +44,7 @@ class BloomSetupMaterial : public model::Material
     Result update(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        try(uniformBuffer->update(context, sizeof(MaterialUniformBlock), &ubo));
+        try(uniformBuffer.first->update(context, sizeof(MaterialUniformBlock), &ubo));
 
         return model::Material::update(platformContext);
     }
@@ -66,7 +66,7 @@ class BloomMaterial : public model::Material
     Result init(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        uniformBuffer = context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo);
+        uniformBuffer = {context->allocateUniformBuffer(sizeof(MaterialUniformBlock), &ubo), rhi::ShaderStage::Pixel};
 
         return model::Material::init(platformContext);
     }
@@ -74,7 +74,7 @@ class BloomMaterial : public model::Material
     Result update(platform::Context* platformContext) override
     {
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
-        try(uniformBuffer->update(context, sizeof(MaterialUniformBlock), &ubo));
+        try(uniformBuffer.first->update(context, sizeof(MaterialUniformBlock), &ubo));
 
         return model::Material::update(platformContext);
     }
@@ -88,7 +88,8 @@ Result BloomPass::init(platform::Context* platformContext, scene::SceneInfo* sce
     {
         BloomSetupMaterial* material = new BloomSetupMaterial();
         try(material->init(platformContext));
-        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSceneColor());
+        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSceneColor(),
+                                rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -109,7 +110,7 @@ Result BloomPass::init(platform::Context* platformContext, scene::SceneInfo* sce
         BloomMaterial* bloomMaterial = new BloomMaterial();
         try(bloomMaterial->init(platformContext));
         bloomMaterial->updateTexture(model::MaterialFlag::BaseColorTexture,
-                                     sceneInfo->getRenderTargets()->getBloomSetup());
+                                     sceneInfo->getRenderTargets()->getBloomSetup(), rhi::ShaderStage::Pixel);
         try(bloomMaterial->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -132,7 +133,7 @@ Result BloomPass::init(platform::Context* platformContext, scene::SceneInfo* sce
         BloomMaterial* bloomMaterial = new BloomMaterial();
         try(bloomMaterial->init(platformContext));
         bloomMaterial->updateTexture(model::MaterialFlag::BaseColorTexture,
-                                     sceneInfo->getRenderTargets()->getBloomHorizontal());
+                                     sceneInfo->getRenderTargets()->getBloomHorizontal(), rhi::ShaderStage::Pixel);
         try(bloomMaterial->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -155,8 +156,9 @@ Result BloomPass::init(platform::Context* platformContext, scene::SceneInfo* sce
         BloomMaterial* bloomMaterial = new BloomMaterial();
         try(bloomMaterial->init(platformContext));
         bloomMaterial->updateTexture(model::MaterialFlag::BaseColorTexture,
-                                     sceneInfo->getRenderTargets()->getSceneColor());
-        bloomMaterial->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getBloomVertical());
+                                     sceneInfo->getRenderTargets()->getSceneColor(), rhi::ShaderStage::Pixel);
+        bloomMaterial->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getBloomVertical(),
+                                     rhi::ShaderStage::Pixel);
         try(bloomMaterial->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;

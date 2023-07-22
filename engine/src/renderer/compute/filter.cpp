@@ -26,12 +26,30 @@ Result FilterPass::init(platform::Context* platformContext, scene::SceneInfo* sc
     {
         model::Material* material = new model::Material();
         try(material->init(platformContext));
-        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSceneColor());
-        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getComputeTarget());
+        material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getSceneColor(),
+                                rhi::ShaderStage::Compute);
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getComputeTarget(),
+                                rhi::ShaderStage::Compute);
         try(material->update(platformContext));
 
+        std::string computeShader;
+        switch (sceneInfo->getRenderingOptions().getComputePostProcess())
+        {
+        case ComputePostProcess::EdgeDetection:
+            computeShader = "filter/edgedetect.comp.spv";
+            break;
+        case ComputePostProcess::Sharpen:
+            computeShader = "filter/sharpen.comp.spv";
+            break;
+        case ComputePostProcess::Emboss:
+            computeShader = "filter/emboss.comp.spv";
+            break;
+        default:
+            computeShader = "filter/dummy.comp.spv";
+            break;
+        }
         rhi::ShaderParameters shaderParameters;
-        shaderParameters.computeShader = context->allocateComputeShader("filter/sharpen.comp.spv");
+        shaderParameters.computeShader = context->allocateComputeShader(computeShader);
 
         auto loader =
             model::predefined::Loader::Builder().setMaterial(material).setShaderParameters(&shaderParameters).build();
