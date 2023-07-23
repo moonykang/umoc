@@ -23,6 +23,8 @@ class Input
 
     bool isAttached();
 
+    virtual const std::pair<float, float>& getPosition() = 0;
+
   private:
     std::mutex mutex;
 

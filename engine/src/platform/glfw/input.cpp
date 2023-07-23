@@ -5,6 +5,10 @@ namespace platform
 {
 namespace glfw
 {
+Input::Input() : cursor({0, 0})
+{
+}
+
 void Input::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     Input::GetInstance()->keyEvent(key, scancode, action, mods);
@@ -57,6 +61,12 @@ void Input::mouseCursorEvent(float x, float y)
     }
 
     attachedView->handle_mouse_move(x, y);
+    cursor = {x, y};
+}
+
+const std::pair<float, float>& Input::getPosition()
+{
+    return cursor;
 }
 
 void Input::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)

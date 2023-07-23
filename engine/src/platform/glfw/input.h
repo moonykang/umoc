@@ -11,6 +11,8 @@ namespace glfw
 class Input : public Singleton<Input>, public platform::Input
 {
   public:
+    Input();
+
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
     static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
@@ -24,6 +26,11 @@ class Input : public Singleton<Input>, public platform::Input
     void mouseEvent(int button, int action, int mods);
 
     void mouseCursorEvent(float x, float y);
+
+    const std::pair<float, float>& getPosition() override;
+
+  private:
+    std::pair<float, float> cursor;
 };
 } // namespace glfw
 } // namespace platform

@@ -3,6 +3,7 @@
 #include "model/material.h"
 #include "model/object.h"
 #include "model/predefined/loader.h"
+#include "platform/input.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
@@ -175,9 +176,13 @@ Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo
         }
 
         {
+            auto cursor = platformContext->getWindow()->getInput()->getPosition();
+
             float deltaT = frameTimer * 2.5f;
-            float destX = sin(glm::radians(animTimer * 360.0f)) * 0.75f;
-            float destY = 0.0f;
+
+            float destX = (cursor.first - static_cast<float>(1024 / 2)) / static_cast<float>(1024 / 2);
+            float destY = (cursor.second - static_cast<float>(1024 / 2)) / static_cast<float>(1024 / 2);
+
             try(material->updateUniformBuffer(platformContext, deltaT, destX, destY));
         }
 
