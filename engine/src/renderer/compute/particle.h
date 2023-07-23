@@ -30,5 +30,7 @@ class ParticlePass : public Base
 
     model::Object* graphicsObject;
     model::Instance* graphicsInstance;
+
+    double animTimer = 0;
 };
 } // namespace renderer
