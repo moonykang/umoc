@@ -161,17 +161,22 @@ Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo
     rhi::Context* context = platformContext->getRHI();
 
     uint64_t time = platformContext->getTimer().getCurrentTime();
-
+    float frameTimer = platformContext->getTimer().getCurrentFrameTimer();
     // compute
     {
         ParticleMaterial* material = reinterpret_cast<ParticleMaterial*>(instance->getMaterial());
 
         auto materialDescriptor = material->getDescriptorSet();
 
-        if (false)
+        animTimer += frameTimer * 0.04f;
+        if (animTimer > 1.f)
         {
-            float deltaT = time * 2.5f;
-            float destX = sin(glm::radians(time * 360.0f)) * 0.75f;
+            animTimer = 0.f;
+        }
+
+        {
+            float deltaT = frameTimer * 2.5f;
+            float destX = sin(glm::radians(animTimer * 360.0f)) * 0.75f;
             float destY = 0.0f;
             try(material->updateUniformBuffer(platformContext, deltaT, destX, destY));
         }
@@ -221,7 +226,7 @@ Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo
         graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].blendEnable = true;
         graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].colorBlendOp = rhi::BlendOp::ADD;
         graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].srcColorBlendFactor = rhi::BlendFactor::ONE;
-        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].dstAlphaBlendFactor = rhi::BlendFactor::ONE;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].dstColorBlendFactor = rhi::BlendFactor::ONE;
         graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].alphaBlendOp = rhi::BlendOp::ADD;
         graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].srcAlphaBlendFactor =
             rhi::BlendFactor::SRC_ALPHA;
