@@ -19,9 +19,9 @@ rhi::VertexShaderBase* Context::createVertexShader(rhi::ResourceID id, std::stri
 }
 
 rhi::VertexShaderBase* Context::createVertexShader(rhi::ResourceID id, std::string name,
-                                                   std::vector<uint32_t>& components, size_t size)
+                                                   std::vector<rhi::VertexAttribute>& vertexAttribute, uint32_t stride)
 {
-    return new VertexShader(id, name, components, size);
+    return new VertexShader(id, name, vertexAttribute, stride);
 }
 
 rhi::PixelShaderBase* Context::createPixelShader(rhi::ResourceID id, std::string name)
@@ -35,15 +35,16 @@ rhi::ComputeShaderBase* Context::createComputeShader(rhi::ResourceID id, std::st
 }
 
 VertexShader::VertexShader(rhi::ResourceID id, std::string name, rhi::VertexChannelFlags vertexChannelFlags)
-    : rhi::VertexShaderBase(id, name), Shader()
+    : rhi::VertexShaderBase(id, name), Shader(), stride(sizeof(rhi::Vertex))
 {
     generateInputAttributeDescriptions(vertexChannelFlags);
 }
 
-VertexShader::VertexShader(rhi::ResourceID id, std::string name, std::vector<uint32_t>& components, size_t size)
-    : rhi::VertexShaderBase(id, name), Shader()
+VertexShader::VertexShader(rhi::ResourceID id, std::string name, std::vector<rhi::VertexAttribute>& vertexAttribute,
+                           uint32_t stride)
+    : rhi::VertexShaderBase(id, name), Shader(), stride(stride)
 {
-    generateInputAttributeDescriptions(components, size);
+    generateInputAttributeDescriptions(vertexAttribute);
 }
 
 Result VertexShader::initRHI(rhi::Context* rhiContext)
@@ -109,35 +110,26 @@ void VertexShader::generateInputAttributeDescriptions(rhi::VertexChannelFlags ve
     }
 }
 
-void VertexShader::generateInputAttributeDescriptions(std::vector<uint32_t>& components, uint32_t size)
+void VertexShader::generateInputAttributeDescriptions(std::vector<rhi::VertexAttribute>& vertexAttributes)
 {
     uint32_t location = 0;
-    uint32_t offset = 0;
-    for (uint32_t component : components)
+    for (auto vertexAttribute : vertexAttributes)
     {
-        VkFormat format = VK_FORMAT_R32_SFLOAT;
-        switch (component)
-        {
-        case 1:
-            format = VK_FORMAT_R32_SFLOAT;
-        case 2:
-            format = VK_FORMAT_R32G32_SFLOAT;
-        case 3:
-            format = VK_FORMAT_R32G32B32_SFLOAT;
-        case 4:
-            format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        default:
-            UNREACHABLE();
-        }
+        VkFormat format = kFormatMap[vertexAttribute.format].format;
+        uint32_t offset = vertexAttribute.offset;
 
         vertexInputAttributeDescriptions.push_back({location++, 0, format, offset});
-        offset = component * size;
     }
 }
 
 std::vector<VkVertexInputAttributeDescription>& VertexShader::getVertexInputAttributes()
 {
     return vertexInputAttributeDescriptions;
+}
+
+uint32_t VertexShader::getStride()
+{
+    return stride;
 }
 
 FragmentShader::FragmentShader(rhi::ResourceID id, std::string name) : rhi::PixelShaderBase(id, name), Shader()
@@ -473,7 +465,7 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
 
         VkVertexInputBindingDescription vertexInputBindingDescription;
         vertexInputBindingDescription.binding = 0;
-        vertexInputBindingDescription.stride = sizeof(rhi::Vertex);
+        vertexInputBindingDescription.stride = vertexShader->getStride();
         vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
         std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions =

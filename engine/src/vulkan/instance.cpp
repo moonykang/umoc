@@ -58,10 +58,9 @@ Result Instance::init(Context* context)
     std::vector<const char*> requestedLayers;
     std::vector<const char*> enabledLayers;
 
-    requestedLayers.push_back(validationLayerName);
+    // requestedLayers.push_back(validationLayerName);
     requestedLayers.push_back(renderdocLayerName);
 
-    if (true) // enableValidationLayer)
     {
         LOGD("Finding layers...");
 

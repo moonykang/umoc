@@ -91,8 +91,9 @@ class Context : public rhi::Context
     rhi::VertexShaderBase* createVertexShader(rhi::ResourceID id, std::string name,
                                               rhi::VertexChannelFlags vertexChannelFlags) override final;
 
-    rhi::VertexShaderBase* createVertexShader(rhi::ResourceID id, std::string name, std::vector<uint32_t>& components,
-                                              size_t size) override final;
+    rhi::VertexShaderBase* createVertexShader(rhi::ResourceID id, std::string name,
+                                              std::vector<rhi::VertexAttribute>& vertexAttribute,
+                                              uint32_t stride) override final;
 
     rhi::PixelShaderBase* createPixelShader(rhi::ResourceID id, std::string name) override final;
 

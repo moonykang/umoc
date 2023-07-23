@@ -1,9 +1,9 @@
 // Copyright 2020 Google LLC
 
-Texture2D textureColorMap : register(t0);
-SamplerState samplerColorMap : register(s0);
-Texture2D textureGradientRamp : register(t1);
-SamplerState samplerGradientRamp : register(s1);
+[[vk::binding(0, 0)]] Texture2D textureColorMap;
+[[vk::binding(0, 0)]] SamplerState samplerColorMap;
+[[vk::binding(1, 0)]] Texture2D textureGradientRamp;
+[[vk::binding(1, 0)]] SamplerState samplerGradientRamp;
 
 struct VSOutput
 {

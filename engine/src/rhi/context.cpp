@@ -19,7 +19,8 @@ Context* Context::createRHIContext(rhi::List rhi)
 }
 
 Context::Context()
-    : platform::Context(), vertexScratchBuffer(nullptr), indexScratchBuffer(nullptr), uniformScratchBuffer(nullptr)
+    : platform::Context(), vertexScratchBuffer(nullptr), indexScratchBuffer(nullptr), uniformScratchBuffer(nullptr),
+      storageScratchBuffer(nullptr)
 {
 }
 

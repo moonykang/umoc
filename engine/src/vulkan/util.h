@@ -3,7 +3,7 @@
 #include "common/util.h"
 #include <vector>
 
-#define DEBUG_COMMAND_BUFFER 1
+#define DEBUG_COMMAND_BUFFER 0
 
 #if DEBUG_COMMAND_BUFFER
 #define CAPTURE_COMMAND(msg, ...) LOGD(msg, __VA_ARGS__)

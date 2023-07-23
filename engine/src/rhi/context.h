@@ -87,7 +87,8 @@ class Context : public platform::Context
 
     VertexShaderBase* allocateVertexShader(std::string name, VertexChannelFlags vertexChannelFlags);
 
-    VertexShaderBase* allocateVertexShader(std::string name, std::vector<uint32_t> components);
+    VertexShaderBase* allocateVertexShader(std::string name, std::vector<VertexAttribute>& vertexAttribute,
+                                           uint32_t stride);
 
     PixelShaderBase* allocatePixelShader(std::string name);
 
@@ -103,8 +104,8 @@ class Context : public platform::Context
     virtual VertexShaderBase* createVertexShader(ResourceID id, std::string name,
                                                  VertexChannelFlags vertexChannelFlags) = 0;
 
-    virtual VertexShaderBase* createVertexShader(ResourceID id, std::string name, std::vector<uint32_t>& components,
-                                                 size_t size) = 0;
+    virtual VertexShaderBase* createVertexShader(ResourceID id, std::string name,
+                                                 std::vector<VertexAttribute>& vertexAttribute, uint32_t stride) = 0;
 
     virtual PixelShaderBase* createPixelShader(ResourceID id, std::string name) = 0;
 
