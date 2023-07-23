@@ -13,6 +13,11 @@ namespace vk
 rhi::Buffer* Context::allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
                                      size_t size)
 {
+    if ((bufferUsage & rhi::BufferUsage::STORAGE_BUFFER) != 0)
+    {
+        return new StorageBuffer(bufferUsage, memoryProperty, size);
+    }
+
     if ((bufferUsage & rhi::BufferUsage::VERTEX_BUFFER) != 0)
     {
         return new VertexBuffer(bufferUsage, memoryProperty, size);
@@ -232,5 +237,12 @@ void UniformBuffer::updateAlignmentSize(Context* context)
 void StorageBuffer::updateAlignmentSize(Context* context)
 {
     alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minStorageBufferOffsetAlignment;
+}
+
+void StorageBuffer::bind(rhi::Context* rhiContext, size_t offset)
+{
+    Context* context = reinterpret_cast<Context*>(rhiContext);
+    CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
+    commandBuffer->bindVertexBuffers(buffer->getHandle(), offset);
 }
 } // namespace vk

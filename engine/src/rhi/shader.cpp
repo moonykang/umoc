@@ -27,7 +27,8 @@ VertexShaderBase* Context::allocateVertexShader(std::string name, VertexChannelF
     return vertexShader;
 }
 
-VertexShaderBase* Context::allocateVertexShader(std::string name, std::vector<uint32_t> components)
+VertexShaderBase* Context::allocateVertexShader(std::string name, std::vector<VertexAttribute>& vertexAttribute,
+                                                uint32_t stride)
 {
     name.reserve(SHADER_KEY_SIZE);
 
@@ -38,7 +39,7 @@ VertexShaderBase* Context::allocateVertexShader(std::string name, std::vector<ui
         return reinterpret_cast<VertexShaderBase*>(shader->second);
     }
 
-    VertexShaderBase* vertexShader = createVertexShader(id, name, components, 1);
+    VertexShaderBase* vertexShader = createVertexShader(id, name, vertexAttribute, stride);
 
     try_call(vertexShader->init(this));
     shaderMap.insert({vertexShader->getID(), vertexShader});

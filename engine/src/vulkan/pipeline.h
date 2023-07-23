@@ -34,7 +34,8 @@ class VertexShader : public rhi::VertexShaderBase, public Shader
   public:
     VertexShader(rhi::ResourceID id, std::string name, rhi::VertexChannelFlags vertexChannelFlags);
 
-    VertexShader(rhi::ResourceID id, std::string name, std::vector<uint32_t>& components, size_t size);
+    VertexShader(rhi::ResourceID id, std::string name, std::vector<rhi::VertexAttribute>& vertexAttribute,
+                 uint32_t stride);
 
     Result initRHI(rhi::Context* context) override;
 
@@ -42,12 +43,15 @@ class VertexShader : public rhi::VertexShaderBase, public Shader
 
     void generateInputAttributeDescriptions(rhi::VertexChannelFlags vertexChannelFlags);
 
-    void generateInputAttributeDescriptions(std::vector<uint32_t>& components, uint32_t size);
+    void generateInputAttributeDescriptions(std::vector<rhi::VertexAttribute>& vertexAttribute);
 
     std::vector<VkVertexInputAttributeDescription>& getVertexInputAttributes();
 
+    uint32_t getStride();
+
   private:
     std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
+    uint32_t stride;
 };
 
 class FragmentShader : public rhi::PixelShaderBase, public Shader

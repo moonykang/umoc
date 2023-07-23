@@ -97,9 +97,7 @@ class StorageBuffer : public Buffer
   public:
     StorageBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
 
-    virtual void bind(rhi::Context* context, size_t offset) override
-    {
-    }
+    virtual void bind(rhi::Context* context, size_t offset) override;
 
     void updateAlignmentSize(Context* context) override;
 };

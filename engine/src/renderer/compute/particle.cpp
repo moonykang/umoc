@@ -126,8 +126,14 @@ Result ParticlePass::init(platform::Context* platformContext, scene::SceneInfo* 
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
-        std::vector<uint32_t> components = {2, 2, 4};
-        shaderParameters.vertexShader = context->allocateVertexShader("particle/particle.vert.spv", components);
+        std::vector<rhi::VertexAttribute> vertexAttributes = {
+            rhi::VertexAttribute(rhi::Format::R32G32_FLOAT, offsetof(Particle, pos)),
+            rhi::VertexAttribute(rhi::Format::R32G32_FLOAT, offsetof(Particle, vel)),
+            rhi::VertexAttribute(rhi::Format::R32G32B32A32_FLOAT, offsetof(Particle, gradientPos)),
+        };
+
+        shaderParameters.vertexShader =
+            context->allocateVertexShader("particle/particle.vert.spv", vertexAttributes, sizeof(Particle));
         shaderParameters.pixelShader = context->allocatePixelShader("particle/particle.frag.spv");
 
         auto loader = model::predefined::Loader::Builder()
@@ -161,6 +167,8 @@ Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo
         ParticleMaterial* material = reinterpret_cast<ParticleMaterial*>(instance->getMaterial());
 
         auto materialDescriptor = material->getDescriptorSet();
+
+        if (false)
         {
             float deltaT = time * 2.5f;
             float destX = sin(glm::radians(time * 360.0f)) * 0.75f;
@@ -209,15 +217,28 @@ Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo
 
         rhi::GraphicsPipelineState graphicsPipelineState;
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
-        graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].colorWriteMask = 0xF;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].blendEnable = true;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].colorBlendOp = rhi::BlendOp::ADD;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].srcColorBlendFactor = rhi::BlendFactor::ONE;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].dstAlphaBlendFactor = rhi::BlendFactor::ONE;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].alphaBlendOp = rhi::BlendOp::ADD;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].srcAlphaBlendFactor =
+            rhi::BlendFactor::SRC_ALPHA;
+        graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].dstAlphaBlendFactor =
+            rhi::BlendFactor::DST_ALPHA;
+
+        graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::POINT_LIST;
+        graphicsPipelineState.assemblyState.primitiveRestartEnable = false;
         graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
         graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
         graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
         graphicsPipelineState.depthStencilState.depthTestEnable = false;
         graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::ALWAYS;
         graphicsPipelineState.depthStencilState.depthWriteEnable = false;
+
         graphicsPipelineState.pushConstants.push_back(
-            rhi::PushConstant(rhi::ShaderStage::Pixel, 0, sizeof(ParticlePushBlock)));
+            rhi::PushConstant(rhi::ShaderStage::Vertex, 0, sizeof(ParticlePushBlock)));
 
         model::Material* material = graphicsInstance->getMaterial();
         auto materialDescriptor = material->getDescriptorSet();
@@ -229,7 +250,7 @@ Result ParticlePass::render(platform::Context* platformContext, scene::SceneInfo
 
         context->createGfxPipeline(graphicsPipelineState);
 
-        context->pushConstant(rhi::ShaderStage::Pixel, sizeof(ParticlePushBlock), &pushBlock);
+        context->pushConstant(rhi::ShaderStage::Vertex, sizeof(ParticlePushBlock), &pushBlock);
         materialDescriptor->bind(context, 0);
 
         graphicsObject->draw(context);

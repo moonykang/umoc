@@ -575,4 +575,15 @@ class ImageSubResource
     uint32_t baseArrayLayer;
     uint32_t layerCount;
 };
+
+class VertexAttribute
+{
+  public:
+    VertexAttribute(Format format, uint32_t offset) : format(format), offset(offset)
+    {
+    }
+
+    Format format;
+    uint32_t offset;
+};
 } // namespace rhi
