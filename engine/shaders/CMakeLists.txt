@@ -15,6 +15,7 @@ SET(SUBDIRECTORIES
 	ibl
 	particle
 	filter
+	nbody
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})

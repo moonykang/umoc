@@ -169,6 +169,11 @@ void Material::updateStorageBuffer(rhi::StorageBuffer* storageBuffer, rhi::Shade
     externalStorageBuffers.push_back({storageBuffer, shaderStageFlags});
 }
 
+void Material::updateUniformBuffer(rhi::UniformBuffer* uniformBuffer, rhi::ShaderStageFlags shaderStageFlags)
+{
+    this->uniformBuffer = {uniformBuffer, shaderStageFlags};
+}
+
 rhi::Texture* Material::getTexture(MaterialFlag materialFlag)
 {
     switch (materialFlag.get())
