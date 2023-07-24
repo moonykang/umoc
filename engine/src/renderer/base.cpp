@@ -8,6 +8,7 @@
 #include "ui.h"
 
 #include "compute/filter.h"
+#include "compute/nbody.h"
 #include "compute/particle.h"
 #include "environment/brdfLutPass.h"
 #include "environment/irradiancePass.h"

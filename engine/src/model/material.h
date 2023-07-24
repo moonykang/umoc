@@ -37,6 +37,8 @@ class Material
 
     void updateStorageBuffer(rhi::StorageBuffer* storageBuffer, rhi::ShaderStageFlags shaderStageFlags);
 
+    void updateUniformBuffer(rhi::UniformBuffer* uniformBuffer, rhi::ShaderStageFlags shaderStageFlags);
+
     rhi::Texture* getTexture(MaterialFlag materialFlag);
 
     rhi::DescriptorSet* getDescriptorSet();
