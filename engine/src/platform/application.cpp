@@ -13,7 +13,7 @@ Application::Application() : sceneInfo(nullptr), baseRenderpass(nullptr)
 
 Result Application::init(Context* context)
 {
-    sceneInfo = new scene::ParticleScene();
+    sceneInfo = new scene::SSAOScene();
     try(sceneInfo->init(context));
     try(sceneInfo->load(context));
 

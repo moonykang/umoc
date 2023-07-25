@@ -27,7 +27,7 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
 {
     auto renderingOptions = sceneInfo->getRenderingOptions();
 
-    passes.push_back(new ParticlePass());
+    // passes.push_back(new ParticlePass());
 
     if (renderingOptions.useEnvironmap())
     {
@@ -36,25 +36,24 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
         passes.push_back(new PreFilterPass());
     }
 
-    /*
-        if (renderingOptions.useForwardRendering())
+    if (renderingOptions.useForwardRendering())
+    {
+        passes.push_back(new Forward());
+    }
+    else
+    {
+        passes.push_back(new Deferred());
+
+        if (renderingOptions.useSSAO())
         {
-            passes.push_back(new Forward());
+            passes.push_back(new SSAOPass());
         }
         else
         {
-            passes.push_back(new Deferred());
-
-            if (renderingOptions.useSSAO())
-            {
-                passes.push_back(new SSAOPass());
-            }
-            else
-            {
-                passes.push_back(new Lighting());
-            }
+            passes.push_back(new Lighting());
         }
-    */
+    }
+
     if (renderingOptions.getComputePostProcess() != ComputePostProcess::None)
     {
         passes.push_back(new compute::FilterPass());

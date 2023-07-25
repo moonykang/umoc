@@ -34,6 +34,8 @@ class Loader : public model::Loader
 
         Builder& setShaderParameters(rhi::ShaderParameters* shaderParameters);
 
+        Builder& setForcedTextureExt(std::string forcedTextureExt);
+
         std::shared_ptr<Loader> build();
 
       private:
@@ -43,10 +45,11 @@ class Loader : public model::Loader
         GltfLoadingFlags gltfLoadingFlags;
         model::Material* externalMaterial;
         rhi::ShaderParameters* shaderParameters;
+        std::string forcedTextureExt;
     };
 
     Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,
-           model::Material* externalMaterial, rhi::ShaderParameters* shaderParameters);
+           model::Material* externalMaterial, rhi::ShaderParameters* shaderParameters, std::string forcedTextureExt);
 
     Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
@@ -63,6 +66,7 @@ class Loader : public model::Loader
     GltfLoadingFlags gltfLoadingFlags;
     model::Material* externalMaterial;
     rhi::ShaderParameters* shaderParameters;
+    std::string forcedTextureExt;
 
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF gltfContext;

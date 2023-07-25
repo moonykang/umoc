@@ -10,6 +10,7 @@
 #include "rhi/image.h"
 #include "scene/scene.h"
 #include "scene/textures.h"
+#include <sstream>
 
 namespace model
 {
@@ -22,7 +23,8 @@ bool loadImageDataFuncEmpty(tinygltf::Image* image, const int imageIndex, std::s
     return true;
 }
 
-Loader::Builder::Builder() : path(""), gltfLoadingFlags(0), materialFlags(0), externalMaterial(nullptr)
+Loader::Builder::Builder()
+    : path(""), gltfLoadingFlags(0), materialFlags(0), externalMaterial(nullptr), forcedTextureExt("")
 {
 }
 
@@ -62,16 +64,22 @@ Loader::Builder& Loader::Builder::setShaderParameters(rhi::ShaderParameters* sha
     return *this;
 }
 
+Loader::Builder& Loader::Builder::setForcedTextureExt(std::string forcedTextureExt)
+{
+    this->forcedTextureExt = forcedTextureExt;
+    return *this;
+}
+
 std::shared_ptr<Loader> Loader::Builder::build()
 {
-    return std::make_shared<Loader>(path, fileName, gltfLoadingFlags, materialFlags, externalMaterial,
-                                    shaderParameters);
+    return std::make_shared<Loader>(path, fileName, gltfLoadingFlags, materialFlags, externalMaterial, shaderParameters,
+                                    forcedTextureExt);
 }
 
 Loader::Loader(std::string path, std::string fileName, GltfLoadingFlags gltfLoadingFlags, MaterialFlags materialFlags,
-               model::Material* externalMaterial, rhi::ShaderParameters* shaderParameters)
+               model::Material* externalMaterial, rhi::ShaderParameters* shaderParameters, std::string forcedTextureExt)
     : path(path), fileName(fileName), gltfLoadingFlags(gltfLoadingFlags), materialFlags(materialFlags),
-      externalMaterial(externalMaterial), shaderParameters(shaderParameters)
+      externalMaterial(externalMaterial), shaderParameters(shaderParameters), forcedTextureExt(forcedTextureExt)
 {
 }
 
@@ -132,9 +140,24 @@ Result Loader::loadTextures(platform::Context* platformContext, scene::SceneInfo
 
         scene::Textures* sceneTextures = sceneInfo->getTextures();
 
-        auto [id, texture] = sceneTextures->get(platformContext, name, path + image.uri);
+        if (forcedTextureExt != "")
+        {
+            std::stringstream ss;
 
-        object->addTexture(id);
+            size_t found = name.find_last_of(".");
+            std::string prefix = name.substr(0, found);
+
+            ss << prefix << "." << forcedTextureExt;
+            std::string newName = ss.str();
+
+            auto [id, texture] = sceneTextures->get(platformContext, newName, path + newName);
+            object->addTexture(id);
+        }
+        else
+        {
+            auto [id, texture] = sceneTextures->get(platformContext, name, path + image.uri);
+            object->addTexture(id);
+        }
     }
     return Result::Continue;
 }

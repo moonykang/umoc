@@ -39,10 +39,11 @@ Result SSAOScene::load(platform::Context* platformContext)
     {
         auto loader = model::gltf::Loader::Builder()
                           .setPath("sponza/")
-                          .setFileName("sponza.gltf")
+                          .setFileName("Sponza.gltf")
                           .setMaterialFlags(model::MaterialFlag::All)
                           .setShaderParameters(&shaderParameters)
                           .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .setForcedTextureExt("png")
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
