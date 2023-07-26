@@ -16,8 +16,8 @@ class Transition
     Transition(rhi::ImageLayout oldLayout, rhi::ImageLayout newLayout, VkImage image,
                VkImageSubresourceRange subresourceRange);
 
-    Transition(VkBuffer buffer, VkPipelineStageFlags srcPipelineStage, VkPipelineStageFlags dstPipelineStage,
-               VkAccessFlags srcAccess, VkAccessFlags dstAccess);
+    Transition(VkBuffer buffer, size_t offset, size_t size, VkPipelineStageFlags srcPipelineStage,
+               VkPipelineStageFlags dstPipelineStage, VkAccessFlags srcAccess, VkAccessFlags dstAccess);
 
     ~Transition() = default;
 

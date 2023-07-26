@@ -56,9 +56,20 @@ Result SubAllocatedBuffer::update(Context* context, size_t size, void* data)
     return Result::Continue;
 }
 
+Buffer* SubAllocatedBuffer::getBuffer()
+{
+    ASSERT(buffer);
+    return buffer->getBuffer();
+}
+
 size_t SubAllocatedBuffer::getOffset()
 {
     return offset;
+}
+
+size_t SubAllocatedBuffer::getSize()
+{
+    return size;
 }
 
 VertexBuffer::VertexBuffer(ScratchBuffer* buffer, size_t offset, size_t size) : SubAllocatedBuffer(buffer, offset, size)

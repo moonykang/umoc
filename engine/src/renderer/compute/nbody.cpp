@@ -56,8 +56,8 @@ Result NBodyPass::init(platform::Context* platformContext, scene::SceneInfo* sce
     // Initial particle positions
     std::vector<nbody::Particle> particleBuffer(numParticles);
     //
-    std::default_random_engine rndEngine(0);
-    std::uniform_real_distribution<float> rndDist(0.0f, 1.0f);
+    std::default_random_engine rndEngine(0); // benchmark.active ? 0 : (unsigned)time(nullptr));
+    std::normal_distribution<float> rndDist(0.0f, 1.0f);
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(attractors.size()); i++)
     {
@@ -96,7 +96,7 @@ Result NBodyPass::init(platform::Context* platformContext, scene::SceneInfo* sce
 
     size_t storageBufferSize = particleBuffer.size() * sizeof(nbody::Particle);
 
-    auto storageBuffer = context->allocateStorageBuffer(storageBufferSize, particleBuffer.data());
+    computeStorageBuffer = context->allocateStorageBuffer(storageBufferSize, particleBuffer.data());
 
     nbody::ComputeUBO computeUBO;
     computeUBO.deltaT = 0;
@@ -109,7 +109,7 @@ Result NBodyPass::init(platform::Context* platformContext, scene::SceneInfo* sce
         model::Material* material = new model::Material();
         try(material->init(platformContext));
         material->updateUniformBuffer(computeUniformBuffer, rhi::ShaderStage::Compute);
-        material->updateStorageBuffer(storageBuffer, rhi::ShaderStage::Compute);
+        material->updateStorageBuffer(computeStorageBuffer, rhi::ShaderStage::Compute);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -127,7 +127,7 @@ Result NBodyPass::init(platform::Context* platformContext, scene::SceneInfo* sce
         model::Material* material = new model::Material();
         try(material->init(platformContext));
         material->updateUniformBuffer(computeUniformBuffer, rhi::ShaderStage::Compute);
-        material->updateStorageBuffer(storageBuffer, rhi::ShaderStage::Compute);
+        material->updateStorageBuffer(computeStorageBuffer, rhi::ShaderStage::Compute);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -171,7 +171,7 @@ Result NBodyPass::init(platform::Context* platformContext, scene::SceneInfo* sce
                           .setPredefineModelType(model::PredefinedModel::Storage)
                           .setMaterial(material)
                           .setShaderParameters(&shaderParameters)
-                          .setExternalVertexBuffer({storageBuffer, PARTICLE_COUNT})
+                          .setExternalVertexBuffer({computeStorageBuffer, PARTICLE_COUNT})
                           .build();
 
         graphicsObject = loader->load(platformContext, sceneInfo);
@@ -197,7 +197,7 @@ Result NBodyPass::render(platform::Context* platformContext, scene::SceneInfo* s
 
         nbody::ComputeUBO computeUBO;
         computeUBO.particleCount = numParticles;
-        computeUBO.deltaT = frameTimer * 2.5;
+        computeUBO.deltaT = frameTimer * 0.05;
 
         computeUniformBuffer->update(context, sizeof(nbody::ComputeUBO), &computeUBO);
     }
@@ -226,6 +226,11 @@ Result NBodyPass::render(platform::Context* platformContext, scene::SceneInfo* s
     // integreate
     {
         // buffer transition
+
+        try(context->addTransition(computeStorageBuffer->getBuffer(), computeStorageBuffer->getOffset(),
+                                   computeStorageBuffer->getSize(), rhi::ImageLayout::ComputeShaderWrite,
+                                   rhi::ImageLayout::ComputeShaderReadOnly));
+        try(context->flushTransition());
 
         auto material = integrateInstance->getMaterial();
 
@@ -300,6 +305,7 @@ Result NBodyPass::render(platform::Context* platformContext, scene::SceneInfo* s
 
         rhi::ShaderParameters* shaderParameters = material->getShaderParameters();
         shaderParameters->globalDescriptor = sceneInfo->getDescriptorSet();
+        shaderParameters->localDescriptor = graphicsInstance->getDescriptorSet();
         shaderParameters->materialDescriptor = materialDescriptor;
 
         graphicsPipelineState.shaderParameters = shaderParameters;
@@ -309,7 +315,8 @@ Result NBodyPass::render(platform::Context* platformContext, scene::SceneInfo* s
         context->pushConstant(rhi::ShaderStage::Vertex, sizeof(nbody::PushBlock), &pushBlock);
 
         sceneInfo->getDescriptorSet()->bind(context, 0);
-        materialDescriptor->bind(context, 1);
+        graphicsInstance->getDescriptorSet()->bind(context, 1);
+        materialDescriptor->bind(context, 2);
 
         graphicsObject->draw(context);
         graphicsInstance->draw(context);

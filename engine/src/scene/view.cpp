@@ -6,7 +6,7 @@
 
 namespace scene
 {
-View::View() : dirty(true), uniformBuffer(nullptr)
+View::View() : type(Type::FirstPerson), dirty(true), uniformBuffer(nullptr)
 {
 }
 
@@ -75,7 +75,17 @@ void View::updateViewMatrix()
     rotM = glm::rotate(rotM, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     rotM = glm::rotate(rotM, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    glm::mat4 view = rotM * glm::translate(glm::mat4(1.0f), position);
+    glm::mat4 view;
+
+    switch (type)
+    {
+    case Type::FirstPerson:
+        view = rotM * glm::translate(glm::mat4(1.0f), position);
+        break;
+    case Type::LookAt:
+        view = glm::translate(glm::mat4(1.0f), position) * rotM;
+        break;
+    }
 
     ubo.view_inverse = glm::inverse(view);
     ubo.proj_inverse = glm::inverse(projection);
@@ -138,6 +148,12 @@ void View::rotate(glm::vec3 delta)
     updateViewMatrix();
 }
 
+void View::translate(glm::vec3 delta)
+{
+    this->position += delta;
+    updateViewMatrix();
+}
+
 void View::handle_key_W(bool pressed)
 {
     keyInput.up = pressed;
@@ -176,5 +192,10 @@ void View::handle_mouse_LB(bool pressed)
 void View::handle_mouse_RB(bool pressed)
 {
     mouseButtonInput.right = pressed;
+}
+
+void View::setType(Type type)
+{
+    this->type = type;
 }
 } // namespace scene

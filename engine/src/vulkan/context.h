@@ -71,6 +71,11 @@ class Context : public rhi::Context
 
     Result addTransition(rhi::Image* image, rhi::ImageLayout layout) override;
 
+    Result addTransition(rhi::Buffer* buffer, size_t offset, size_t size, rhi::ImageLayout src,
+                         rhi::ImageLayout dst) override;
+
+    Result flushTransition() override;
+
     void pushConstant(rhi::ShaderStageFlags shaderStage, size_t size, void* data) override;
 
     Result copyImage(rhi::Image* srcImage, rhi::ImageSubResource srcRange, rhi::Image* dstImage,

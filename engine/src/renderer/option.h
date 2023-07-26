@@ -35,6 +35,10 @@ class Option
 
     bool useDeferredRendering();
 
+    void enableParticleRendering();
+
+    bool useParticleRendering();
+
     void enableSSAO();
 
     bool useSSAO();

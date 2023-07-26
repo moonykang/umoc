@@ -19,6 +19,12 @@ namespace scene
 class View
 {
   public:
+    enum class Type
+    {
+        LookAt,
+        FirstPerson
+    };
+
     View();
 
     ~View();
@@ -41,7 +47,12 @@ class View
 
     void rotate(glm::vec3 delta);
 
+    void translate(glm::vec3 delta);
+
+    void setType(Type type);
+
   private:
+    Type type;
     std::mutex mutex;
     bool dirty;
     struct UniformBufferObject

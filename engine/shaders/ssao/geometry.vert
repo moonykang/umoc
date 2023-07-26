@@ -29,7 +29,7 @@ VSOutput main(VSInput input)
 {
 	VSOutput output = (VSOutput)0;
 
-	output.pos = mul(sceneUBO.proj, mul(sceneUBO.view, mul(modelUBO.transform, float4(input.pos, 1.0f))));
+	output.pos = mul(sceneUBO.projection, mul(sceneUBO.view, mul(modelUBO.transform, float4(input.pos, 1.0f))));
 
 	output.uv = input.uv;
 
