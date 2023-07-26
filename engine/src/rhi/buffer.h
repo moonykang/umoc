@@ -10,6 +10,7 @@
 namespace rhi
 {
 class Context;
+class Buffer;
 
 template <typename T> class DataBuffer
 {
@@ -73,7 +74,11 @@ class SubAllocatedBuffer
 
     Result update(Context* context, size_t size, void* data);
 
+    Buffer* getBuffer();
+
     size_t getOffset();
+
+    size_t getSize();
 
   protected:
     ScratchBuffer* buffer;

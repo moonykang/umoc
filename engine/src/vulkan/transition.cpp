@@ -47,8 +47,8 @@ Transition::Transition(rhi::ImageLayout oldLayout, rhi::ImageLayout newLayout, V
     }
 }
 
-Transition::Transition(VkBuffer buffer, VkPipelineStageFlags srcPipelineStage, VkPipelineStageFlags dstPipelineStage,
-                       VkAccessFlags srcAccess, VkAccessFlags dstAccess)
+Transition::Transition(VkBuffer buffer, size_t offset, size_t size, VkPipelineStageFlags srcPipelineStage,
+                       VkPipelineStageFlags dstPipelineStage, VkAccessFlags srcAccess, VkAccessFlags dstAccess)
     : mSrcStageMask(), mDstStageMask(), mMemoryBarrierSrcAccess(), mMemoryBarrierDstAccess(), memoryBarriers(),
       mBufferMemoryBarriers(), mImageMemoryBarriers()
 {
@@ -57,8 +57,8 @@ Transition::Transition(VkBuffer buffer, VkPipelineStageFlags srcPipelineStage, V
     bufferMemoryBarrier.srcAccessMask = srcAccess;
     bufferMemoryBarrier.dstAccessMask = dstAccess;
     bufferMemoryBarrier.buffer = buffer;
-    bufferMemoryBarrier.offset = 0;
-    bufferMemoryBarrier.size = VK_WHOLE_SIZE;
+    bufferMemoryBarrier.offset = offset;
+    bufferMemoryBarrier.size = size;
     mergeBufferBarrier(srcPipelineStage, dstPipelineStage, bufferMemoryBarrier);
 }
 

@@ -67,6 +67,11 @@ class Context : public platform::Context
 
     virtual Result addTransition(Image* image, ImageLayout layout) = 0;
 
+    // Use ImageLayout for specifying pipeline stages
+    virtual Result addTransition(Buffer* buffer, size_t offset, size_t size, ImageLayout src, ImageLayout dst) = 0;
+
+    virtual Result flushTransition() = 0;
+
     virtual void pushConstant(ShaderStageFlags shaderStage, size_t size, void* data) = 0;
 
     virtual Result copyImage(Image* srcImage, ImageSubResource srcRange, Image* dstImage, ImageSubResource dstRagne,

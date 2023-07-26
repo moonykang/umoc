@@ -69,7 +69,7 @@ float main(VSOutput input) : SV_TARGET
 
 		// project
 		float4 offset = float4(samplePos, 1.0f);
-		offset = mul(sceneUBO.proj, offset);
+		offset = mul(sceneUBO.projection, offset);
 		offset.xyz /= offset.w;
 		offset.xyz = offset.xyz * 0.5f + 0.5f;
 

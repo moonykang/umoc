@@ -12,6 +12,7 @@ namespace rhi
 {
 class Texture;
 class UniformBuffer;
+class StorageBuffer;
 } // namespace rhi
 
 namespace renderer
@@ -38,6 +39,7 @@ class NBodyPass : public Base
     double animTimer = 0;
     uint32_t numParticles;
 
+    rhi::StorageBuffer* computeStorageBuffer;
     rhi::UniformBuffer* computeUniformBuffer;
 };
 } // namespace renderer

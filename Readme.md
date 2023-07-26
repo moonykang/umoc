@@ -25,9 +25,9 @@ It supports Windows & Mac at this time.
 |---|---|---|
 | ![pbr](captures/sharpen.png) | ![ibl](captures/emboss.png) | ![todo](captures/edgedetect.png) |
 
-| Particles | TODO | TODO |
+| Particles | N-body particles | TODO |
 |---|---|---|
-| ![pbr](captures/particle.png) | ![ibl](captures/todo.png) | ![todo](captures/todo.png) |
+| ![pbr](captures/particle.png) | ![ibl](captures/nbody.png) | ![todo](captures/todo.png) |
 
 ## Git clone
 

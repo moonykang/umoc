@@ -21,7 +21,7 @@ struct SceneView
     float4x4 prev_view_proj;
     float4x4 view_proj;
     float4x4 view;
-    float4x4 proj;
+    float4x4 projection;
     float4 pos;
 	float nearPlane;
 	float farPlane;

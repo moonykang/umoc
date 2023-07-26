@@ -1,5 +1,6 @@
 #include "vulkan/context.h"
 #include "buffer.h"
+#include "commandBuffer.h"
 #include "debug.h"
 #include "descriptor.h"
 #include "pendingState.h"
@@ -178,5 +179,13 @@ void Context::clearAllGarbage()
         garbage.terminate(this);
     }
     garbageList.clear();
+}
+
+Result Context::flushTransition()
+{
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+    commandBuffer->flushTransitions();
+
+    return Result::Continue;
 }
 } // namespace vk

@@ -28,6 +28,16 @@ bool Option::useDeferredRendering()
     return sceneRendering == SceneRendering::Deferred;
 }
 
+void Option::enableParticleRendering()
+{
+    sceneRendering = SceneRendering::Particle;
+}
+
+bool Option::useParticleRendering()
+{
+    return sceneRendering == SceneRendering::Particle;
+}
+
 void Option::enableSSAO()
 {
     ssao = true;

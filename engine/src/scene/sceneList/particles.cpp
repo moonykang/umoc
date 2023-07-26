@@ -22,10 +22,14 @@ Result ParticleScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
+    view->setType(View::Type::LookAt);
     renderingOptions.enableForwardRendering();
+    renderingOptions.enableParticleRendering();
 
-    view->setView(glm::vec3(1.5f, 0.0f, -3.0f), glm::vec3(0.0f, 25.0f, 0.0f));
-    view->setPerspective(45.0f, 1, 0.1f, 64.f);
+    // view->setView(glm::vec3(0.f, 0.0f, -14.0f), glm::vec3(-26.0f, 75.0f, 0.0f));
+    view->rotate(glm::vec3(-26.0f, 75.0f, 0.0f));
+    view->translate(glm::vec3(0.0f, 0.0f, -14.0f));
+    view->setPerspective(60.0f, 1, 0.1f, 512.f);
     view->updateViewMatrix();
 
     try(view->updateUniformBuffer(context));

@@ -5,6 +5,8 @@
 #include "memory.h"
 #include "physicalDevice.h"
 #include "queue.h"
+#include "resource/image.h"
+#include "transition.h"
 #include "util.h"
 
 namespace vk
@@ -35,6 +37,26 @@ rhi::Buffer* Context::allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::Mem
 
     UNREACHABLE();
     return nullptr;
+}
+
+Result Context::addTransition(rhi::Buffer* rhiBuffer, size_t offset, size_t size, rhi::ImageLayout src,
+                              rhi::ImageLayout dst)
+{
+    Buffer* buffer = reinterpret_cast<Buffer*>(rhiBuffer);
+
+    const ImageMemoryBarrierData& transitionFrom = kImageMemoryBarrierData[src];
+    const ImageMemoryBarrierData& transitionTo = kImageMemoryBarrierData[dst];
+    VkPipelineStageFlags srcStageMask = transitionFrom.srcStageMask;
+    VkPipelineStageFlags dstStageMask = transitionTo.dstStageMask;
+    VkAccessFlags srcAccessMask = transitionFrom.srcAccessMask;
+    VkAccessFlags dstAccessMask = transitionFrom.dstAccessMask;
+
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+
+    commandBuffer->addTransition(
+        new Transition(buffer->getHandle(), offset, size, srcStageMask, dstStageMask, srcAccessMask, dstAccessMask));
+
+    return Result::Continue;
 }
 
 RealBuffer::RealBuffer() : deviceMemory(nullptr)
