@@ -50,6 +50,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
 
     try(context->beginRenderpass(renderpassInfo));
 
+<<<<<<< HEAD
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
     graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
@@ -60,11 +61,32 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
     graphicsPipelineState.depthStencilState.depthWriteEnable = true;
 
+=======
+>>>>>>> d3143e2 (Update IBL)
     int idx = 0;
     for (auto& model : sceneInfo->getModels())
     {
         for (auto& instance : model->getInstances())
         {
+
+            rhi::GraphicsPipelineState graphicsPipelineState;
+            graphicsPipelineState.colorBlendState.attachmentCount = 1;
+            graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
+            graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+            graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
+            graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+            graphicsPipelineState.depthStencilState.depthTestEnable = true;
+            graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
+            graphicsPipelineState.depthStencilState.depthWriteEnable = true;
+
+            auto& constantBlock = instance->getPushConstantBlock();
+
+            if (constantBlock.valid())
+            {
+                graphicsPipelineState.pushConstants.push_back(
+                    rhi::PushConstant(constantBlock.getShaderStage(), 0, constantBlock.getSize()));
+            }
+
             model::Material* material = instance->getMaterial();
             auto materialDescriptor = material->getDescriptorSet();
 
@@ -76,6 +98,11 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
             graphicsPipelineState.shaderParameters = shaderParameters;
 
             context->createGfxPipeline(graphicsPipelineState);
+
+            if (constantBlock.valid())
+            {
+                constantBlock.push(context);
+            }
 
             sceneInfo->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);

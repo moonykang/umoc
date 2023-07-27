@@ -106,4 +106,9 @@ util::Transform& Instance::getTransform()
 {
     return transform;
 }
+
+model::ConstantBlock& Instance::getPushConstantBlock()
+{
+    return pushConstantBlock;
+}
 } // namespace model
