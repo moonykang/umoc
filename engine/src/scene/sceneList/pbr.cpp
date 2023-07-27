@@ -17,6 +17,19 @@
 
 namespace scene
 {
+namespace pbr
+{
+struct PushBlock
+{
+    float roughness;
+    float metallic;
+    float specular;
+    float r;
+    float g;
+    float b;
+} pushBlock;
+} // namespace pbr
+
 Result PBRScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
@@ -48,14 +61,29 @@ Result PBRScene::load(platform::Context* platformContext)
         model::Object* object = loader->load(context, this);
         registerObject(context, object);
 
-        for (float i = -1; i <= 1; i += 0.5f)
+        float specular[7] = {1, 2, 4, 8, 16, 32, 64};
+        pbr::PushBlock pushblocks[25];
+        for (int i = 0; i < 5; i++)
         {
-            for (float j = -1; j <= 1; j += 0.5f)
+            float x = -1 + (i * 0.5f);
+
+            for (int j = 0; j < 5; j++)
             {
+                float y = -1 + (j * 0.5f);
+
+                pbr::PushBlock& pushblock = pushblocks[i * 7 + j];
+                pushblock.roughness = i * 0.2f + 0.1f;
+                pushblock.metallic = j * 0.2f + 0.1f;
+                pushblock.specular = specular[j];
+                pushblock.r = 0.8f;
+                pushblock.b = 0.8f;
+                pushblock.g = 0.8f;
+
                 util::Transform transform;
-                transform.scale(glm::vec3(0.2f));
-                transform.translate(glm::vec3(i, j, 0));
+                transform.scale(glm::vec3(0.14f));
+                transform.translate(glm::vec3(x, y, 0));
                 model::Instance* instance = object->instantiate(context, transform.get(), true);
+                instance->getPushConstantBlock().udpate(rhi::ShaderStage::Pixel, sizeof(pbr::PushBlock), &pushblock);
             }
         }
     }

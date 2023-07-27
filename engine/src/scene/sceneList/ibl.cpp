@@ -17,6 +17,19 @@
 
 namespace scene
 {
+namespace ibl
+{
+struct PushBlock
+{
+    float roughness;
+    float metallic;
+    float specular;
+    float r;
+    float g;
+    float b;
+} pushBlock;
+} // namespace ibl
+
 Result IBLScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
@@ -93,14 +106,29 @@ Result IBLScene::load(platform::Context* platformContext)
         model::Object* object = loader->load(context, this);
         registerObject(context, object);
 
-        for (float i = -1; i <= 1; i += 0.3f)
+        float specular[7] = {1, 2, 4, 8, 16, 32, 64};
+        ibl::PushBlock pushblocks[49];
+        for (int i = 0; i < 7; i++)
         {
-            for (float j = -1; j <= 1; j += 0.3f)
+            float x = -1 + (i * 0.3f);
+
+            for (int j = 0; j < 7; j++)
             {
+                float y = -1 + (j * 0.3f);
+
+                ibl::PushBlock& pushblock = pushblocks[i * 7 + j];
+                pushblock.roughness = i * 0.13f + 0.1f;
+                pushblock.metallic = j * 0.13f + 0.1f;
+                pushblock.specular = specular[j];
+                pushblock.r = 0.8f;
+                pushblock.b = 0.8f;
+                pushblock.g = 0.8f;
+
                 util::Transform transform;
                 transform.scale(glm::vec3(0.14f));
-                transform.translate(glm::vec3(i, j, 0));
+                transform.translate(glm::vec3(x, y, 0));
                 model::Instance* instance = object->instantiate(context, transform.get(), true);
+                instance->getPushConstantBlock().udpate(rhi::ShaderStage::Pixel, sizeof(ibl::PushBlock), &pushblock);
             }
         }
     }

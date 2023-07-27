@@ -1,4 +1,5 @@
 #pragma once
+#include "common/memorybuffer.h"
 #include "common/util.h"
 #include "defines.h"
 #include "rhi/defines.h"

@@ -3,6 +3,7 @@
 #include "common/transform.h"
 #include "common/tree.h"
 #include "common/util.h"
+#include "constantBlock.h"
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -49,6 +50,8 @@ class Instance
 
     util::Transform& getTransform();
 
+    model::ConstantBlock& getPushConstantBlock();
+
   private:
     Object* object;
     Material* material;
@@ -72,5 +75,7 @@ class Instance
     std::mutex mutex;
     bool initialized;
     bool dirty;
+
+    model::ConstantBlock pushConstantBlock;
 };
 } // namespace model
