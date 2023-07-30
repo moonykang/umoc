@@ -31,7 +31,7 @@ layout (set = 2, binding = 1) uniform sampler2D textureAlbedo;
 
 
 
-const float PI = 3.14159265359;
+const float MPI = 3.14159265359;
 
 // Normal Distribution function --------------------------------------
 float D_GGX(float dotNH, float roughness)
@@ -39,7 +39,7 @@ float D_GGX(float dotNH, float roughness)
 	float alpha = roughness * roughness;
 	float alpha2 = alpha * alpha;
 	float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
-	return (alpha2)/(PI * denom*denom); 
+	return (alpha2)/(MPI * denom*denom); 
 }
 
 // Geometric Shadowing function --------------------------------------

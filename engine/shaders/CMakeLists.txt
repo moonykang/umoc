@@ -16,6 +16,8 @@ SET(SUBDIRECTORIES
 	particle
 	filter
 	nbody
+	shadowmap
+	sponza
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})
@@ -31,7 +33,7 @@ FIND_PROGRAM(GLSLC
     glslc
     HINTS ${ANDROID_NDK}/shader-tools/*/ ${CMAKE_ANDROID_NDK}/shader-tools/*/)
 
-SET(COMPILER_PARAMETER "")
+SET(COMMPILER_PARAMETER "")
 
 IF(NOT GLSLANG_VALIDATOR AND NOT GLSLC)
 	MESSAGE(FATAL_ERROR "Unable to find glslangValidator or glslc shader compiler")
@@ -76,7 +78,7 @@ FIND_PROGRAM(DXC
 	HINTS ENV VULKAN_SDK
 	PATH_SUFFIXES bin)
 
-SET(COMPILER_PARAMETER "")
+SET(COMMPILER_PARAMETER "")
 
 IF(NOT DXC)
 	MESSAGE(FATAL_ERROR "Unable to find DXC")

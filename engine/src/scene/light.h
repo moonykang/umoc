@@ -17,14 +17,70 @@ class Context;
 
 namespace scene
 {
+
+enum LightType
+{
+    LIGHT_TYPE_DIRECTIONAL,
+    LIGHT_TYPE_POINT,
+    LIGHT_TYPE_SPOT,
+    LIGHT_TYPE_COUNT
+};
+
 class Light
 {
   public:
     Light();
 
-    glm::vec4 position;
-    glm::vec3 color;
-    float radius;
+    inline void set_light_direction(glm::vec3 value)
+    {
+        data0.x = value.x;
+        data0.y = value.y;
+        data0.z = value.z;
+    }
+
+    inline void set_light_position(glm::vec3 value)
+    {
+        data1.x = value.x;
+        data1.y = value.y;
+        data1.z = value.z;
+    }
+
+    inline void set_light_color(glm::vec3 value)
+    {
+        data2.x = value.x;
+        data2.y = value.y;
+        data2.z = value.z;
+    }
+
+    inline void set_light_intensity(float value)
+    {
+        data0.w = value;
+    }
+
+    inline void set_light_radius(float value)
+    {
+        data1.w = value;
+    }
+
+    inline void set_light_type(LightType value)
+    {
+        data3.x = value;
+    }
+
+    inline void set_light_cos_theta_outer(float value)
+    {
+        data3.y = value;
+    }
+
+    inline void set_light_cos_theta_inner(float value)
+    {
+        data3.z = value;
+    }
+
+    glm::vec4 data0;
+    glm::vec4 data1;
+    glm::vec4 data2;
+    glm::vec4 data3;
 };
 
 class Lights
@@ -38,21 +94,25 @@ class Lights
 
     void terminate(platform::Context* context);
 
-    void setLightPosition(uint32_t index, const glm::vec4& position);
-
-    glm::vec4& getLightPosition(uint32_t index);
+    void setLightPosition(uint32_t index, const glm::vec3& position);
 
     void setLightColor(uint32_t index, const glm::vec3& color);
 
-    glm::vec3& getLightColor(uint32_t index);
-
     void setLightRadius(uint32_t index, const float& radius);
-
-    float& getLightRadius(uint32_t index);
 
     Result updateUniformBuffer(platform::Context* context);
 
     rhi::UniformBuffer* getUniformBuffer();
+
+    void setPerspective(float fov, float ratio, float minDepth, float maxDepth);
+
+    void setDirectionalLightPosition(glm::vec3 position);
+
+    void setDirectionalLightDirection(glm::vec3 direction);
+
+    Light& getLight(uint32_t index);
+
+    void setNumLights(uint32_t num);
 
   private:
     std::mutex mutex;
@@ -61,10 +121,18 @@ class Lights
     struct UniformBufferObject
     {
         Light light[NUM_LIGHTS];
+        glm::mat4 projection;
+        glm::mat4 view;
         uint32_t numLights;
     } ubo;
 
     rhi::UniformBuffer* uniformBuffer;
+
+    struct DirectionalLight
+    {
+        glm::vec3 position;
+        glm::vec3 direction;
+    } directionalLight;
 
     static constexpr size_t uniformDataSize = sizeof(UniformBufferObject);
 };

@@ -4,7 +4,7 @@ layout (location = 0) in vec2 inUV;
 layout (location = 0) out vec4 outColor;
 layout (constant_id = 0) const uint NUM_SAMPLES = 1024u;
 
-const float PI = 3.1415926536;
+const float MPI = 3.1415926536;
 
 // Based omn http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 float random(vec2 co)
@@ -34,7 +34,7 @@ vec3 importanceSample_GGX(vec2 Xi, float roughness, vec3 normal)
 {
 	// Maps a 2D point to a hemisphere with spread based on roughness
 	float alpha = roughness * roughness;
-	float phi = 2.0 * PI * Xi.x + random(normal.xz) * 0.1;
+	float phi = 2.0 * MPI * Xi.x + random(normal.xz) * 0.1;
 	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha*alpha - 1.0) * Xi.y));
 	float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
 	vec3 H = vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);

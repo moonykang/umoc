@@ -11,7 +11,7 @@ layout(push_constant) uniform PushConsts {
 	layout (offset = 68) float deltaTheta;
 } consts;
 
-#define PI 3.1415926535897932384626433832795
+#define MPI 3.1415926535897932384626433832795
 
 void main()
 {
@@ -20,18 +20,18 @@ void main()
 	vec3 right = normalize(cross(up, N));
 	up = cross(N, right);
 
-	const float TWO_PI = PI * 2.0;
-	const float HALF_PI = PI * 0.5;
+	const float TWO_MPI = MPI * 2.0;
+	const float HALF_MPI = MPI * 0.5;
 
 	vec3 color = vec3(0.0);
 	uint sampleCount = 0u;
-	for (float phi = 0.0; phi < TWO_PI; phi += consts.deltaPhi) {
-		for (float theta = 0.0; theta < HALF_PI; theta += consts.deltaTheta) {
+	for (float phi = 0.0; phi < TWO_MPI; phi += consts.deltaPhi) {
+		for (float theta = 0.0; theta < HALF_MPI; theta += consts.deltaTheta) {
 			vec3 tempVec = cos(phi) * right + sin(phi) * up;
 			vec3 sampleVector = cos(theta) * N + sin(theta) * tempVec;
 			color += texture(samplerEnv, sampleVector).rgb * cos(theta) * sin(theta);
 			sampleCount++;
 		}
 	}
-	outColor = vec4(PI * color / float(sampleCount), 1.0);
+	outColor = vec4(MPI * color / float(sampleCount), 1.0);
 }

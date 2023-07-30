@@ -22,132 +22,42 @@ Result SponzaScene::load(platform::Context* platformContext)
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
     renderingOptions.enableDeferredRendering();
+    // renderingOptions.enableSSAO();
+    // renderingOptions.setFinalTarget(renderTargets->getSSAOBlur());
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(
-        "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                          rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent |
-                                          rhi::VertexChannel::Bitangent);
-    shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+        "sponza/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
+    shaderParameters.pixelShader = context->allocatePixelShader("sponza/geometry.frag.spv");
 
-    // Floor
+    // Sponza
     {
-        model::Material* material = new model::Material();
-        try(material->init(context));
-        // albedo 0
-        {
-            auto [id, texture] =
-                textures->get(context, "Stone floor diffuse", "stonefloor/stonefloor01_color_rgba.ktx");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture, rhi::ShaderStage::Pixel);
-        }
-        // normal 1
-        {
-            auto [id, texture] =
-                textures->get(context, "Stone floor normal", "stonefloor/stonefloor01_normal_rgba.ktx");
-            material->updateTexture(model::MaterialFlag::NormalTexture, texture, rhi::ShaderStage::Pixel);
-        }
-        try(material->update(context));
-
-        auto loader = model::predefined::Loader::Builder()
-                          .setPredefineModelType(model::PredefinedModel::Quad)
-                          .setMaterial(material)
+        auto loader = model::gltf::Loader::Builder()
+                          .setPath("sponza/")
+                          .setFileName("Sponza.gltf")
+                          .setMaterialFlags(model::MaterialFlag::All)
                           .setShaderParameters(&shaderParameters)
-                          .setUvScale(20.f)
+                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .setForcedTextureExt("png")
                           .build();
 
-        model::Object* object = loader->load(context, this);
+        model::Object* object = loader->load(platformContext, this);
         registerObject(context, object);
+
         util::Transform transform;
-        transform.translate(glm::vec3(0.0f, -10.0f, 0.0f));
-        transform.rotate(glm::vec3(90.0f, 0.0f, 0.0f));
-        transform.scale(glm::vec3(50.0f, 50.0f, 1.0f));
+        transform.scale(glm::vec3(1.0f));
         model::Instance* instance = object->instantiate(context, transform.get(), true);
     }
 
-    // armor
-    {
-        model::Material* material = new model::Material();
-        try(material->init(context));
-        // albedo 0
-        {
-            auto [id, texture] = textures->get(context, "Armor(albedo)", "armor/albedo.ktx");
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, texture, rhi::ShaderStage::Pixel);
-        }
-        // normal 1
-        {
-            auto [id, texture] = textures->get(context, "Armor(normal)", "armor/normal.ktx");
-            material->updateTexture(model::MaterialFlag::NormalTexture, texture, rhi::ShaderStage::Pixel);
-        }
-        try(material->update(context));
-
-        auto loader = model::gltf::Loader::Builder()
-                          .setPath("armor/")
-                          .setFileName("armor.gltf")
-                          .setMaterialFlags(model::MaterialFlag::NONE)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
-                          .setShaderParameters(&shaderParameters)
-                          .addExternalMaterial(material)
-                          .build();
-
-        model::Object* object = loader->load(context, this);
-        registerObject(context, object);
-        util::Transform transform;
-        transform.rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
-        model::Instance* instance = object->instantiate(context, transform.get(), true);
-    }
-
-    // sphere
-    {
-        model::Material* material = new model::Material();
-        try(material->init(context));
-        // albedo 0
-        {
-            material->updateTexture(model::MaterialFlag::BaseColorTexture, renderTargets->getWhiteDummy(),
-                                    rhi::ShaderStage::Pixel);
-        }
-        // albedo 0
-        {
-            material->updateTexture(model::MaterialFlag::NormalTexture, renderTargets->getWhiteDummy(),
-                                    rhi::ShaderStage::Pixel);
-        }
-        try(material->update(context));
-
-        auto loader = model::gltf::Loader::Builder()
-                          .setPath("")
-                          .setFileName("sphere.gltf")
-                          .setMaterialFlags(model::MaterialFlag::NONE)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
-                          .setShaderParameters(&shaderParameters)
-                          .addExternalMaterial(material)
-                          .build();
-
-        model::Object* object = loader->load(context, this);
-        registerObject(context, object);
-
-        const uint32_t num_sphere = 15;
-        glm::vec3 transforms[num_sphere] = {{2, -0.7, 2},     {7, -0.6, 2},    {3, -0.5f, -1},  {0, -0.55f, 0},
-                                            {-5, -0.35f, -3}, {1, -0.65, 1},   {-2, -0.25, 1},  {5, -0.55f, -2},
-                                            {1, -0.67f, -1},  {6, -0.45f, -2}, {-1, -0.5f, -1}, {2, -0.29, -1},
-                                            {-5, -0.2f, 2},   {-1, -0.3f, 1},  {-6, -0.4f, 2}};
-
-        for (int i = 0; i < num_sphere; i++)
-        {
-            util::Transform transform;
-            transform.translate(glm::vec3(transforms[i].x, transforms[i].y, transforms[i].z));
-            transform.scale(glm::vec3(-transforms[i].y));
-            model::Instance* instance = object->instantiate(context, transform.get(), true, true);
-        }
-    }
-
-    view->setView(glm::vec3(-9.0f, 4.5f, -5.5f), glm::vec3(-9.9f, -70.0f, 0.0f));
+    view->setView(glm::vec3(5.0f, 1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();
 
     try(view->updateUniformBuffer(context));
 
-    light->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
+    lights->setLightPosition(0, glm::vec4(-1.0f, -3.0f, 0.0f, 1.0f));
 
-    try(light->updateUniformBuffer(context));
+    try(lights->updateUniformBuffer(context));
 
     try(updateDescriptor(context));
 
@@ -157,40 +67,54 @@ Result SponzaScene::load(platform::Context* platformContext)
 Result SponzaScene::udpate(platform::Context* context)
 {
     timer++;
+    lights->setNumLights(6);
+    {
+        glm::vec3 direction;
+        direction.x = sin(glm::radians(360.0f * timer));
+        direction.y = 1.0f;
+        direction.z = cos(glm::radians(360.0f * timer));
 
-    // White
-    light->setLightPosition(
-        0, glm::vec4(sin(glm::radians(360.0f * timer)) * 5.0f, 2.0f, cos(glm::radians(360.0f * timer)) * 5.0f, 0.0f));
-    light->setLightColor(0, glm::vec3(1.5f));
-    light->setLightRadius(0, 15.0f);
+        auto& light = lights->getLight(0);
+        light.set_light_type(scene::LightType::LIGHT_TYPE_DIRECTIONAL);
+        light.set_light_intensity(1);
+        light.set_light_direction(glm::normalize(direction));
+    }
 
-    // Red
-    light->setLightPosition(1, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
-                                         0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
-    light->setLightColor(1, glm::vec3(1.0f, 0.0f, 0.0f));
-    light->setLightRadius(1, 30.0f);
+    {
+        glm::vec3 position;
+        position.x = -4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f;
+        position.y = 2.0f;
+        position.z = 0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f;
+
+        auto& light = lights->getLight(1);
+        light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        light.set_light_position(position);
+        light.set_light_radius(10.0f);
+        light.set_light_color(glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+
     // Blue
-    light->setLightPosition(2, glm::vec4(4.0f + sin(glm::radians(360.0f * timer)) * 2.0f, 2.0f,
-                                         0.0f + cos(glm::radians(360.0f * timer)) * 2.0f, 0.0f));
-    light->setLightColor(2, glm::vec3(0.0f, 0.0f, 2.5f));
-    light->setLightRadius(2, 25.0f);
+    lights->setLightPosition(2, glm::vec4(4.0f + sin(glm::radians(360.0f * timer)) * 2.0f, 2.0f,
+                                          0.0f + cos(glm::radians(360.0f * timer)) * 2.0f, 0.0f));
+    lights->setLightColor(2, glm::vec3(0.0f, 0.0f, 2.5f));
+    lights->setLightRadius(2, 5.0f);
     // Yellow
-    light->setLightPosition(3, glm::vec4(0.0f + sin(glm::radians(360.0f * timer + 90.0f)) * 5.0f, 20.0f,
-                                         0.0f - cos(glm::radians(360.0f * timer + 45.0f)) * 5.0f, 0.0f));
-    light->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.0f));
-    light->setLightRadius(3, 15.0f);
+    lights->setLightPosition(3, glm::vec4(0.0f + sin(glm::radians(360.0f * timer + 90.0f)) * 5.0f, 20.0f,
+                                          0.0f - cos(glm::radians(360.0f * timer + 45.0f)) * 5.0f, 0.0f));
+    lights->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.0f));
+    lights->setLightRadius(3, 5.0f);
     // Green
-    light->setLightPosition(4, glm::vec4(0.0f + sin(glm::radians(-360.0f * timer + 135.0f)) * 10.0f, 2.5f,
-                                         0.0f - cos(glm::radians(-360.0f * timer - 45.0f)) * 10.0f, 0.0f));
-    light->setLightColor(4, glm::vec3(0.0f, 1.0f, 0.2f));
-    light->setLightRadius(4, 45.0f);
+    lights->setLightPosition(4, glm::vec4(0.0f + sin(glm::radians(-360.0f * timer + 135.0f)) * 10.0f, 2.5f,
+                                          0.0f - cos(glm::radians(-360.0f * timer - 45.0f)) * 10.0f, 0.0f));
+    lights->setLightColor(4, glm::vec3(0.0f, 1.0f, 0.2f));
+    lights->setLightRadius(4, 15.0f);
 
     // Yellow
-    light->setLightPosition(5, glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
-    light->setLightColor(5, glm::vec3(1.0f, 0.7f, 0.3f));
-    light->setLightRadius(5, 25.0f);
+    lights->setLightPosition(5, glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
+    lights->setLightColor(5, glm::vec3(1.0f, 0.7f, 0.3f));
+    lights->setLightRadius(5, 25.0f);
 
-    try(light->updateUniformBuffer(context));
+    try(lights->updateUniformBuffer(context));
 
     try(view->updateUniformBuffer(context));
 

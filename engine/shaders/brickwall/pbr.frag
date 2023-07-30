@@ -31,7 +31,7 @@ layout(push_constant) uniform PushConsts {
 	float b;
 } material;
 
-const float PI = 3.14159265359;
+const float MPI = 3.14159265359;
 
 vec3 materialcolor()
 {
@@ -44,7 +44,7 @@ float D_GGX(float dotNH, float roughness)
 	float alpha = roughness * roughness;
 	float alpha2 = alpha * alpha;
 	float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
-	return (alpha2)/(PI * denom*denom); 
+	return (alpha2)/(MPI * denom*denom); 
 }
 
 // Geometric Shadowing function --------------------------------------
@@ -97,7 +97,7 @@ vec3 BRDF(vec3 albedo, vec3 L, vec3 V, vec3 N, float metallic, float roughness)
         float denominator = 4.0 * dotNV * dotNL + 0.0001;
         vec3 specular = numerator / denominator;
 
-        color += (kD * albedo / PI + specular) * dotNL * lightColor;
+        color += (kD * albedo / MPI + specular) * dotNL * lightColor;
 		// vec3 spec = D * F * G / (4.0 * dotNL * dotNV);
 
 		//color += spec * dotNL * lightColor;

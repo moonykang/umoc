@@ -1,15 +1,85 @@
+#ifndef COMMON_HLSL
+#define COMMON_HLSL
+
+#define MPI 3.14159265359
+#define EPSILON 0.0001f
+#define INFINITY 100000.0f
+
+#define LIGHT_TYPE_DIRECTIONAL 0
+#define LIGHT_TYPE_POINT 1
+#define LIGHT_TYPE_SPOT 2
+
 #define NUM_LIGHTS 6
 
 struct Light
 {
-    float4 pos;
-    float3 color;
-    float radius;
+    float4 data0;
+    float4 data1;
+    float4 data2;
+    float4 data3;
 };
+
+// ------------------------------------------------------------------------
+
+float3 light_direction(in Light light)
+{
+    return light.data0.xyz;
+}
+
+// ------------------------------------------------------------------------
+
+float3 light_color(in Light light)
+{
+    return light.data2.xyz;
+}
+
+// ------------------------------------------------------------------------
+
+float light_intensity(in Light light)
+{
+    return light.data0.w;
+}
+
+// ------------------------------------------------------------------------
+
+float light_radius(in Light light)
+{
+    return light.data1.w;
+}
+
+// ------------------------------------------------------------------------
+
+float3 light_position(in Light light)
+{
+    return light.data1.xyz;
+}
+
+// ------------------------------------------------------------------------
+
+int light_type(in Light light)
+{
+    return int(light.data3.x);
+}
+
+// ------------------------------------------------------------------------
+
+float light_cos_theta_outer(in Light light)
+{
+    return light.data3.y;
+}
+
+// ------------------------------------------------------------------------
+
+float light_cos_theta_inner(in Light light)
+{
+    return light.data3.z;
+}
 
 struct SceneLight
 {
     Light lights[NUM_LIGHTS];
+    float4x4 projection;
+    float4x4 view;
     uint numLights;
 };
 
@@ -112,3 +182,5 @@ float4 mix(float4 x, float4 y, float a)
 {
     return x * (1-a) + y * a;
 }
+
+#endif // COMMON_HLSL

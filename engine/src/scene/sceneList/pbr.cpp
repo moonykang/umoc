@@ -94,9 +94,9 @@ Result PBRScene::load(platform::Context* platformContext)
 
     try(view->updateUniformBuffer(context));
 
-    light->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
+    lights->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
 
-    try(light->updateUniformBuffer(context));
+    try(lights->updateUniformBuffer(context));
 
     try(updateDescriptor(context));
 
@@ -112,9 +112,9 @@ Result PBRScene::udpate(platform::Context* context)
     lightPos.y = sin(glm::radians(timer * 1.0f)) * 5.0f;
     lightPos.z = -10.0f;
 
-    light->setLightPosition(0, glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
+    lights->setLightPosition(0, glm::vec4(lightPos.x, lightPos.y, lightPos.z, 1.0f));
 
-    try(light->updateUniformBuffer(context));
+    try(lights->updateUniformBuffer(context));
 
     try(view->updateUniformBuffer(context));
     return Result::Continue;

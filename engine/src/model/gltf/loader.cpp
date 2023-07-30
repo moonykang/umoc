@@ -12,6 +12,13 @@
 #include "scene/textures.h"
 #include <sstream>
 
+#define MATERIAL_DEBUG 1
+
+#if MATERIAL_DEBUG
+#define MATERIAL_LOG(msg, ...) LOGD(msg, ##__VA_ARGS__)
+#else
+#define MATERIAL_LOG(msg, ...)
+#endif
 namespace model
 {
 namespace gltf
@@ -170,6 +177,7 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
 
         try(material->init(context));
 
+        MATERIAL_LOG("Material %p", material);
         if (shaderParameters)
         {
             material->setShaderParameters(shaderParameters);
@@ -178,6 +186,7 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         if ((materialFlags & MaterialFlag::BaseColorTexture) != 0 &&
             mat.values.find("baseColorTexture") != mat.values.end())
         {
+            MATERIAL_LOG("baseColorTexture");
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["baseColorTexture"].TextureIndex()].source);
             material->updateTexture(MaterialFlag::BaseColorTexture, sceneInfo->getTextures()->get(textureID),
@@ -187,6 +196,7 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         if ((materialFlags & MaterialFlag::MetalicRoughnessTexture) != 0 &&
             mat.values.find("metallicRoughnessTexture") != mat.values.end())
         {
+            MATERIAL_LOG("metallicRoughnessTexture");
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["metallicRoughnessTexture"].TextureIndex()].source);
             material->updateTexture(MaterialFlag::MetalicRoughnessTexture, sceneInfo->getTextures()->get(textureID),
@@ -195,6 +205,7 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
 
         if ((materialFlags & MaterialFlag::NormalTexture) != 0 && mat.values.find("normalTexture") != mat.values.end())
         {
+            MATERIAL_LOG("normalTexture");
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["normalTexture"].TextureIndex()].source);
             material->updateTexture(MaterialFlag::NormalTexture, sceneInfo->getTextures()->get(textureID),
@@ -204,6 +215,8 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         if ((materialFlags & MaterialFlag::EmissiveTexture) != 0 &&
             mat.values.find("emissiveTexture") != mat.values.end())
         {
+            MATERIAL_LOG("emissiveTexture");
+            LOGD("emissiveTexture");
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["emissiveTexture"].TextureIndex()].source);
             material->updateTexture(MaterialFlag::EmissiveTexture, sceneInfo->getTextures()->get(textureID),
@@ -213,6 +226,7 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
         if ((materialFlags & MaterialFlag::OcclusionTexture) != 0 &&
             mat.values.find("occlusionTexture") != mat.values.end())
         {
+            MATERIAL_LOG("occlusionTexture");
             TextureID textureID =
                 object->getTexture(gltfModel.textures[mat.values["occlusionTexture"].TextureIndex()].source);
             material->updateTexture(MaterialFlag::OcclusionTexture, sceneInfo->getTextures()->get(textureID),
@@ -221,16 +235,19 @@ Result Loader::loadMaterials(platform::Context* context, scene::SceneInfo* scene
 
         if (mat.values.find("roughnessFactor") != mat.values.end())
         {
+            MATERIAL_LOG("roughnessFactor");
             material->setRoughnessFactor(static_cast<float>(mat.values["roughnessFactor"].Factor()));
         }
 
         if (mat.values.find("metallicFactor") != mat.values.end())
         {
+            MATERIAL_LOG("metallicFactor");
             material->setMetallicFactor(static_cast<float>(mat.values["metallicFactor"].Factor()));
         }
 
         if (mat.values.find("baseColorFactor") != mat.values.end())
         {
+            MATERIAL_LOG("baseColorFactor");
             material->setBaseColorFactor(glm::make_vec4(mat.values["baseColorFactor"].ColorFactor().data()));
         }
 

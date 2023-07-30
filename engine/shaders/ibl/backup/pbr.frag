@@ -31,7 +31,7 @@ struct PushConsts {
 // ----------------------------------------------------------------------------
 float DistributionGGX(float3 N, float3 H, float roughness)
 {
-    const float PI = 3.14159265359f;
+    const float MPI = 3.14159265359f;
 
     float a = roughness*roughness;
     float a2 = a*a;
@@ -40,7 +40,7 @@ float DistributionGGX(float3 N, float3 H, float roughness)
 
     float nom   = a2;
     float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-    denom = PI * denom * denom;
+    denom = MPI * denom * denom;
 
     return nom / denom;
 }
@@ -74,7 +74,7 @@ float3 fresnelSchlick(float cosTheta, float3 F0)
 
 float4 main(VSOutput input) : SV_TARGET
 {
-    const float PI = 3.14159265359f;
+    const float MPI = 3.14159265359f;
 
     float3 N = input.normal;
     float3 V = normalize(sceneView.pos.xyz - input.worldPos);
@@ -109,7 +109,7 @@ float4 main(VSOutput input) : SV_TARGET
 
         float NdotL = max(dot(N, L), 0.0f);
 
-        Lo += (kD * albedo/ PI + specular) * radiance * NdotL;
+        Lo += (kD * albedo/ MPI + specular) * radiance * NdotL;
     }
 
     float3 ambient = float3(0.03f, 0.03f, 0.03f) * albedo;

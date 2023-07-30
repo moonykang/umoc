@@ -40,7 +40,7 @@ Result Lighting::init(platform::Context* platformContext, scene::SceneInfo* scen
         shaderParameters.vertexShader = context->allocateVertexShader(
             "screen/screen.vert.spv",
             rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
-        shaderParameters.pixelShader = context->allocatePixelShader("deferred/lighting.frag.spv");
+        shaderParameters.pixelShader = context->allocatePixelShader("sponza/lighting.frag.spv");
 
         auto loader =
             model::predefined::Loader::Builder().setMaterial(material).setShaderParameters(&shaderParameters).build();

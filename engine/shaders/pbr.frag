@@ -33,7 +33,7 @@ layout(set = 2, binding = 7) uniform samplerCube prefilteredMap;
 
 layout (location = 0) out vec4 outColor;
 
-#define PI 3.1415926535897932384626433832795
+#define MPI 3.1415926535897932384626433832795
 #define ALBEDO pow(texture(albedoMap, inUV).rgb, vec3(2.2))
 
 // From http://filmicgames.com/archives/75
@@ -54,7 +54,7 @@ float D_GGX(float dotNH, float roughness)
 	float alpha = roughness * roughness;
 	float alpha2 = alpha * alpha;
 	float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
-	return (alpha2)/(PI * denom*denom); 
+	return (alpha2)/(MPI * denom*denom); 
 }
 
 // Geometric Shadowing function --------------------------------------
@@ -110,7 +110,7 @@ vec3 specularContribution(vec3 L, vec3 V, vec3 N, vec3 F0, float metallic, float
 		vec3 F = F_Schlick(dotNV, F0);		
 		vec3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);		
 		vec3 kD = (vec3(1.0) - F) * (1.0 - metallic);			
-		color += (kD * ALBEDO / PI + spec) * dotNL;
+		color += (kD * ALBEDO / MPI + spec) * dotNL;
 	}
 
 	return color;

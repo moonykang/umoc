@@ -9,4 +9,5 @@
 #include "sceneList/pbr.h"
 #include "sceneList/quad.h"
 #include "sceneList/skybox.h"
+#include "sceneList/sponza.h"
 #include "sceneList/ssao.h"
