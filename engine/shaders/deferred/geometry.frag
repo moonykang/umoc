@@ -1,6 +1,7 @@
 // Copyright 2020 Google LLC
 struct VSOutput
 {
+	float4 pos : SV_POSITION;
     [[vk::location(0)]] float3 worldPos : POSITION0;
     [[vk::location(1)]] float3 normal : NORMAL0;
     [[vk::location(2)]] float2 uv : TEXCOORD0;
@@ -9,35 +10,42 @@ struct VSOutput
 
 struct FSOutput
 {
-	float4 pos : SV_TARGET0;
-	float4 normal : SV_TARGET1;
-	float4 albedo : SV_TARGET2;
+	float4 gBufferA : SV_TARGET0;
+	float4 gBufferB : SV_TARGET1;
+	float4 gBufferC : SV_TARGET2;
 };
 
-[[vk::binding(0, 2)]] Texture2D albedoMapTexture;
-[[vk::binding(0, 2)]] SamplerState albedoMapSampler;
-[[vk::binding(1, 2)]] Texture2D normalMapTexture;
-[[vk::binding(1, 2)]] SamplerState normalMapSampler;
+[[vk::binding(1, 2)]] Texture2D albedoMapTexture;
+[[vk::binding(1, 2)]] SamplerState albedoMapSampler;
+[[vk::binding(2, 2)]] Texture2D roughnessMetallicTexture;
+[[vk::binding(2, 2)]] SamplerState roughnessMetallicSampler;
 
+float compute_curvature(float3 normal, float depth)
+{
+    float3 dx = ddx(normal);
+    float3 dy = ddy(normal);
+
+    float x = dot(dx, dx);
+    float y = dot(dy, dy);
+
+    return pow(max(x, y), 0.5f);
+}
 
 FSOutput main(VSOutput input)
 {
 	FSOutput output = (FSOutput)0;
 
-	output.pos = float4(input.worldPos, 1.0);
-
-    float3 normal = normalMapTexture.Sample(normalMapSampler, input.uv).xyz;
     float4 albedo = albedoMapTexture.Sample(albedoMapSampler, input.uv);
+	float4 roughnessMetallic = roughnessMetallicTexture.Sample(roughnessMetallicSampler, input.uv);
 
-	// Calculate normal in tangent space
-	float3 N = normalize(input.normal);
-	float3 T = normalize(input.tangent);
-	float3 B = cross(N, T);
-	float3x3 TBN = float3x3(T, B, N);
+	float roughness = roughnessMetallic.g;
+	float metallic = roughnessMetallic.b;
+	float linear_z  = input.pos.z / input.pos.w;
+    float curvature = compute_curvature(input.normal, linear_z);
 
-	float3 tnorm = mul(normalize(normal * 2.0 - float3(1.0, 1.0, 1.0)), TBN);
-	output.normal = float4(tnorm, 1.0);
-	output.albedo = albedo;
+	output.gBufferA = float4(albedo.xyz, metallic);
+	output.gBufferB = float4(normalize(input.normal) * 0.5 + 0.5, 1.0);
+	output.gBufferC = float4(roughness, linear_z, curvature, 1.0f);
 
 	return output;
 }

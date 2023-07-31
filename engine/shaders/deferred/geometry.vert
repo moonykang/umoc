@@ -6,7 +6,6 @@ struct VSInput
     [[vk::location(1)]] float3 normal : NORMAL;
     [[vk::location(2)]] float2 uv : TEXCOORD;
     [[vk::location(3)]] float3 tangent : TANGENT;
-    [[vk::location(4)]] float3 bitangent : BINORMAL;
 };
 
 struct VSOutput
@@ -20,22 +19,22 @@ struct VSOutput
 
 [[vk::binding(0, 0)]] cbuffer ubo
 {
-    SceneView sceneUBO;
+    SceneView sceneView;
 }
 
 [[vk::binding(0, 1)]] cbuffer ubo
 {
-    Model modelUBO;
+    Model model;
 }
 
 VSOutput main(VSInput input)
 {
 	VSOutput output = (VSOutput)0;
 
-    float4 worldPos = mul(modelUBO.transform, float4(input.pos, 1.0f));
+    float4 worldPos = mul(model.transform, float4(input.pos, 1.0f));
     output.worldPos = worldPos.xyz;
 
-	output.pos = mul(sceneUBO.view_proj, worldPos);
+	output.pos = mul(sceneView.view_proj, worldPos);
 
 	output.uv = input.uv;
 

@@ -26,8 +26,9 @@ Result SponzaScene::load(platform::Context* platformContext)
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(
-        "ssao/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal);
-    shaderParameters.pixelShader = context->allocatePixelShader("ssao/geometry.frag.spv");
+        "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
+                                          rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
+    shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
 
     // Sponza
     {
