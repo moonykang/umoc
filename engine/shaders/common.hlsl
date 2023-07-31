@@ -66,6 +66,24 @@ float light_cos_theta_inner(in Light light)
 
 // ------------------------------------------------------------------------
 
+float3 world_position_from_depth(float2 uv, float depth, float4x4 view_proj_inverse)
+{
+    // Take texture coordinate and remap to [-1.0, 1.0] range.
+    float2 fragPos = uv * 2.0 - 1.0;
+
+    // // Create NDC position.
+    float4 ndc_pos = float4(fragPos, depth, 1.0);
+
+    // Transform back into world position.
+    float4 worldPos = mul(view_proj_inverse, ndc_pos);
+
+    // Undo projection.
+    worldPos = worldPos / worldPos.w;
+
+    return worldPos.xyz;
+}
+// ------------------------------------------------------------------------
+
 struct SceneLight
 {
     Light lights[NUM_LIGHTS];

@@ -14,6 +14,8 @@ struct VSOutput
 [[vk::binding(2, 1)]] Texture2D gBufferCTexture; // albedo
 [[vk::binding(2, 1)]] SamplerState gBufferCSampler;
 
+[[vk::binding(3, 1)]] Texture2D sceneDepthTexture; // albedo
+[[vk::binding(3, 1)]] SamplerState sceneDepthSampler;
 
 [[vk::binding(0, 0)]] cbuffer ubo
 {
@@ -27,8 +29,9 @@ struct VSOutput
 
 float4 main(VSOutput input) : SV_TARGET
 {
-    	// Get G-Buffer values
-	float3 fragPos = gBufferATexture.Sample(gBufferASampler, input.uv).rgb;
+	float depth = sceneDepthTexture.Sample(sceneDepthSampler, input.uv).r;
+	float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
+
 	float3 normal = gBufferBTexture.Sample(gBufferBSampler, input.uv).rgb;
 	float4 albedo = gBufferCTexture.Sample(gBufferCSampler, input.uv);
 

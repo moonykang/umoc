@@ -34,6 +34,8 @@ Result Lighting::init(platform::Context* platformContext, scene::SceneInfo* scen
                                 rhi::ShaderStage::Pixel);
         material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getGBufferC(),
                                 rhi::ShaderStage::Pixel);
+        material->updateTexture(model::MaterialFlag::External, sceneInfo->getRenderTargets()->getSceneDepth(),
+                                rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         rhi::ShaderParameters shaderParameters;
@@ -81,6 +83,8 @@ Result Lighting::render(platform::Context* platformContext, scene::SceneInfo* sc
                                    rhi::ImageLayout::FragmentShaderReadOnly));
         try(context->addTransition(sceneInfo->getRenderTargets()->getGBufferC()->getImage(),
                                    rhi::ImageLayout::FragmentShaderReadOnly));
+        try(context->addTransition(sceneInfo->getRenderTargets()->getSceneDepth()->getImage(),
+                                   rhi::ImageLayout::DepthStencilAttachmentReadOnly));
         try(context->beginRenderpass(renderpassInfo));
 
         auto material = lightingInstance->getMaterial();
