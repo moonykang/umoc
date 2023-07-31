@@ -18,7 +18,7 @@ class Texture;
 
 namespace scene
 {
-class IBLScene : public SceneInfo
+class SponzaScene : public SceneInfo
 {
   public:
     Result load(platform::Context* context) override;

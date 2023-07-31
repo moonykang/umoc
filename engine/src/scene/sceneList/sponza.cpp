@@ -1,4 +1,4 @@
-#include "ssao.h"
+#include "sponza.h"
 #include "common/util.h"
 #include "model/gltf/loader.h"
 #include "model/gltf/material.h"
@@ -17,13 +17,12 @@
 
 namespace scene
 {
-Result SSAOScene::load(platform::Context* platformContext)
+Result SponzaScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
     renderingOptions.enableDeferredRendering();
-    renderingOptions.enableSSAO();
-    renderingOptions.setFinalTarget(renderTargets->getSSAOBlur());
+    renderingOptions.setFinalTarget(renderTargets->getSceneColor());
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(
@@ -69,7 +68,7 @@ Result SSAOScene::load(platform::Context* platformContext)
     return Result::Continue;
 }
 
-Result SSAOScene::udpate(platform::Context* context)
+Result SponzaScene::udpate(platform::Context* context)
 {
     timer++;
 

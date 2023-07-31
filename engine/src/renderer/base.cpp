@@ -43,11 +43,20 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     {
         if (renderingOptions.useForwardRendering())
         {
-            passes.push_back(new SSAOPass());
+            passes.push_back(new Forward());
         }
         else
         {
-            passes.push_back(new Lighting());
+            passes.push_back(new Deferred());
+
+            if (renderingOptions.useForwardRendering())
+            {
+                passes.push_back(new SSAOPass());
+            }
+            else
+            {
+                passes.push_back(new Lighting());
+            }
         }
     }
 

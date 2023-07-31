@@ -13,7 +13,7 @@ Application::Application() : sceneInfo(nullptr), baseRenderpass(nullptr)
 
 Result Application::init(Context* context)
 {
-    sceneInfo = new scene::SSAOScene();
+    sceneInfo = new scene::SponzaScene();
     try(sceneInfo->init(context));
     try(sceneInfo->load(context));
 
