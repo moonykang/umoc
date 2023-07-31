@@ -5,10 +5,6 @@
 
 namespace scene
 {
-Light::Light() : position(glm::vec4(0.0f)), color(glm::vec4(1.0f)), radius(1.0f)
-{
-}
-
 Lights::Lights() : uniformBuffer(nullptr), dirty(false)
 {
     ubo.numLights = 1;
@@ -27,40 +23,25 @@ void Lights::terminate(platform::Context* platformContext)
 {
 }
 
-void Lights::setLightPosition(uint32_t index, const glm::vec4& position)
+void Lights::setLightPosition(uint32_t index, const glm::vec3& position)
 {
     ASSERT(index < NUM_LIGHTS);
-    ubo.light[index].position = position;
+    ubo.light[index].set_light_position(position);
     dirty = true;
-}
-
-glm::vec4& Lights::getLightPosition(uint32_t index)
-{
-    return ubo.light[index].position;
 }
 
 void Lights::setLightColor(uint32_t index, const glm::vec3& color)
 {
     ASSERT(index < NUM_LIGHTS);
-    ubo.light[index].color = color;
+    ubo.light[index].set_light_color(color);
     dirty = true;
-}
-
-glm::vec3& Lights::getLightColor(uint32_t index)
-{
-    return ubo.light[index].color;
 }
 
 void Lights::setLightRadius(uint32_t index, const float& radius)
 {
     ASSERT(index < NUM_LIGHTS);
-    ubo.light[index].radius = radius;
+    ubo.light[index].set_light_radius(radius);
     dirty = true;
-}
-
-float& Lights::getLightRadius(uint32_t index)
-{
-    return ubo.light[index].radius;
 }
 
 Result Lights::updateUniformBuffer(platform::Context* platformContext)
@@ -82,5 +63,11 @@ Result Lights::updateUniformBuffer(platform::Context* platformContext)
 rhi::UniformBuffer* Lights::getUniformBuffer()
 {
     return uniformBuffer;
+}
+
+void Lights::setLightNumber(uint32_t val)
+{
+    ubo.numLights = val;
+    dirty = true;
 }
 } // namespace scene

@@ -13,7 +13,7 @@
 
 namespace scene
 {
-SceneInfo::SceneInfo() : view(nullptr), light(nullptr), renderTargets(nullptr), sceneDescriptorSet(nullptr), timer(0)
+SceneInfo::SceneInfo() : view(nullptr), lights(nullptr), renderTargets(nullptr), sceneDescriptorSet(nullptr), timer(0)
 {
 }
 
@@ -40,8 +40,8 @@ Result SceneInfo::init(platform::Context* platformContext)
     view = new View();
     try(view->init(platformContext));
 
-    light = new Lights();
-    try(light->init(platformContext));
+    lights = new Lights();
+    try(lights->init(platformContext));
 
     try(platformContext->getWindow()->getInput()->attach(view));
 
@@ -72,7 +72,7 @@ void SceneInfo::terminate(platform::Context* platformContext)
 
     TERMINATE(textures, context);
     TERMINATE(sceneDescriptorSet, context);
-    TERMINATE(light, platformContext);
+    TERMINATE(lights, platformContext);
     TERMINATE(view, platformContext);
     TERMINATE(renderTargets, platformContext);
 
@@ -98,7 +98,7 @@ Result SceneInfo::updateDescriptor(platform::Context* platformContext)
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
     rhi::UniformBuffer* viewUniformBuffer = view->getUniformBuffer();
-    rhi::UniformBuffer* lightUniformBuffer = light->getUniformBuffer();
+    rhi::UniformBuffer* lightUniformBuffer = lights->getUniformBuffer();
 
     std::vector<uint32_t> offsets;
     offsets.push_back(viewUniformBuffer->getOffset());

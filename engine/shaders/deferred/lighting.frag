@@ -43,7 +43,7 @@ float4 main(VSOutput input) : SV_TARGET
     {
         // Vector to light
 		// float3 L = ubo.lights[i].position.xyz - fragPos;
-        float3 L = lightUBO.lights[i].pos.xyz - fragPos;
+        float3 L = light_position(lightUBO.lights[i]) - fragPos;
 
 		// Distance from light to fragment position
 		float dist = length(L);
@@ -52,24 +52,28 @@ float4 main(VSOutput input) : SV_TARGET
 		float3 V = sceneUBO.pos.xyz - fragPos;
 		V = normalize(V);
 
-		if(dist < lightUBO.lights[i].radius)
+		float radius = light_radius(lightUBO.lights[i]);
+
+		if(dist < radius)
 		{
 			// Light to fragment
 			L = normalize(L);
 
+			float3 lightColor = light_color(lightUBO.lights[i]);
+
 			// Attenuation
-			float atten = lightUBO.lights[i].radius / (pow(dist, 2.0) + 1.0);
+			float atten = radius / (pow(dist, 2.0) + 1.0);
 
 			// Diffuse part
 			float3 N = normalize(normal);
 			float NdotL = max(0.0, dot(N, L));
-			float3 diff = lightUBO.lights[i].color * albedo.rgb * NdotL * atten;
+			float3 diff = lightColor * albedo.rgb * NdotL * atten;
 
 			// Specular part
 			// Specular map values are stored in alpha of albedo mrt
 			float3 R = reflect(-L, N);
 			float NdotR = max(0.0, dot(R, V));
-			float3 spec = lightUBO.lights[i].color * albedo.a * pow(NdotR, 16.0) * atten;
+			float3 spec = lightColor * albedo.a * pow(NdotR, 16.0) * atten;
 
 			color += diff + spec;
 		}

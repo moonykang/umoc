@@ -2,10 +2,69 @@
 
 struct Light
 {
-    float4 pos;
-    float3 color;
-    float radius;
+    float4 data0;
+    float4 data1;
+    float4 data2;
+    float4 data3;
 };
+
+// ------------------------------------------------------------------------
+
+float3 light_direction(in Light light)
+{
+    return light.data0.xyz;
+}
+
+// ------------------------------------------------------------------------
+
+float3 light_color(in Light light)
+{
+    return light.data2.xyz;
+}
+
+// ------------------------------------------------------------------------
+
+float light_intensity(in Light light)
+{
+    return light.data0.w;
+}
+
+// ------------------------------------------------------------------------
+
+float light_radius(in Light light)
+{
+    return light.data1.w;
+}
+
+// ------------------------------------------------------------------------
+
+float3 light_position(in Light light)
+{
+    return light.data1.xyz;
+}
+
+// ------------------------------------------------------------------------
+
+int light_type(in Light light)
+{
+    return int(light.data3.x);
+}
+
+// ------------------------------------------------------------------------
+
+float light_cos_theta_outer(in Light light)
+{
+    return light.data3.y;
+}
+
+// ------------------------------------------------------------------------
+
+float light_cos_theta_inner(in Light light)
+{
+    return light.data3.z;
+}
+
+// ------------------------------------------------------------------------
 
 struct SceneLight
 {

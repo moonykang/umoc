@@ -59,7 +59,7 @@ class SceneInfo
 
     Lights* getLight()
     {
-        return light;
+        return lights;
     }
 
     RenderTargets* getRenderTargets()
@@ -87,7 +87,7 @@ class SceneInfo
   protected:
     std::vector<model::Object*> models;
     View* view;
-    Lights* light;
+    Lights* lights;
     RenderTargets* renderTargets;
     rhi::DescriptorSet* sceneDescriptorSet;
     Textures* textures;
