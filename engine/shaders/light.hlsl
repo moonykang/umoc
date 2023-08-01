@@ -35,14 +35,7 @@ void fetch_light_properties(
 
         L = light_dir;
 
-        if (radius < light_distance)
-        {
-            attenuation = 0.0f;
-        }
-        else
-        {
-            attenuation = (1.0f / (light_distance * light_distance));
-        }
+        attenuation = (1.0f / (light_distance * light_distance));
     }
     else
     {
@@ -73,12 +66,6 @@ float3 direct_lighting(
 {
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
 
-    float3 T = float3(1.0f, 1.0f, 1.0f);
-
-    float3 ray_origin = P + N * 0.1f;
-
-    static bool phong = false;
-
     float3 Li;
     float3 L;
     float3 H;
@@ -93,7 +80,7 @@ float3 direct_lighting(
                             H, 
                             attenuation);
 
-	if (attenuation > 0)
+	//if (attenuation > 0)
 #if USE_PHONG
     {
         float NdotL = max(0.0, dot(N, L));
@@ -109,7 +96,7 @@ float3 direct_lighting(
 #else // USE_PHONG
     {
         float3  brdf      = calculate_brdf(diffuse_color, roughness, N, F0, V, H, L);
-        Lo += T * brdf * attenuation * Li;  
+        Lo += brdf * Li * attenuation; 
     }
 #endif
 

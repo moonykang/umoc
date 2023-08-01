@@ -68,11 +68,10 @@ Result SponzaScene::udpate(platform::Context* context)
 
     lights->setLightNumber(1);
 
-    // Red
-    lights->setLightPosition(0, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
-                                          0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
-    lights->setLightColor(0, glm::vec3(1.0f, 0.0f, 0.0f));
-    lights->setLightRadius(0, 30.0f);
+    lights->setLightPosition(0, glm::vec4(sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
+                                          cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
+    lights->setLightColor(0, glm::vec3(1.f, 1.f, 1.f));
+    lights->setLightRadius(0, 50.0f);
 
     try(lights->updateUniformBuffer(context));
 

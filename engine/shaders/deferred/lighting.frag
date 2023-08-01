@@ -1,6 +1,6 @@
 #include "../common.hlsl"
 
-#define USE_PHONG 1
+#define USE_PHONG 0
 #include "../light.hlsl"
 
 struct VSOutput
