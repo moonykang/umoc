@@ -1,5 +1,8 @@
 #include "../common.hlsl"
 
+#define USE_PHONG 1
+#include "../light.hlsl"
+
 struct VSOutput
 {
     [[vk::location(0)]] float2 uv : TEXCOORD;
@@ -37,53 +40,28 @@ float4 main(VSOutput input) : SV_TARGET
 	float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
 
 	float3 normal = gBufferBTexture.Sample(gBufferBSampler, input.uv).rgb;
-	float4 albedo = gBufferA;
+	float3 albedo = gBufferA.xyz;
+
+	float roughness = gBufferC.x;
+	float metallic = gBufferA.w;
 
     #define lightCount 6
 	#define ambient 0.0
 
 	// Ambient part
-	float3 color = albedo.rgb * ambient;
+	float3 color = albedo * ambient;
+	float3 V = sceneUBO.pos.xyz - fragPos;
+	V = normalize(V);
 
-    for (int i = 0; i < NUM_LIGHTS; i++)
+    const float3 F0        = mix(float3(0.04f, 0.04f, 0.04f), albedo, metallic);
+    const float3 diffuse = mix(albedo * (1.0f - F0), float3(0.0f, 0.0f, 0.0f), metallic);
+
+	float3 N = normalize(normal);
+
+    for (int i = 0; i < lightUBO.numLights; i++)
     {
-        // Vector to light
-		// float3 L = ubo.lights[i].position.xyz - fragPos;
-        float3 L = light_position(lightUBO.lights[i]) - fragPos;
-
-		// Distance from light to fragment position
-		float dist = length(L);
-
-		// Viewer to fragment
-		float3 V = sceneUBO.pos.xyz - fragPos;
-		V = normalize(V);
-
-		float radius = light_radius(lightUBO.lights[i]);
-
-		if(dist < radius)
-		{
-			// Light to fragment
-			L = normalize(L);
-
-			float3 lightColor = light_color(lightUBO.lights[i]);
-
-			// Attenuation
-			float atten = radius / (pow(dist, 2.0) + 1.0);
-
-			// Diffuse part
-			float3 N = normalize(normal);
-			float NdotL = max(0.0, dot(N, L));
-			float3 diff = lightColor * albedo.rgb * NdotL * atten;
-
-			// Specular part
-			// Specular map values are stored in alpha of albedo mrt
-			float3 R = reflect(-L, N);
-			float NdotR = max(0.0, dot(R, V));
-			float3 spec = lightColor * albedo.a * pow(NdotR, 16.0) * atten;
-
-			color += diff + spec;
-		}
-
+		float3 Lo = direct_lighting(lightUBO.lights[i], V, N, fragPos, F0, diffuse, roughness);
+		color += Lo;
     }
 
     return float4(color, 1.0f);

@@ -66,37 +66,13 @@ Result SponzaScene::udpate(platform::Context* context)
 {
     timer++;
 
-    // White
-    lights->setLightPosition(
-        0, glm::vec4(sin(glm::radians(360.0f * timer)) * 5.0f, 2.0f, cos(glm::radians(360.0f * timer)) * 5.0f, 0.0f));
-    lights->setLightColor(0, glm::vec3(1.5f));
-    lights->setLightRadius(0, 15.0f);
+    lights->setLightNumber(1);
 
     // Red
-    lights->setLightPosition(1, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
+    lights->setLightPosition(0, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
                                           0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
-    lights->setLightColor(1, glm::vec3(1.0f, 0.0f, 0.0f));
-    lights->setLightRadius(1, 10.0f);
-    // Blue
-    lights->setLightPosition(2, glm::vec4(4.0f + sin(glm::radians(360.0f * timer)) * 2.0f, 2.0f,
-                                          0.0f + cos(glm::radians(360.0f * timer)) * 2.0f, 0.0f));
-    lights->setLightColor(2, glm::vec3(0.0f, 0.0f, 2.5f));
-    lights->setLightRadius(2, 5.0f);
-    // Yellow
-    lights->setLightPosition(3, glm::vec4(0.0f + sin(glm::radians(360.0f * timer + 90.0f)) * 5.0f, 20.0f,
-                                          0.0f - cos(glm::radians(360.0f * timer + 45.0f)) * 5.0f, 0.0f));
-    lights->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.0f));
-    lights->setLightRadius(3, 5.0f);
-    // Green
-    lights->setLightPosition(4, glm::vec4(0.0f + sin(glm::radians(-360.0f * timer + 135.0f)) * 10.0f, 2.5f,
-                                          0.0f - cos(glm::radians(-360.0f * timer - 45.0f)) * 10.0f, 0.0f));
-    lights->setLightColor(4, glm::vec3(0.0f, 1.0f, 0.2f));
-    lights->setLightRadius(4, 15.0f);
-
-    // Yellow
-    lights->setLightPosition(5, glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
-    lights->setLightColor(5, glm::vec3(1.0f, 0.7f, 0.3f));
-    lights->setLightRadius(5, 25.0f);
+    lights->setLightColor(0, glm::vec3(1.0f, 0.0f, 0.0f));
+    lights->setLightRadius(0, 30.0f);
 
     try(lights->updateUniformBuffer(context));
 

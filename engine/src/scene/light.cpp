@@ -8,6 +8,11 @@ namespace scene
 Lights::Lights() : uniformBuffer(nullptr), dirty(false)
 {
     ubo.numLights = 1;
+
+    for (int i = 0; i < NUM_LIGHTS; i++)
+    {
+        ubo.light[i] = Light();
+    }
 }
 
 Result Lights::init(platform::Context* platformContext)

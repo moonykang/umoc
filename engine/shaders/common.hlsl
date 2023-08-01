@@ -1,4 +1,14 @@
+#ifndef COMMON_H
+#define COMMON_H
+
+#define PI 3.14159265359
+#define EPSILON 0.0001f
+#define INFINITY 100000.0f
 #define NUM_LIGHTS 6
+
+#define LIGHT_TYPE_DIRECTIONAL 0
+#define LIGHT_TYPE_POINT 1
+#define LIGHT_TYPE_SPOT 2
 
 struct Light
 {
@@ -189,3 +199,5 @@ float4 mix(float4 x, float4 y, float a)
 {
     return x * (1-a) + y * a;
 }
+
+#endif // COMMON_H

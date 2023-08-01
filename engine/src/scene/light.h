@@ -29,7 +29,11 @@ struct Light
 {
     Light()
     {
-        set_light_radius(LIGHT_TYPE_POINT);
+        memset(this, 0, sizeof(Light));
+
+        set_light_type(LIGHT_TYPE_POINT);
+        set_light_intensity(1.0f);
+        set_light_color(glm::vec3(1.0f));
     }
 
     glm::vec4 data0;
