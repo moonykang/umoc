@@ -91,12 +91,12 @@ float3 direct_lighting(
         float spec = pow(max(dot(N, H), 0.0f), 32.0f);
 
         //Lo += diff + spec;
-        Lo += (diff + spec) * attenuation;
+        Lo += (diff + spec);// * attenuation;
     }
 #else // USE_PHONG
     {
-        float3  brdf      = calculate_brdf(diffuse_color, roughness, N, F0, V, H, L);
-        Lo += brdf * Li * attenuation; 
+        float3  brdf      = calculate_brdf(diffuse_color, roughness, F0, N, L, V, H);
+        Lo += brdf * Li; 
     }
 #endif
 

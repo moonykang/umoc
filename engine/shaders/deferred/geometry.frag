@@ -45,7 +45,8 @@ FSOutput main(VSOutput input)
 
 	output.gBufferA = float4(albedo.xyz, metallic);
 	output.gBufferB = float4(normalize(input.normal) * 0.5 + 0.5, 1.0);
-	output.gBufferC = float4(roughness, linear_z, curvature, 1.0f);
+	//output.gBufferC = float4(roughness, linear_z, curvature, 1.0f);
+	output.gBufferC = float4(roughness, input.pos.x, input.pos.y, input.pos.z);
 
 	return output;
 }

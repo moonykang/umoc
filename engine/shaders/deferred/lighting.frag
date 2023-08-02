@@ -8,16 +8,16 @@ struct VSOutput
     [[vk::location(0)]] float2 uv : TEXCOORD;
 };
 
-[[vk::binding(0, 1)]] Texture2D gBufferATexture;
+[[vk::binding(0, 1)]] Texture2D gBufferATexture; // xyz: albedo, w: metallic
 [[vk::binding(0, 1)]] SamplerState gBufferASampler;
 
-[[vk::binding(1, 1)]] Texture2D gBufferBTexture;
+[[vk::binding(1, 1)]] Texture2D gBufferBTexture; // xyz: normal
 [[vk::binding(1, 1)]] SamplerState gBufferBSampler;
 
-[[vk::binding(2, 1)]] Texture2D gBufferCTexture;
+[[vk::binding(2, 1)]] Texture2D gBufferCTexture; // x: roughness, y: linear_z, z: culvature
 [[vk::binding(2, 1)]] SamplerState gBufferCSampler;
 
-[[vk::binding(3, 1)]] Texture2D sceneDepthTexture; // albedo
+[[vk::binding(3, 1)]] Texture2D sceneDepthTexture;
 [[vk::binding(3, 1)]] SamplerState sceneDepthSampler;
 
 [[vk::binding(0, 0)]] cbuffer ubo
@@ -37,7 +37,8 @@ float4 main(VSOutput input) : SV_TARGET
 	float4 gBufferC = gBufferCTexture.Sample(gBufferCSampler, input.uv);
 	float depth = sceneDepthTexture.Sample(sceneDepthSampler, input.uv).r;
 
-	float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
+	// float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
+	float3 fragPos = gBufferC.yzw; // temp
 
 	float3 normal = gBufferBTexture.Sample(gBufferBSampler, input.uv).rgb;
 	float3 albedo = gBufferA.xyz;
@@ -45,7 +46,6 @@ float4 main(VSOutput input) : SV_TARGET
 	float roughness = gBufferC.x;
 	float metallic = gBufferA.w;
 
-    #define lightCount 6
 	#define ambient 0.0
 
 	// Ambient part

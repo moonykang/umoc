@@ -13,18 +13,16 @@ float D_ggx(in float ndoth, in float alpha)
 
 // ------------------------------------------------------------------------
 
-float G1_schlick_ggx(in float roughness, in float ndotv)
-{
-    float k = ((roughness + 1) * (roughness + 1)) / 8.0;
-
-    return ndotv / max(EPSILON, (ndotv * (1 - k) + k));
-}
-
 // ------------------------------------------------------------------------
 
-float G_schlick_ggx(in float ndotl, in float ndotv, in float roughness)
+float G_schlick_ggx(in float dotNL, in float dotNV, in float roughness)
 {
-    return G1_schlick_ggx(roughness, ndotl) * G1_schlick_ggx(roughness, ndotv);
+	float r = (roughness + 1.0);
+	float k = (r * r) / 8.0;
+	float GL = dotNL / (dotNL * (1.0 - k) + k);
+	float GV = dotNV / (dotNV * (1.0 - k) + k);
+
+    return GL * GV;
 }
 
 // ------------------------------------------------------------------------
@@ -60,6 +58,9 @@ float3 calculate_brdf(in float3 diffuse_color,
     float dotVH = max(dot(V, H), 0.0f);
 
     float3 F = FresnelSchlick(F0, dotVH);
+
+	float3 color = float3(0.0, 0.0, 0.0);
+
     float3 specular = specular_brdf(roughness, F, dotNH, dotNL, dotNV);
     float3 diffuse  = diffuse_brdf(diffuse_color);
 
