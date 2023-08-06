@@ -18,6 +18,7 @@
 #include "sceneRenderer/deferred.h"
 #include "sceneRenderer/forward.h"
 #include "sceneRenderer/lighting.h"
+#include "sceneRenderer/shadowMap.h"
 #include "sceneRenderer/ssao.h"
 
 #include <fstream>
@@ -41,6 +42,8 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     }
     else
     {
+        passes.push_back(new ShadowMap());
+
         if (renderingOptions.useForwardRendering())
         {
             passes.push_back(new Forward());

@@ -19,7 +19,7 @@
 
 float4 main([[vk::location(0)]] float3 Pos : POSITION0) : SV_POSITION
 {
-	float4x4 depthMVP = mul(sceneLight.light_transform, model.transform);
+	float4x4 depthMVP = mul(sceneLight.lightMatrix, model.transform);
 
 	return mul(depthMVP, float4(Pos, 1.0));
 }

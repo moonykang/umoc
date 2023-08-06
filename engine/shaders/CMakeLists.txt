@@ -16,6 +16,7 @@ SET(SUBDIRECTORIES
 	particle
 	filter
 	nbody
+	shadowmap
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})

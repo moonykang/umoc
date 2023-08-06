@@ -25,7 +25,11 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     sceneDepth = new rhi::Texture("SceneDepth");
     try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
-                         rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
+                         rhi::ImageUsage::SAMPLED | rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
+
+    shadowDepth = new rhi::Texture("ShadowDepth");
+    try(shadowDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, {2048, 2048, 1}, 1, 1,
+                          rhi::ImageUsage::SAMPLED | rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
 
     computeTarget = new rhi::Texture("computeTarget");
     try(computeTarget->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
@@ -117,6 +121,7 @@ void RenderTargets::terminate(platform::Context* platformContext)
 
     TERMINATE(sceneColor, context);
     TERMINATE(sceneDepth, context);
+    TERMINATE(shadowDepth, context);
 
     TERMINATE(gBufferA, context);
     TERMINATE(gBufferB, context);

@@ -861,18 +861,45 @@ class PushConstant
     size_t size;
 };
 
+class DynamicState
+{
+  public:
+    enum Value : uint32_t
+    {
+        Viewport = 0x00000001,
+        Scissor = 0x00000002,
+        DepthBias = 0x00000004,
+    };
+
+    DynamicState() = default;
+
+    constexpr DynamicState(Value value) : value(value)
+    {
+    }
+
+    constexpr uint32_t operator|(DynamicState& dynamicState) const
+    {
+        return value | dynamicState.value;
+    }
+
+  private:
+    Value value;
+};
+using DynamicStateFlags = uint32_t;
+
 class ShaderBase;
 class VertexShaderBase;
 class PixelShaderBase;
 class ShaderParameters;
 
-constexpr size_t PipelineStateHashSize = sizeof(AssemblyState) + sizeof(RasterizationState) +
-                                         sizeof(TessellationState) + sizeof(MultisampleState) +
-                                         sizeof(DepthStencilState) + sizeof(ColorBlendState) + sizeof(size_t);
+constexpr size_t PipelineStateHashSize =
+    sizeof(AssemblyState) + sizeof(RasterizationState) + sizeof(TessellationState) + sizeof(MultisampleState) +
+    sizeof(DepthStencilState) + sizeof(ColorBlendState) + sizeof(DynamicStateFlags) + sizeof(size_t);
 class GraphicsPipelineState
 {
   public:
-    GraphicsPipelineState() : shaderParameters(nullptr), pushConstantsHash(0)
+    GraphicsPipelineState()
+        : shaderParameters(nullptr), pushConstantsHash(0), dynamicState(DynamicState::Viewport | DynamicState::Scissor)
     {
     }
 
@@ -885,6 +912,7 @@ class GraphicsPipelineState
     MultisampleState multisampleState;
     DepthStencilState depthStencilState;
     ColorBlendState colorBlendState;
+    DynamicStateFlags dynamicState;
     size_t pushConstantsHash;
     uint64_t padding = 0;
 

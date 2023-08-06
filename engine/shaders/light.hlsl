@@ -65,6 +65,12 @@ float3 direct_lighting(
 )
 {
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
+    int lightType = light_type(light);
+
+    if (lightType == LIGHT_TYPE_NONE)
+    {
+        return Lo;
+    }
 
     float3 Li;
     float3 L;

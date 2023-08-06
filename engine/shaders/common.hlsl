@@ -6,9 +6,10 @@
 #define INFINITY 100000.0f
 #define NUM_LIGHTS 6
 
-#define LIGHT_TYPE_DIRECTIONAL 0
-#define LIGHT_TYPE_POINT 1
-#define LIGHT_TYPE_SPOT 2
+#define LIGHT_TYPE_NONE 0
+#define LIGHT_TYPE_DIRECTIONAL 1
+#define LIGHT_TYPE_POINT 2
+#define LIGHT_TYPE_SPOT 3
 
 struct Light
 {
@@ -96,6 +97,7 @@ float3 world_position_from_depth(float2 uv, float depth, float4x4 view_proj_inve
 
 struct SceneLight
 {
+    float4x4 lightMatrix;
     Light lights[NUM_LIGHTS];
     uint numLights;
 };

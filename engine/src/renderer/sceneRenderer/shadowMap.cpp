@@ -22,8 +22,8 @@ Result ShadowMap::init(platform::Context* platformContext, scene::SceneInfo* sce
 {
     rhi::Context* context = platformContext->getRHI();
     shaderParameters = new rhi::ShaderParameters();
-    shaderParameters->vertexShader = context->allocateVertexShader(
-        "shadowmap/shadowmap.vert.spv", rhi::VertexChannel::Position);
+    shaderParameters->vertexShader =
+        context->allocateVertexShader("shadowmap/shadowmap.vert.spv", rhi::VertexChannel::Position);
     shaderParameters->pixelShader = context->allocatePixelShader("shadowmap/shadowmap.frag.spv");
     return Result::Continue;
 }
@@ -55,17 +55,22 @@ Result ShadowMap::render(platform::Context* platformContext, scene::SceneInfo* s
     graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
     graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
     graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
+    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
+    graphicsPipelineState.rasterizationState.depthBiasEnable = true;
     graphicsPipelineState.depthStencilState.depthTestEnable = true;
     graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
     graphicsPipelineState.depthStencilState.depthWriteEnable = true;
+    graphicsPipelineState.dynamicState =
+        rhi::DynamicState::Viewport | rhi::DynamicState::Scissor | rhi::DynamicState::DepthBias;
+
+    graphicsPipelineState.shaderParameters = shaderParameters;
+    shaderParameters->globalDescriptor = sceneInfo->getDescriptorSet();
 
     for (auto& model : sceneInfo->getModels())
     {
         for (auto& instance : model->getInstances())
         {
-            graphicsPipelineState.shaderParameters = shaderParameters;
-
+            shaderParameters->localDescriptor = instance->getDescriptorSet();
             context->createGfxPipeline(graphicsPipelineState);
 
             sceneInfo->getDescriptorSet()->bind(context, 0);

@@ -41,6 +41,5 @@ VSOutput main(VSInput input)
 	// Normal in world space
 	output.normal = normalize(input.normal);
 	output.tangent = normalize(input.tangent);
-
 	return output;
 }

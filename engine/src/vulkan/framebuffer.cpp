@@ -35,6 +35,11 @@ Result Framebuffer::init(Context* context, rhi::RenderPassInfo& renderpassInfo, 
     {
         auto& depthStencilAttachment = renderpassInfo.DepthStencilAttachmentDescription.value();
         Image* image = reinterpret_cast<Image*>(depthStencilAttachment.image);
+
+        if (renderpassInfo.ColorAttachmentDescriptions.empty())
+        {
+            extent = image->getExtent();
+        }
         views.push_back(image->getView());
     }
 

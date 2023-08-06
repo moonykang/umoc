@@ -578,10 +578,20 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         colorBlendState.blendConstants[2] = gfxPipelineState.colorBlendState.blendConstants[2];
         colorBlendState.blendConstants[3] = gfxPipelineState.colorBlendState.blendConstants[3];
 
+        rhi::DynamicStateFlags dynamicStates = gfxPipelineState.dynamicState;
         std::vector<VkDynamicState> dynamicStateList;
+
+        if ((dynamicStates & rhi::DynamicState::Viewport) != 0)
         {
             dynamicStateList.push_back(VK_DYNAMIC_STATE_VIEWPORT);
+        }
+        if ((dynamicStates & rhi::DynamicState::Scissor) != 0)
+        {
             dynamicStateList.push_back(VK_DYNAMIC_STATE_SCISSOR);
+        }
+        if ((dynamicStates & rhi::DynamicState::DepthBias) != 0)
+        {
+            dynamicStateList.push_back(VK_DYNAMIC_STATE_DEPTH_BIAS);
         }
 
         VkPipelineDynamicStateCreateInfo dynamicState = {};

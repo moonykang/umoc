@@ -20,6 +20,9 @@ struct VSOutput
 [[vk::binding(3, 1)]] Texture2D sceneDepthTexture;
 [[vk::binding(3, 1)]] SamplerState sceneDepthSampler;
 
+[[vk::binding(4, 1)]] Texture2D shadowDepthTexture;
+[[vk::binding(4, 1)]] SamplerState shadowDepthSampler;
+
 [[vk::binding(0, 0)]] cbuffer ubo
 {
     SceneView sceneUBO;
@@ -30,6 +33,33 @@ struct VSOutput
     SceneLight lightUBO;
 }
 
+static const float4x4 biasMat = float4x4(
+	0.5, 0.0, 0.0, 0.5,
+	0.0, 0.5, 0.0, 0.5,
+	0.0, 0.0, 1.0, 0.0,
+	0.0, 0.0, 0.0, 1.0 );
+
+
+#define ambient 0.1
+
+float shadowVisibility(float3 fragPos)
+{
+	float shadow = 1.0f;
+
+	float4 shadowUV = mul(biasMat, mul(lightUBO.lightMatrix, float4(fragPos, 1.0f)));
+	shadowUV = shadowUV / shadowUV.w;
+
+	if (shadowUV.z > -1.0f && shadowUV.z < 1.0f)
+	{
+		float dist = shadowDepthTexture.Sample( shadowDepthSampler, shadowUV.xy).r;
+		if ( shadowUV.w > 0.0 && dist < shadowUV.z )
+		{
+			shadow = ambient;
+		}
+	}
+	return shadow;
+}
+
 float4 main(VSOutput input) : SV_TARGET
 {
 	float4 gBufferA = gBufferATexture.Sample(gBufferASampler, input.uv);
@@ -38,7 +68,7 @@ float4 main(VSOutput input) : SV_TARGET
 	float depth = sceneDepthTexture.Sample(sceneDepthSampler, input.uv).r;
 
 	float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
-	//float3 fragPos = gBufferC.yzw; // temp
+	float visibility = shadowVisibility(fragPos);
 
 	float3 normal = gBufferBTexture.Sample(gBufferBSampler, input.uv).rgb;
 	float3 albedo = gBufferA.xyz;
@@ -60,7 +90,7 @@ float4 main(VSOutput input) : SV_TARGET
 
     for (int i = 0; i < lightUBO.numLights; i++)
     {
-		float3 Lo = direct_lighting(lightUBO.lights[i], V, N, fragPos, F0, diffuse, roughness);
+		float3 Lo = direct_lighting(lightUBO.lights[i], V, N, fragPos, F0, diffuse, roughness) * visibility;
 		color += Lo;
     }
 

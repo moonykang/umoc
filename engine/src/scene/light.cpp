@@ -8,6 +8,7 @@ namespace scene
 Lights::Lights() : uniformBuffer(nullptr), dirty(false)
 {
     ubo.numLights = 1;
+    ubo.lightMatrix = glm::mat4(1.0f);
 
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
@@ -55,7 +56,7 @@ Result Lights::updateUniformBuffer(platform::Context* platformContext)
 
     std::lock_guard<std::mutex> lock(mutex);
 
-    dirty |= directionalLight.updateLightData(ubo.light[0]);
+    dirty |= directionalLight.updateLightData(ubo.light[0], ubo.lightMatrix);
 
     if (dirty)
     {
