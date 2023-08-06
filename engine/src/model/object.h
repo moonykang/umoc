@@ -12,8 +12,7 @@ class Context;
 namespace rhi
 {
 class Context;
-class VertexBuffer;
-class IndexBuffer;
+class SubAllocatedBuffer;
 class Texture;
 } // namespace rhi
 

@@ -35,5 +35,8 @@ class UIPass : public Base
     rhi::Texture* fontTexture;
     rhi::DescriptorSet* uiDescriptorSet;
     std::shared_ptr<rhi::ShaderParameters> shaderParameters;
+
+    uint32_t vertexCount = 0;
+    uint32_t indexCount = 0;
 };
 } // namespace renderer

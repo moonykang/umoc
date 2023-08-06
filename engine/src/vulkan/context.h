@@ -84,6 +84,10 @@ class Context : public rhi::Context
     Result readBackImage(rhi::Image* srcImage, rhi::ImageSubResource srcRange, void* data) override;
 
     Result viewport(rhi::Extent2D extent) override;
+
+    Result bindVertexBuffer(rhi::SubAllocatedBuffer* buffer) override;
+
+    Result bindindexBuffer(rhi::SubAllocatedBuffer* buffer) override;
     // factory
   public:
     rhi::Buffer* allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,

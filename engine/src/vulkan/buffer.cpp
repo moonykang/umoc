@@ -15,28 +15,7 @@ namespace vk
 rhi::Buffer* Context::allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,
                                      size_t size)
 {
-    if ((bufferUsage & rhi::BufferUsage::STORAGE_BUFFER) != 0)
-    {
-        return new StorageBuffer(bufferUsage, memoryProperty, size);
-    }
-
-    if ((bufferUsage & rhi::BufferUsage::VERTEX_BUFFER) != 0)
-    {
-        return new VertexBuffer(bufferUsage, memoryProperty, size);
-    }
-
-    if ((bufferUsage & rhi::BufferUsage::INDEX_BUFFER) != 0)
-    {
-        return new IndexBuffer(bufferUsage, memoryProperty, size);
-    }
-
-    if ((bufferUsage & rhi::BufferUsage::UNIFORM_BUFFER) != 0)
-    {
-        return new UniformBuffer(bufferUsage, memoryProperty, size);
-    }
-
-    UNREACHABLE();
-    return nullptr;
+    return new Buffer(bufferUsage, memoryProperty, size);
 }
 
 Result Context::addTransition(rhi::Buffer* rhiBuffer, size_t offset, size_t size, rhi::ImageLayout src,
@@ -56,6 +35,26 @@ Result Context::addTransition(rhi::Buffer* rhiBuffer, size_t offset, size_t size
     commandBuffer->addTransition(
         new Transition(buffer->getHandle(), offset, size, srcStageMask, dstStageMask, srcAccessMask, dstAccessMask));
 
+    return Result::Continue;
+}
+
+Result Context::bindVertexBuffer(rhi::SubAllocatedBuffer* suballocatedBuffer)
+{
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+    Buffer* buffer = reinterpret_cast<Buffer*>(suballocatedBuffer->getBuffer());
+    size_t offset = suballocatedBuffer->getOffset();
+
+    commandBuffer->bindVertexBuffers(buffer->getHandle(), offset);
+    return Result::Continue;
+}
+
+Result Context::bindindexBuffer(rhi::SubAllocatedBuffer* suballocatedBuffer)
+{
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+    Buffer* buffer = reinterpret_cast<Buffer*>(suballocatedBuffer->getBuffer());
+    size_t offset = suballocatedBuffer->getOffset();
+
+    commandBuffer->bindIndexBuffers(buffer->getHandle(), offset, VK_INDEX_TYPE_UINT32);
     return Result::Continue;
 }
 
@@ -179,92 +178,52 @@ void Buffer::terminate(rhi::Context* rhiContext)
     TERMINATE(buffer, context);
 }
 
+void Buffer::updateAlignmentSize(Context* context)
+{
+    if ((bufferUsage & rhi::BufferUsage::VERTEX_BUFFER) != 0)
+    {
+        alignmentSize = 4;
+    }
+    if ((bufferUsage & rhi::BufferUsage::INDEX_BUFFER) != 0)
+    {
+        alignmentSize = 4;
+    }
+    if ((bufferUsage & rhi::BufferUsage::UNIFORM_BUFFER) != 0)
+    {
+        alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minUniformBufferOffsetAlignment;
+    }
+    if ((bufferUsage & rhi::BufferUsage::STORAGE_BUFFER) != 0)
+    {
+        alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minStorageBufferOffsetAlignment;
+    }
+}
+
 Result Buffer::update(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
 
-    RealBuffer* stagingBuffer = new RealBuffer();
+    if ((memoryProperty & rhi::MemoryProperty::DEVICE_LOCAL) != 0)
+    {
+        RealBuffer* stagingBuffer = new RealBuffer();
 
-    try(stagingBuffer->init(context, rhi::BufferUsage::TRANSFER_SRC,
-                            rhi::MemoryProperty::HOST_COHERENT | rhi::MemoryProperty::HOST_VISIBLE, this->size));
-    try(stagingBuffer->map(context, 0, size, data));
-    try(buffer->copy(context, stagingBuffer, offset, size));
+        try(stagingBuffer->init(context, rhi::BufferUsage::TRANSFER_SRC,
+                                rhi::MemoryProperty::HOST_COHERENT | rhi::MemoryProperty::HOST_VISIBLE, this->size));
+        try(stagingBuffer->map(context, 0, size, data));
+        try(buffer->copy(context, stagingBuffer, offset, size));
 
-    TERMINATE(stagingBuffer, context);
+        TERMINATE(stagingBuffer, context);
+    }
+    else
+    {
+        try(buffer->map(context, offset, size, data));
+    }
 
     return Result::Continue;
 }
 
 VkBuffer Buffer::getHandle()
 {
+    ASSERT(buffer);
     return buffer->getHandle();
-}
-
-VertexBuffer::VertexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(bufferUsage, memoryProperty, size)
-{
-}
-
-void VertexBuffer::bind(rhi::Context* rhiContext, size_t offset)
-{
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-    CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
-    commandBuffer->bindVertexBuffers(buffer->getHandle(), offset);
-}
-
-IndexBuffer::IndexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(bufferUsage, memoryProperty, size)
-{
-}
-
-void IndexBuffer::bind(rhi::Context* rhiContext, size_t offset)
-{
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-    CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
-    commandBuffer->bindIndexBuffers(buffer->getHandle(), offset, VK_INDEX_TYPE_UINT32);
-}
-
-UniformBuffer::UniformBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(bufferUsage, memoryProperty, size)
-{
-}
-
-Result UniformBuffer::update(rhi::Context* rhiContext, size_t offset, size_t size, void* data)
-{
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-    try(buffer->map(context, offset, size, data));
-    return Result::Continue;
-}
-
-StorageBuffer::StorageBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size)
-    : Buffer(bufferUsage, memoryProperty, size)
-{
-}
-
-void VertexBuffer::updateAlignmentSize(Context* context)
-{
-    alignmentSize = 4;
-}
-
-void IndexBuffer::updateAlignmentSize(Context* context)
-{
-    alignmentSize = 4;
-}
-
-void UniformBuffer::updateAlignmentSize(Context* context)
-{
-    alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minUniformBufferOffsetAlignment;
-}
-
-void StorageBuffer::updateAlignmentSize(Context* context)
-{
-    alignmentSize = context->getPhysicalDevice()->getPhysicalDeviceLimits().minStorageBufferOffsetAlignment;
-}
-
-void StorageBuffer::bind(rhi::Context* rhiContext, size_t offset)
-{
-    Context* context = reinterpret_cast<Context*>(rhiContext);
-    CommandBuffer* commandBuffer = context->getActiveCommandBuffer();
-    commandBuffer->bindVertexBuffers(buffer->getHandle(), offset);
 }
 } // namespace vk

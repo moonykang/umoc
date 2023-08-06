@@ -137,7 +137,7 @@ Result View::updateUniformBuffer(platform::Context* platformContext)
     return Result::Continue;
 }
 
-rhi::UniformBuffer* View::getUniformBuffer()
+rhi::SubAllocatedBuffer* View::getUniformBuffer()
 {
     return uniformBuffer;
 }

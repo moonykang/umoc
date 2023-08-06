@@ -49,56 +49,12 @@ class Buffer : public rhi::Buffer
 
     virtual Result update(rhi::Context* context, size_t offset, size_t size, void* data) override;
 
-    virtual void updateAlignmentSize(Context* context) = 0;
+    void updateAlignmentSize(Context* context);
 
     VkBuffer getHandle();
 
   protected:
     RealBuffer* buffer;
     VkDescriptorBufferInfo bufferInfo;
-};
-
-class VertexBuffer : public Buffer
-{
-  public:
-    VertexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
-
-    virtual void bind(rhi::Context* context, size_t offset) override;
-
-    void updateAlignmentSize(Context* context) override;
-};
-
-class IndexBuffer : public Buffer
-{
-  public:
-    IndexBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
-
-    virtual void bind(rhi::Context* context, size_t offset) override;
-
-    void updateAlignmentSize(Context* context) override;
-};
-
-class UniformBuffer : public Buffer
-{
-  public:
-    UniformBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
-
-    virtual void bind(rhi::Context* context, size_t offset) override
-    {
-    }
-
-    Result update(rhi::Context* context, size_t offset, size_t size, void* data) override final;
-
-    void updateAlignmentSize(Context* context) override;
-};
-
-class StorageBuffer : public Buffer
-{
-  public:
-    StorageBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty, size_t size);
-
-    virtual void bind(rhi::Context* context, size_t offset) override;
-
-    void updateAlignmentSize(Context* context) override;
 };
 } // namespace vk

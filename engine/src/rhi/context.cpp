@@ -6,6 +6,13 @@
 
 namespace rhi
 {
+
+const size_t MAX_SUB_BLOCK_SIZE = 4 * 1024 * 1024;
+const size_t VERTEX_SCRATCH_BUFFER_SIZE = 512 * 1024 * 1024;
+const size_t INDEX_SCRATCH_BUFFER_SIZE = 512 * 1024 * 1024;
+const size_t UNIFORM_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
+const size_t STORAGE_SCRATCH_BUFFER_SIZE = 256 * 1024 * 1024;
+
 Context* Context::createRHIContext(rhi::List rhi)
 {
     switch (rhi)
@@ -30,26 +37,32 @@ Result Context::initRHI(platform::Window* window)
 
     if (vertexScratchBuffer == nullptr)
     {
-        vertexScratchBuffer = new VertexScratchBuffer();
-        vertexScratchBuffer->init(this);
+        vertexScratchBuffer = new ScratchBuffer();
+        vertexScratchBuffer->init(this, BufferUsage::VERTEX_BUFFER | BufferUsage::TRANSFER_DST,
+                                  MemoryProperty::DEVICE_LOCAL, VERTEX_SCRATCH_BUFFER_SIZE);
     }
 
     if (indexScratchBuffer == nullptr)
     {
-        indexScratchBuffer = new IndexScratchBuffer();
-        indexScratchBuffer->init(this);
+        indexScratchBuffer = new ScratchBuffer();
+        indexScratchBuffer->init(this, BufferUsage::INDEX_BUFFER | BufferUsage::TRANSFER_DST,
+                                 MemoryProperty::DEVICE_LOCAL, INDEX_SCRATCH_BUFFER_SIZE);
     }
 
     if (uniformScratchBuffer == nullptr)
     {
-        uniformScratchBuffer = new UniformScratchBuffer();
-        uniformScratchBuffer->init(this);
+        uniformScratchBuffer = new ScratchBuffer();
+        uniformScratchBuffer->init(this, BufferUsage::UNIFORM_BUFFER | BufferUsage::TRANSFER_DST,
+                                   MemoryProperty::HOST_COHERENT | MemoryProperty::HOST_VISIBLE,
+                                   UNIFORM_SCRATCH_BUFFER_SIZE);
     }
 
     if (storageScratchBuffer == nullptr)
     {
-        storageScratchBuffer = new StorageScratchBuffer();
-        storageScratchBuffer->init(this);
+        storageScratchBuffer = new ScratchBuffer();
+        storageScratchBuffer->init(this,
+                                   BufferUsage::VERTEX_BUFFER | BufferUsage::STORAGE_BUFFER | BufferUsage::TRANSFER_DST,
+                                   MemoryProperty::DEVICE_LOCAL, STORAGE_SCRATCH_BUFFER_SIZE);
     }
 
     return Result::Continue;

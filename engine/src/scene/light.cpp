@@ -68,7 +68,7 @@ Result Lights::updateUniformBuffer(platform::Context* platformContext)
     return Result::Continue;
 }
 
-rhi::UniformBuffer* Lights::getUniformBuffer()
+rhi::SubAllocatedBuffer* Lights::getUniformBuffer()
 {
     return uniformBuffer;
 }

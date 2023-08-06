@@ -144,20 +144,26 @@ Result UIPass::updateUI()
     return Result::Continue;
 }
 
-Result UIPass::updateBuffers(platform::Context* context)
+Result UIPass::updateBuffers(platform::Context* platformContext)
 {
+    rhi::Context* context = platformContext->getRHI();
+
     ImDrawData* imDrawData = ImGui::GetDrawData();
 
     // Note: Alignment is done inside buffer creation
     VkDeviceSize vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
     VkDeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
 
-    //LOGD("indexBufferSize %zu", indexBufferSize);
-    //LOGD("vertexBufferSize %zu", vertexBufferSize);
-    //LOGD("imDrawData->CmdListsCount %zu", imDrawData->CmdListsCount);
+    // LOGD("indexBufferSize %zu", indexBufferSize);
+    // LOGD("vertexBufferSize %zu", vertexBufferSize);
+    // LOGD("imDrawData->CmdListsCount %zu", imDrawData->CmdListsCount);
     if ((vertexBufferSize == 0) || (indexBufferSize == 0))
     {
         Result::Continue;
+    }
+
+    if (vertexCount != imDrawData->TotalVtxCount)
+    {
     }
     return Result::Continue;
 }

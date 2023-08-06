@@ -164,12 +164,12 @@ void Material::updateTexture(MaterialFlag materialFlag, rhi::Texture* texture, r
     }
 }
 
-void Material::updateStorageBuffer(rhi::StorageBuffer* storageBuffer, rhi::ShaderStageFlags shaderStageFlags)
+void Material::updateStorageBuffer(rhi::SubAllocatedBuffer* storageBuffer, rhi::ShaderStageFlags shaderStageFlags)
 {
     externalStorageBuffers.push_back({storageBuffer, shaderStageFlags});
 }
 
-void Material::updateUniformBuffer(rhi::UniformBuffer* uniformBuffer, rhi::ShaderStageFlags shaderStageFlags)
+void Material::updateUniformBuffer(rhi::SubAllocatedBuffer* uniformBuffer, rhi::ShaderStageFlags shaderStageFlags)
 {
     this->uniformBuffer = {uniformBuffer, shaderStageFlags};
 }

@@ -39,7 +39,7 @@ Loader::Builder& Loader::Builder::setUvScale(double uvScale)
     return *this;
 }
 
-Loader::Builder& Loader::Builder::setExternalVertexBuffer(std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer)
+Loader::Builder& Loader::Builder::setExternalVertexBuffer(std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer)
 {
     this->storageBuffer = storageBuffer;
     return *this;
@@ -51,7 +51,7 @@ std::shared_ptr<Loader> Loader::Builder::build()
 }
 
 Loader::Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters,
-               double uvScale, std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer)
+               double uvScale, std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer)
     : predefinedType(predefinedType), material(material), shaderParameters(shaderParameters), uvScale(uvScale),
       storageBuffer(storageBuffer)
 {

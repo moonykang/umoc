@@ -5,7 +5,7 @@
 
 namespace rhi
 {
-class UniformBuffer;
+class SubAllocatedBuffer;
 class DescriptorSet;
 } // namespace rhi
 
@@ -43,7 +43,7 @@ class View
 
     Result updateUniformBuffer(platform::Context* context);
 
-    rhi::UniformBuffer* getUniformBuffer();
+    rhi::SubAllocatedBuffer* getUniformBuffer();
 
     void rotate(glm::vec3 delta);
 
@@ -77,7 +77,7 @@ class View
         float farPlane;
     } ubo;
 
-    rhi::UniformBuffer* uniformBuffer;
+    rhi::SubAllocatedBuffer* uniformBuffer;
 
     static constexpr size_t uniformDataSize = sizeof(UniformBufferObject);
 

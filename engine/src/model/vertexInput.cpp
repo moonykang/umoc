@@ -25,10 +25,10 @@ Result VertexInput::loadVertexBuffer(platform::Context* platformContext, std::ve
     return Result::Continue;
 }
 
-Result VertexInput::loadExternalVertexBuffer(platform::Context* context, rhi::StorageBuffer* externalBuffer)
+Result VertexInput::loadExternalVertexBuffer(platform::Context* context, rhi::SubAllocatedBuffer* externalBuffer)
 {
     ASSERT(externalBuffer);
-    vertexBuffer = reinterpret_cast<rhi::VertexBuffer*>(externalBuffer);
+    vertexBuffer = externalBuffer;
     return Result::Continue;
 }
 
@@ -48,12 +48,12 @@ void VertexInput::bind(platform::Context* platformContext)
 
     if (vertexBuffer)
     {
-        vertexBuffer->bind(context);
+        context->bindVertexBuffer(vertexBuffer);
     }
 
     if (indexBuffer)
     {
-        indexBuffer->bind(context);
+        context->bindindexBuffer(indexBuffer);
     }
 }
 } // namespace model

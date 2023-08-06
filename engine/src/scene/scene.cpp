@@ -97,8 +97,8 @@ Result SceneInfo::updateDescriptor(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    rhi::UniformBuffer* viewUniformBuffer = view->getUniformBuffer();
-    rhi::UniformBuffer* lightUniformBuffer = lights->getUniformBuffer();
+    rhi::SubAllocatedBuffer* viewUniformBuffer = view->getUniformBuffer();
+    rhi::SubAllocatedBuffer* lightUniformBuffer = lights->getUniformBuffer();
 
     std::vector<uint32_t> offsets;
     offsets.push_back(viewUniformBuffer->getOffset());

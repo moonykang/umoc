@@ -11,7 +11,7 @@ class Context;
 namespace rhi
 {
 class Texture;
-class UniformBuffer;
+class SubAllocatedBuffer;
 class DescriptorSet;
 class ShaderParameters;
 class StorageBuffer;
@@ -35,9 +35,9 @@ class Material
 
     void updateTexture(MaterialFlag materialFlag, rhi::Texture* texture, rhi::ShaderStageFlags shaderStageFlags);
 
-    void updateStorageBuffer(rhi::StorageBuffer* storageBuffer, rhi::ShaderStageFlags shaderStageFlags);
+    void updateStorageBuffer(rhi::SubAllocatedBuffer* storageBuffer, rhi::ShaderStageFlags shaderStageFlags);
 
-    void updateUniformBuffer(rhi::UniformBuffer* uniformBuffer, rhi::ShaderStageFlags shaderStageFlags);
+    void updateUniformBuffer(rhi::SubAllocatedBuffer* uniformBuffer, rhi::ShaderStageFlags shaderStageFlags);
 
     rhi::Texture* getTexture(MaterialFlag materialFlag);
 
@@ -58,8 +58,8 @@ class Material
 
     std::vector<std::pair<rhi::Texture*, rhi::ShaderStageFlags>> externalTextures;
 
-    std::pair<rhi::UniformBuffer*, rhi::ShaderStageFlags> uniformBuffer;
-    std::vector<std::pair<rhi::StorageBuffer*, rhi::ShaderStageFlags>> externalStorageBuffers;
+    std::pair<rhi::SubAllocatedBuffer*, rhi::ShaderStageFlags> uniformBuffer;
+    std::vector<std::pair<rhi::SubAllocatedBuffer*, rhi::ShaderStageFlags>> externalStorageBuffers;
     rhi::DescriptorSet* descriptorSet;
 
     rhi::ShaderParameters* shaderParameters;

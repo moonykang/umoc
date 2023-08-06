@@ -11,7 +11,7 @@ namespace rhi
 {
 class Descriptor;
 class DescriptorSet;
-class UniformBuffer;
+class SubAllocatedBuffer;
 } // namespace rhi
 
 namespace platform
@@ -66,7 +66,7 @@ class Instance
 
     util::Transform transform;
 
-    rhi::UniformBuffer* uniformBuffer;
+    rhi::SubAllocatedBuffer* uniformBuffer;
     rhi::DescriptorSet* descriptorSet;
 
     std::mutex mutex;

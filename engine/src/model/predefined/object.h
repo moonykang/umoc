@@ -4,7 +4,7 @@
 
 namespace rhi
 {
-class StorageBuffer;
+class SubAllocatedBuffer;
 }
 
 namespace model
@@ -20,7 +20,8 @@ class Object : public model::Object
 
     virtual Result loadVertexBuffer(platform::Context* context, double uvScale) = 0;
 
-    virtual Result loadVertexBuffer(platform::Context* context, std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer)
+    virtual Result loadVertexBuffer(platform::Context* context,
+                                    std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer)
     {
         return Result::Continue;
     }

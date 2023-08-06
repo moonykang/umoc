@@ -20,7 +20,8 @@ Result Storage::loadVertexBuffer(platform::Context* context, double uvScale)
     return Result::Continue;
 }
 
-Result Storage::loadVertexBuffer(platform::Context* context, std::pair<rhi::StorageBuffer*, uint32_t> storageBuffer)
+Result Storage::loadVertexBuffer(platform::Context* context,
+                                 std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer)
 {
     vertexCount = storageBuffer.second;
     return vertexInput->loadExternalVertexBuffer(context, storageBuffer.first);

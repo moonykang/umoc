@@ -10,9 +10,7 @@ class Context;
 namespace rhi
 {
 class Context;
-class VertexBuffer;
-class IndexBuffer;
-class StorageBuffer;
+class SubAllocatedBuffer;
 } // namespace rhi
 
 namespace model
@@ -28,14 +26,14 @@ class VertexInput
 
     Result loadVertexBuffer(platform::Context* context, std::vector<rhi::Vertex>& vertices);
 
-    Result loadExternalVertexBuffer(platform::Context* context, rhi::StorageBuffer* externalBuffer);
+    Result loadExternalVertexBuffer(platform::Context* context, rhi::SubAllocatedBuffer* externalBuffer);
 
     Result loadIndexBuffer(platform::Context* context, std::vector<uint32_t>& indices);
 
     void bind(platform::Context* context);
 
   protected:
-    rhi::VertexBuffer* vertexBuffer;
-    rhi::IndexBuffer* indexBuffer;
+    rhi::SubAllocatedBuffer* vertexBuffer;
+    rhi::SubAllocatedBuffer* indexBuffer;
 };
 } // namespace model

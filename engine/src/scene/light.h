@@ -10,7 +10,7 @@ constexpr uint32_t num_lights = 6;
 
 namespace rhi
 {
-class UniformBuffer;
+class SubAllocatedBuffer;
 } // namespace rhi
 
 namespace platform
@@ -196,7 +196,7 @@ class Lights
 
     Result updateUniformBuffer(platform::Context* context);
 
-    rhi::UniformBuffer* getUniformBuffer();
+    rhi::SubAllocatedBuffer* getUniformBuffer();
 
     void setLightNumber(uint32_t val);
 
@@ -214,7 +214,7 @@ class Lights
     std::vector<PointLight> pointLights;
     std::vector<SpotLight> spotLights;
 
-    rhi::UniformBuffer* uniformBuffer;
+    rhi::SubAllocatedBuffer* uniformBuffer;
 
     static constexpr size_t uniformDataSize = sizeof(LightUniformBuffer);
 };

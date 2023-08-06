@@ -8,11 +8,8 @@
 namespace rhi
 {
 class Image;
-class VertexBuffer;
-class IndexBuffer;
-class UniformBuffer;
-class StorageBuffer;
-class VertexScratchBuffer;
+class ScratchBuffer;
+class SubAllocatedBuffer;
 class IndexScratchBuffer;
 class UniformScratchBuffer;
 class StorageScratchBuffer;
@@ -81,14 +78,18 @@ class Context : public platform::Context
 
     virtual Result viewport(Extent2D extent) = 0;
 
+    virtual Result bindVertexBuffer(SubAllocatedBuffer* buffer) = 0;
+
+    virtual Result bindindexBuffer(SubAllocatedBuffer* buffer) = 0;
+
   public:
-    VertexBuffer* allocateVertexBuffer(size_t size, void* data);
+    SubAllocatedBuffer* allocateVertexBuffer(size_t size, void* data);
 
-    IndexBuffer* allocateIndexBuffer(size_t size, void* data);
+    SubAllocatedBuffer* allocateIndexBuffer(size_t size, void* data);
 
-    UniformBuffer* allocateUniformBuffer(size_t size, void* data);
+    SubAllocatedBuffer* allocateUniformBuffer(size_t size, void* data);
 
-    StorageBuffer* allocateStorageBuffer(size_t size, void* data);
+    SubAllocatedBuffer* allocateStorageBuffer(size_t size, void* data);
 
     VertexShaderBase* allocateVertexShader(std::string name, VertexChannelFlags vertexChannelFlags);
 
@@ -117,10 +118,11 @@ class Context : public platform::Context
     virtual ComputeShaderBase* createComputeShader(ResourceID id, std::string name) = 0;
 
   private:
-    VertexScratchBuffer* vertexScratchBuffer;
-    IndexScratchBuffer* indexScratchBuffer;
-    UniformScratchBuffer* uniformScratchBuffer;
-    StorageScratchBuffer* storageScratchBuffer;
+    ScratchBuffer* vertexScratchBuffer;
+    ScratchBuffer* indexScratchBuffer;
+    ScratchBuffer* uniformScratchBuffer;
+    ScratchBuffer* storageScratchBuffer;
+
     std::unordered_map<ResourceID, ShaderBase*> shaderMap;
 };
 } // namespace rhi
