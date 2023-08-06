@@ -77,7 +77,7 @@ Result UIPass::init(platform::Context* platformContext, scene::SceneInfo* sceneI
     size_t fontSize = width * height * 4 * sizeof(char);
 
     std::vector<char> data;
-    for (uint32_t i; i < width * height * 4; i++)
+    for (uint32_t i = 0; i < width * height * 4; i++)
     {
         data.push_back(fontData[i]);
     }

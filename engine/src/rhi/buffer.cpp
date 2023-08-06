@@ -87,7 +87,7 @@ size_t Buffer::getAlignmentSize()
     return alignmentSize;
 }
 
-ScratchBuffer::ScratchBuffer() : buffer(nullptr)
+ScratchBuffer::ScratchBuffer() : buffer(nullptr), offset(0)
 {
 }
 
