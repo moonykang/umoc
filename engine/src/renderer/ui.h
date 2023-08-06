@@ -3,16 +3,13 @@
 #include "base.h"
 #include <memory>
 
-namespace model
-{
-class VertexInput;
-} // namespace model
-
 namespace rhi
 {
 class Texture;
 class DescriptorSet;
 class ShaderParameters;
+class ScratchBuffer;
+class SubAllocatedBuffer;
 } // namespace rhi
 
 namespace renderer
@@ -20,6 +17,8 @@ namespace renderer
 class UIPass : public Base
 {
   public:
+    UIPass();
+
     Result init(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
     void terminate(platform::Context* context) override;
@@ -31,12 +30,14 @@ class UIPass : public Base
     Result updateBuffers(platform::Context* context);
 
   private:
-    model::VertexInput* vertexInput;
     rhi::Texture* fontTexture;
     rhi::DescriptorSet* uiDescriptorSet;
     std::shared_ptr<rhi::ShaderParameters> shaderParameters;
 
     uint32_t vertexCount = 0;
     uint32_t indexCount = 0;
+
+    rhi::ScratchBuffer* vertexScratchBuffer;
+    rhi::ScratchBuffer* indexScratchBuffer;
 };
 } // namespace renderer

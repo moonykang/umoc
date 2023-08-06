@@ -85,9 +85,11 @@ class Context : public rhi::Context
 
     Result viewport(rhi::Extent2D extent) override;
 
-    Result bindVertexBuffer(rhi::SubAllocatedBuffer* buffer) override;
+    Result bindVertexBuffer(rhi::Buffer* buffer, size_t offset) override;
 
-    Result bindindexBuffer(rhi::SubAllocatedBuffer* buffer) override;
+    Result bindindexBuffer(rhi::Buffer* buffer, size_t offset, rhi::IndexType type) override;
+
+    void setScissor(int x, int y, uint32_t width, uint32_t height) override;
     // factory
   public:
     rhi::Buffer* allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,

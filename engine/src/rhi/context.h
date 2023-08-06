@@ -78,9 +78,11 @@ class Context : public platform::Context
 
     virtual Result viewport(Extent2D extent) = 0;
 
-    virtual Result bindVertexBuffer(SubAllocatedBuffer* buffer) = 0;
+    virtual Result bindVertexBuffer(Buffer* buffer, size_t offset) = 0;
 
-    virtual Result bindindexBuffer(SubAllocatedBuffer* buffer) = 0;
+    virtual Result bindindexBuffer(Buffer* buffer, size_t offset, IndexType type) = 0;
+
+    virtual void setScissor(int x, int y, uint32_t width, uint32_t height) = 0;
 
   public:
     SubAllocatedBuffer* allocateVertexBuffer(size_t size, void* data);

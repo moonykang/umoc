@@ -136,13 +136,13 @@ class DirectionalLight
 
             glm::mat4 viewMatrix = glm::lookAt(position, position + direction, glm::vec3(0, 1, 0));
             lightMatrix = projection * viewMatrix;
-
-            LOGD("LightMatrix");
-            LOGD("%f %f %f %f", lightMatrix[0][1], lightMatrix[0][1], lightMatrix[0][2], lightMatrix[0][3]);
-            LOGD("%f %f %f %f", lightMatrix[1][1], lightMatrix[1][1], lightMatrix[1][2], lightMatrix[1][3]);
-            LOGD("%f %f %f %f", lightMatrix[2][1], lightMatrix[2][1], lightMatrix[2][2], lightMatrix[2][3]);
-            LOGD("%f %f %f %f", lightMatrix[3][1], lightMatrix[3][1], lightMatrix[3][2], lightMatrix[3][3]);
-
+            /*
+                        LOGD("LightMatrix");
+                        LOGD("%f %f %f %f", lightMatrix[0][1], lightMatrix[0][1], lightMatrix[0][2], lightMatrix[0][3]);
+                        LOGD("%f %f %f %f", lightMatrix[1][1], lightMatrix[1][1], lightMatrix[1][2], lightMatrix[1][3]);
+                        LOGD("%f %f %f %f", lightMatrix[2][1], lightMatrix[2][1], lightMatrix[2][2], lightMatrix[2][3]);
+                        LOGD("%f %f %f %f", lightMatrix[3][1], lightMatrix[3][1], lightMatrix[3][2], lightMatrix[3][3]);
+            */
             dirty = false;
 
             return true;

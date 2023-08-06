@@ -22,8 +22,6 @@ class SubAllocatedBuffer
 
     void terminate(Context* context);
 
-    void bind(Context* context);
-
     Result update(Context* context, size_t size, void* data);
 
     Buffer* getBuffer();

@@ -54,6 +54,17 @@ Result Context::viewport(rhi::Extent2D extent)
     return Result::Continue;
 }
 
+void Context::setScissor(int x, int y, uint32_t width, uint32_t height)
+{
+    VkRect2D rect;
+    rect.offset.x = x;
+    rect.offset.y = y;
+    rect.extent.width = width;
+    rect.extent.height = height;
+
+    getActiveCommandBuffer()->setScissor(rect);
+}
+
 RenderTargetManager::RenderTargetManager() : currentRenderPassHash(0)
 {
 }

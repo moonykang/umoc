@@ -5,6 +5,22 @@
 #include "resource/renderpassInfo.h"
 #include "rhi/resources.h"
 
+inline VkIndexType convertToVkIndexType(rhi::IndexType indexType)
+{
+    switch (indexType)
+    {
+    case rhi::IndexType::UINT8:
+        return VkIndexType::VK_INDEX_TYPE_UINT8_EXT;
+    case rhi::IndexType::UINT16:
+        return VkIndexType::VK_INDEX_TYPE_UINT16;
+    case rhi::IndexType::UINT32:
+        return VkIndexType::VK_INDEX_TYPE_UINT32;
+    default:
+        UNREACHABLE();
+        return VkIndexType::VK_INDEX_TYPE_NONE_KHR;
+    }
+}
+
 inline VkPrimitiveTopology convertToVkPrimitiveTopology(rhi::PrimitiveTopology topology)
 {
     switch (topology)

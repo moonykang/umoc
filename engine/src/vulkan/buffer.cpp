@@ -38,23 +38,21 @@ Result Context::addTransition(rhi::Buffer* rhiBuffer, size_t offset, size_t size
     return Result::Continue;
 }
 
-Result Context::bindVertexBuffer(rhi::SubAllocatedBuffer* suballocatedBuffer)
+Result Context::bindVertexBuffer(rhi::Buffer* rhiBuffer, size_t offset)
 {
     CommandBuffer* commandBuffer = getActiveCommandBuffer();
-    Buffer* buffer = reinterpret_cast<Buffer*>(suballocatedBuffer->getBuffer());
-    size_t offset = suballocatedBuffer->getOffset();
+    Buffer* buffer = reinterpret_cast<Buffer*>(rhiBuffer);
 
     commandBuffer->bindVertexBuffers(buffer->getHandle(), offset);
     return Result::Continue;
 }
 
-Result Context::bindindexBuffer(rhi::SubAllocatedBuffer* suballocatedBuffer)
+Result Context::bindindexBuffer(rhi::Buffer* rhiBuffer, size_t offset, rhi::IndexType type)
 {
     CommandBuffer* commandBuffer = getActiveCommandBuffer();
-    Buffer* buffer = reinterpret_cast<Buffer*>(suballocatedBuffer->getBuffer());
-    size_t offset = suballocatedBuffer->getOffset();
+    Buffer* buffer = reinterpret_cast<Buffer*>(rhiBuffer);
 
-    commandBuffer->bindIndexBuffers(buffer->getHandle(), offset, VK_INDEX_TYPE_UINT32);
+    commandBuffer->bindIndexBuffers(buffer->getHandle(), offset, convertToVkIndexType(type));
     return Result::Continue;
 }
 

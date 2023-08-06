@@ -48,12 +48,12 @@ void VertexInput::bind(platform::Context* platformContext)
 
     if (vertexBuffer)
     {
-        context->bindVertexBuffer(vertexBuffer);
+        context->bindVertexBuffer(vertexBuffer->getBuffer(), vertexBuffer->getOffset());
     }
 
     if (indexBuffer)
     {
-        context->bindindexBuffer(indexBuffer);
+        context->bindindexBuffer(indexBuffer->getBuffer(), indexBuffer->getOffset(), rhi::IndexType::UINT32);
     }
 }
 } // namespace model

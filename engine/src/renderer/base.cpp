@@ -77,7 +77,8 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
     {
         passes.push_back(new ScreenPass(renderingOptions.getFinalTarget()));
     }
-    // passes.push_back(new UIPass());
+
+    passes.push_back(new UIPass());
 
     for (auto& pass : passes)
     {

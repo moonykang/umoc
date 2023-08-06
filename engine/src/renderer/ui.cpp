@@ -2,12 +2,15 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
-#include "model/vertexInput.h"
+#include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/defines.h"
 #include "rhi/descriptor.h"
 #include "rhi/image.h"
 #include "rhi/shader.h"
+#include "scene/rendertargets.h"
+#include "scene/scene.h"
+#include "scene/view.h"
 
 struct UIPushBlock
 {
@@ -17,17 +20,40 @@ struct UIPushBlock
 
 namespace renderer
 {
+namespace ui
+{
+
+const size_t VERTEX_SCRATCH_BUFFER_SIZE = 16 * 1024 * 1024;
+const size_t INDEX_SCRATCH_BUFFER_SIZE = 16 * 1024 * 1024;
+} // namespace ui
+UIPass::UIPass() : vertexScratchBuffer(nullptr), indexScratchBuffer(nullptr)
+{
+}
+
 Result UIPass::init(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
+    {
+        vertexScratchBuffer = new rhi::ScratchBuffer();
+        vertexScratchBuffer->init(context, rhi::BufferUsage::VERTEX_BUFFER | rhi::BufferUsage::TRANSFER_DST,
+                                  rhi::MemoryProperty::HOST_VISIBLE | rhi::MemoryProperty::HOST_COHERENT,
+                                  ui::VERTEX_SCRATCH_BUFFER_SIZE);
+        indexScratchBuffer = new rhi::ScratchBuffer();
+        indexScratchBuffer->init(context, rhi::BufferUsage::INDEX_BUFFER | rhi::BufferUsage::TRANSFER_DST,
+                                 rhi::MemoryProperty::HOST_VISIBLE | rhi::MemoryProperty::HOST_COHERENT,
+                                 ui::INDEX_SCRATCH_BUFFER_SIZE);
+    }
+
     shaderParameters = std::make_shared<rhi::ShaderParameters>();
 
-    shaderParameters->vertexShader = context->allocateVertexShader(
-        "ui.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Color);
-    shaderParameters->pixelShader = context->allocatePixelShader("ui.frag.spv");
+    std::vector<rhi::VertexAttribute> vertexAttributes = {
+        rhi::VertexAttribute(rhi::Format::R32G32_FLOAT, offsetof(ImDrawVert, pos)),
+        rhi::VertexAttribute(rhi::Format::R32G32_FLOAT, offsetof(ImDrawVert, uv)),
+        rhi::VertexAttribute(rhi::Format::R8G8B8A8_UNORM, offsetof(ImDrawVert, col))};
 
-    vertexInput = new model::VertexInput();
+    shaderParameters->vertexShader = context->allocateVertexShader("ui.vert.spv", vertexAttributes, sizeof(ImDrawVert));
+    shaderParameters->pixelShader = context->allocatePixelShader("ui.frag.spv");
 
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -59,7 +85,7 @@ Result UIPass::init(platform::Context* platformContext, scene::SceneInfo* sceneI
     fontTexture = new rhi::Texture("uiFont");
     try(fontTexture->init(context, rhi::Format::R8G8B8A8_UNORM,
                           {static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1}, rhi::ImageUsage::SAMPLED,
-                          fontSize, fontData));
+                          data.size(), data.data()));
 
     uiDescriptorSet = context->allocateDescriptorSet();
 
@@ -81,7 +107,8 @@ void UIPass::terminate(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    TERMINATE(vertexInput, platformContext);
+    TERMINATE(vertexScratchBuffer, context);
+    TERMINATE(indexScratchBuffer, context);
     TERMINATE(fontTexture, context);
     TERMINATE(uiDescriptorSet, context);
 }
@@ -93,6 +120,18 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     try(updateBuffers(platformContext));
 
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
+
+    rhi::RenderPassInfo renderpassInfo;
+    renderpassInfo.name = "UI pass";
+
+    rhi::AttachmentId gBufferAattachmentId = renderpassInfo.registerColorAttachment(
+        {context->getCurrentSurfaceImage(), rhi::AttachmentLoadOp::Load, rhi::AttachmentStoreOp::Store, 1,
+         rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
+
+    auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
+    subpass.colorAttachmentReference.push_back({gBufferAattachmentId, rhi::ImageLayout::ColorAttachment});
+
+    try(context->beginRenderpass(renderpassInfo));
 
     shaderParameters->materialDescriptor = uiDescriptorSet;
 
@@ -123,7 +162,48 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     graphicsPipelineState.pushConstants.push_back(
         rhi::PushConstant(rhi::ShaderStage::Vertex | rhi::ShaderStage::Pixel, 0, sizeof(UIPushBlock)));
 
-    // context->pushConstant(rhi::ShaderStage::Vertex | rhi::ShaderStage::Pixel, sizeof(PushBlock), &pushBlock);
+    try(context->createGfxPipeline(graphicsPipelineState));
+
+    ImGuiIO& io = ImGui::GetIO();
+    UIPushBlock uiPushBlock;
+    uiPushBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
+    uiPushBlock.translate = glm::vec2(-1.0f);
+
+    context->pushConstant(rhi::ShaderStage::Vertex | rhi::ShaderStage::Pixel, sizeof(UIPushBlock), &uiPushBlock);
+
+    // Render commands
+    ImDrawData* imDrawData = ImGui::GetDrawData();
+    int32_t vertexOffset = 0;
+    int32_t indexOffset = 0;
+
+    if (imDrawData->CmdListsCount > 0)
+    {
+        context->bindVertexBuffer(vertexScratchBuffer->getBuffer(), 0);
+        context->bindindexBuffer(indexScratchBuffer->getBuffer(), 0, rhi::IndexType::UINT16);
+
+        for (int32_t i = 0; i < imDrawData->CmdListsCount; i++)
+        {
+            const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+            for (int32_t j = 0; j < cmd_list->CmdBuffer.Size; j++)
+            {
+                const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[j];
+
+                int x = std::max((int32_t)(pcmd->ClipRect.x), 0);
+                int y = std::max((int32_t)(pcmd->ClipRect.y), 0);
+                uint32_t width = (uint32_t)(pcmd->ClipRect.z - pcmd->ClipRect.x);
+                uint32_t height = (uint32_t)(pcmd->ClipRect.w - pcmd->ClipRect.y);
+
+                context->setScissor(x, y, width, height);
+
+                context->drawIndexed(pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
+
+                indexOffset += pcmd->ElemCount;
+            }
+            vertexOffset += cmd_list->VtxBuffer.Size;
+        }
+    }
+
+    try(context->endRenderpass());
 
     return Result::Continue;
 }
@@ -150,21 +230,42 @@ Result UIPass::updateBuffers(platform::Context* platformContext)
 
     ImDrawData* imDrawData = ImGui::GetDrawData();
 
-    // Note: Alignment is done inside buffer creation
     VkDeviceSize vertexBufferSize = imDrawData->TotalVtxCount * sizeof(ImDrawVert);
     VkDeviceSize indexBufferSize = imDrawData->TotalIdxCount * sizeof(ImDrawIdx);
 
-    // LOGD("indexBufferSize %zu", indexBufferSize);
-    // LOGD("vertexBufferSize %zu", vertexBufferSize);
-    // LOGD("imDrawData->CmdListsCount %zu", imDrawData->CmdListsCount);
     if ((vertexBufferSize == 0) || (indexBufferSize == 0))
     {
-        Result::Continue;
+        return Result::Continue;
     }
 
     if (vertexCount != imDrawData->TotalVtxCount)
     {
+        vertexCount = imDrawData->TotalVtxCount;
     }
+
+    if (indexCount != imDrawData->TotalIdxCount)
+    {
+        indexCount = imDrawData->TotalIdxCount;
+    }
+
+    size_t vertexOffset = 0;
+    size_t indexOffset = 0;
+
+    for (int i = 0; i < imDrawData->CmdListsCount; i++)
+    {
+        const ImDrawList* cmd_list = imDrawData->CmdLists[i];
+
+        size_t vertexSize = cmd_list->VtxBuffer.Size * sizeof(ImDrawVert);
+        vertexScratchBuffer->update(context, vertexOffset, vertexSize, cmd_list->VtxBuffer.Data);
+        vertexOffset += vertexSize;
+
+        size_t indexSize = cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx);
+        indexScratchBuffer->update(context, indexOffset, indexSize, cmd_list->IdxBuffer.Data);
+        indexOffset += indexSize;
+    }
+
+    LOGD("vertexCount %u indexCount %u", vertexCount, indexCount);
+
     return Result::Continue;
 }
 } // namespace renderer

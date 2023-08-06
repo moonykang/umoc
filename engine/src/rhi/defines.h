@@ -586,4 +586,11 @@ class VertexAttribute
     Format format;
     uint32_t offset;
 };
+
+enum class IndexType
+{
+    UINT8,
+    UINT16,
+    UINT32
+};
 } // namespace rhi
