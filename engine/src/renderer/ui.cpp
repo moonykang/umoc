@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
+#include "model/material.h"
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/defines.h"
@@ -52,8 +53,9 @@ Result UIPass::init(platform::Context* platformContext, scene::SceneInfo* sceneI
         rhi::VertexAttribute(rhi::Format::R32G32_FLOAT, offsetof(ImDrawVert, uv)),
         rhi::VertexAttribute(rhi::Format::R8G8B8A8_UNORM, offsetof(ImDrawVert, col))};
 
-    shaderParameters->vertexShader = context->allocateVertexShader("ui.vert.spv", vertexAttributes, sizeof(ImDrawVert));
-    shaderParameters->pixelShader = context->allocatePixelShader("ui.frag.spv");
+    shaderParameters->vertexShader =
+        context->allocateVertexShader("ui/ui.vert.spv", vertexAttributes, sizeof(ImDrawVert));
+    shaderParameters->pixelShader = context->allocatePixelShader("ui/ui.frag.spv");
 
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -76,29 +78,15 @@ Result UIPass::init(platform::Context* platformContext, scene::SceneInfo* sceneI
     io.Fonts->GetTexDataAsRGBA32(&fontData, &width, &height);
     size_t fontSize = width * height * 4 * sizeof(char);
 
-    std::vector<char> data;
-    for (uint32_t i = 0; i < width * height * 4; i++)
-    {
-        data.push_back(fontData[i]);
-    }
-
     fontTexture = new rhi::Texture("uiFont");
     try(fontTexture->init(context, rhi::Format::R8G8B8A8_UNORM,
                           {static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1}, rhi::ImageUsage::SAMPLED,
-                          data.size(), data.data()));
+                          fontSize, fontData));
 
-    uiDescriptorSet = context->allocateDescriptorSet();
-
-    std::vector<uint32_t> offsets = {0};
-    rhi::DescriptorInfoList descriptorInfoList;
-    rhi::DescriptorList descriptorList;
-
-    descriptorInfoList.push_back({0, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler});
-    descriptorList.push_back(
-        {{0, rhi::ShaderStage::Pixel, rhi::DescriptorType::Combined_Image_Sampler}, fontTexture->getImageDescriptor()});
-
-    try(uiDescriptorSet->init(context, descriptorInfoList));
-    try(uiDescriptorSet->update(context, descriptorList, offsets));
+    uiMaterial = new model::Material();
+    try(uiMaterial->init(platformContext));
+    uiMaterial->updateTexture(model::MaterialFlag::BaseColorTexture, fontTexture, rhi::ShaderStage::Pixel);
+    try(uiMaterial->update(platformContext));
 
     return Result::Continue;
 }
@@ -110,7 +98,7 @@ void UIPass::terminate(platform::Context* platformContext)
     TERMINATE(vertexScratchBuffer, context);
     TERMINATE(indexScratchBuffer, context);
     TERMINATE(fontTexture, context);
-    TERMINATE(uiDescriptorSet, context);
+    TERMINATE(uiMaterial, platformContext);
 }
 
 Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
@@ -133,7 +121,8 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
 
     try(context->beginRenderpass(renderpassInfo));
 
-    shaderParameters->materialDescriptor = uiDescriptorSet;
+    shaderParameters->materialDescriptor = uiMaterial->getDescriptorSet();
+    uiMaterial->getDescriptorSet()->bind(context, 0);
 
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.shaderParameters = shaderParameters.get();
@@ -159,8 +148,7 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
     graphicsPipelineState.depthStencilState.depthWriteEnable = false;
 
-    graphicsPipelineState.pushConstants.push_back(
-        rhi::PushConstant(rhi::ShaderStage::Vertex | rhi::ShaderStage::Pixel, 0, sizeof(UIPushBlock)));
+    graphicsPipelineState.pushConstants.push_back(rhi::PushConstant(rhi::ShaderStage::Vertex, 0, sizeof(UIPushBlock)));
 
     try(context->createGfxPipeline(graphicsPipelineState));
 
@@ -169,7 +157,7 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     uiPushBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
     uiPushBlock.translate = glm::vec2(-1.0f);
 
-    context->pushConstant(rhi::ShaderStage::Vertex | rhi::ShaderStage::Pixel, sizeof(UIPushBlock), &uiPushBlock);
+    context->pushConstant(rhi::ShaderStage::Vertex, sizeof(UIPushBlock), &uiPushBlock);
 
     // Render commands
     ImDrawData* imDrawData = ImGui::GetDrawData();
@@ -219,8 +207,11 @@ Result UIPass::updateUI()
     ImGui::SetWindowSize(ImVec2(300, 300), ImGuiCond_::ImGuiCond_Always);
     ImGui::TextUnformatted("Hello");
     ImGui::TextUnformatted("WTF");
+    ImGui::Text("Camera");
 
+    ImGui::ShowDemoWindow();
     ImGui::Render();
+
     return Result::Continue;
 }
 

@@ -3,6 +3,11 @@
 #include "base.h"
 #include <memory>
 
+namespace model
+{
+class Material;
+} // namespace model
+
 namespace rhi
 {
 class Texture;
@@ -30,8 +35,9 @@ class UIPass : public Base
     Result updateBuffers(platform::Context* context);
 
   private:
+    model::Material* uiMaterial;
+
     rhi::Texture* fontTexture;
-    rhi::DescriptorSet* uiDescriptorSet;
     std::shared_ptr<rhi::ShaderParameters> shaderParameters;
 
     uint32_t vertexCount = 0;
