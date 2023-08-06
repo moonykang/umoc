@@ -98,7 +98,7 @@ Result Lighting::render(platform::Context* platformContext, scene::SceneInfo* sc
         graphicsPipelineState.shaderParameters = shaderParameters;
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
         graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
+        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
 
         context->createGfxPipeline(graphicsPipelineState);
 

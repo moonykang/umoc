@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/transform.h"
 #include "common/util.h"
 #include <mutex>
 
@@ -25,11 +26,11 @@ enum LightType
     LIGHT_TYPE_COUNT
 };
 
-struct Light
+struct LightData
 {
-    Light()
+    LightData()
     {
-        memset(this, 0, sizeof(Light));
+        memset(this, 0, sizeof(LightData));
 
         set_light_type(LIGHT_TYPE_POINT);
         set_light_intensity(1.0f);
@@ -88,6 +89,65 @@ struct Light
     }
 };
 
+class DirectionalLight
+{
+  public:
+    DirectionalLight() : enabled(false), position(0.0f), direction(0.0f), color(1.0f), projection(1.0f), dirty(true)
+    {
+    }
+
+    ~DirectionalLight()
+    {
+    }
+
+    void setPosition(glm::vec3 position)
+    {
+        this->position = position;
+        dirty = true;
+    }
+
+    void setDirection(glm::vec3 direction)
+    {
+        this->direction = direction;
+        dirty = true;
+    }
+
+    bool updateLightData(LightData& lightData)
+    {
+        if (dirty)
+        {
+            lightData.set_light_type(LightType::LIGHT_TYPE_DIRECTIONAL);
+            lightData.set_light_position(position);
+            lightData.set_light_direction(direction);
+            lightData.set_light_color(color);
+            dirty = false;
+
+            return true;
+        }
+
+        return false;
+    }
+
+  private:
+    bool enabled;
+
+    glm::vec3 position;
+    glm::vec3 direction;
+    glm::vec3 color;
+
+    glm::mat4 projection;
+
+    bool dirty;
+};
+
+class PointLight
+{
+};
+
+class SpotLight
+{
+};
+
 class Lights
 {
   public:
@@ -111,15 +171,24 @@ class Lights
 
     void setLightNumber(uint32_t val);
 
+    DirectionalLight& getDirectionalLight()
+    {
+        return directionalLight;
+    }
+
   private:
     std::mutex mutex;
     bool dirty;
 
     struct UniformBufferObject
     {
-        Light light[NUM_LIGHTS];
+        LightData light[NUM_LIGHTS];
         uint32_t numLights;
     } ubo;
+
+    DirectionalLight directionalLight;
+    std::vector<PointLight> pointLights;
+    std::vector<SpotLight> spotLights;
 
     rhi::UniformBuffer* uniformBuffer;
 

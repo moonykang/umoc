@@ -37,6 +37,7 @@ class RenderTargets
 
     REGISTER_TEXTURE(sceneColor, getSceneColor);
     REGISTER_TEXTURE(sceneDepth, getSceneDepth);
+    REGISTER_TEXTURE(shadowDepth, getShadowDepth);
 
     REGISTER_TEXTURE(computeTarget, getComputeTarget);
 

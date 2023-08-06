@@ -37,8 +37,8 @@ float4 main(VSOutput input) : SV_TARGET
 	float4 gBufferC = gBufferCTexture.Sample(gBufferCSampler, input.uv);
 	float depth = sceneDepthTexture.Sample(sceneDepthSampler, input.uv).r;
 
-	// float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
-	float3 fragPos = gBufferC.yzw; // temp
+	float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
+	//float3 fragPos = gBufferC.yzw; // temp
 
 	float3 normal = gBufferBTexture.Sample(gBufferBSampler, input.uv).rgb;
 	float3 albedo = gBufferA.xyz;
@@ -46,7 +46,7 @@ float4 main(VSOutput input) : SV_TARGET
 	float roughness = gBufferC.x;
 	float metallic = gBufferA.w;
 
-	#define ambient 0.0
+	#define ambient 0.2
 
 	// Ambient part
 	float3 color = albedo * ambient;

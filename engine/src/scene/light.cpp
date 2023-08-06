@@ -11,7 +11,7 @@ Lights::Lights() : uniformBuffer(nullptr), dirty(false)
 
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
-        ubo.light[i] = Light();
+        ubo.light[i] = LightData();
     }
 }
 
@@ -54,6 +54,8 @@ Result Lights::updateUniformBuffer(platform::Context* platformContext)
     // updateView();
 
     std::lock_guard<std::mutex> lock(mutex);
+
+    dirty |= directionalLight.updateLightData(ubo.light[0]);
 
     if (dirty)
     {
