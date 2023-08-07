@@ -70,7 +70,7 @@ Result SponzaScene::load(platform::Context* platformContext)
     return Result::Continue;
 }
 
-Result SponzaScene::udpate(platform::Context* context)
+Result SponzaScene::udpateScene(platform::Context* context)
 {
     timer++;
 

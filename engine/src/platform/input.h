@@ -10,6 +10,20 @@ class View;
 
 namespace platform
 {
+namespace input
+{
+class MouseStatus
+{
+  public:
+    MouseStatus() : left(false), right(false), middle(false)
+    {
+    }
+
+    bool left;
+    bool right;
+    bool middle;
+};
+} // namespace input
 class Input
 {
   public:
@@ -25,10 +39,13 @@ class Input
 
     virtual const std::pair<float, float>& getPosition() = 0;
 
+    input::MouseStatus& getMouseStatus();
+
   private:
     std::mutex mutex;
 
   protected:
     scene::View* attachedView;
+    input::MouseStatus mouseStatus;
 };
 } // namespace platform

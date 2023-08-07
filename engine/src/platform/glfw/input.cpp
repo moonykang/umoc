@@ -86,13 +86,16 @@ void Input::mouseEvent(int button, int action, int mods)
     case GLFW_MOUSE_BUTTON_RIGHT:
         LOGD("GLFW_MOUSE_BUTTON_RIGHT action %d", action);
         attachedView->handle_mouse_RB(action == GLFW_PRESS);
+        mouseStatus.right = action == GLFW_PRESS ? true : false;
         break;
     case GLFW_MOUSE_BUTTON_LEFT:
         LOGD("GLFW_MOUSE_BUTTON_LEFT action %d", action);
         attachedView->handle_mouse_LB(action == GLFW_PRESS);
+        mouseStatus.left = action == GLFW_PRESS ? true : false;
         break;
     case GLFW_MOUSE_BUTTON_MIDDLE:
         LOGD("GLFW_MOUSE_BUTTON_MIDDLE action %d", action);
+        mouseStatus.middle = action == GLFW_PRESS ? true : false;
         break;
     default:
         break;

@@ -103,8 +103,6 @@ void UIPass::terminate(platform::Context* platformContext)
 
 Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* sceneInfo)
 {
-    try(updateUI());
-
     try(updateBuffers(platformContext));
 
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
@@ -195,27 +193,6 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     return Result::Continue;
 }
 
-Result UIPass::updateUI()
-{
-    ImGui::NewFrame();
-
-    ImGui::SetWindowPos(ImVec2(20, 20), ImGuiCond_::ImGuiCond_FirstUseEver);
-    ImGui::SetWindowSize(ImVec2(300, 300), ImGuiCond_::ImGuiCond_Always);
-    ImGui::TextUnformatted("Hello");
-    ImGui::TextUnformatted("WTF");
-    ImGui::Text("Camera");
-
-    {
-        ImGui::Begin("Another window");
-        ImGui::Text("Hello from another window!");
-        ImGui::End();
-    }
-    ImGui::ShowDemoWindow();
-    ImGui::Render();
-
-    return Result::Continue;
-}
-
 Result UIPass::updateBuffers(platform::Context* platformContext)
 {
     rhi::Context* context = platformContext->getRHI();
@@ -255,8 +232,6 @@ Result UIPass::updateBuffers(platform::Context* platformContext)
         indexScratchBuffer->update(context, indexOffset, indexSize, cmd_list->IdxBuffer.Data);
         indexOffset += indexSize;
     }
-
-    LOGD("vertexCount %u indexCount %u", vertexCount, indexCount);
 
     return Result::Continue;
 }

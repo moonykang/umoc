@@ -31,7 +31,6 @@ class UIPass : public Base
     Result render(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
   private:
-    Result updateUI();
     Result updateBuffers(platform::Context* context);
 
   private:

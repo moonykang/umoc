@@ -26,4 +26,9 @@ bool Input::isAttached()
     std::lock_guard<std::mutex> lock(mutex);
     return attachedView != nullptr;
 }
+
+input::MouseStatus& Input::getMouseStatus()
+{
+    return mouseStatus;
+}
 } // namespace platform

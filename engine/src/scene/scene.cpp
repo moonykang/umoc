@@ -9,11 +9,13 @@
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
 #include "textures.h"
+#include "ui.h"
 #include "view.h"
 
 namespace scene
 {
-SceneInfo::SceneInfo() : view(nullptr), lights(nullptr), renderTargets(nullptr), sceneDescriptorSet(nullptr), timer(0)
+SceneInfo::SceneInfo()
+    : view(nullptr), lights(nullptr), ui(nullptr), renderTargets(nullptr), sceneDescriptorSet(nullptr), timer(0)
 {
 }
 
@@ -43,6 +45,8 @@ Result SceneInfo::init(platform::Context* platformContext)
     lights = new Lights();
     try(lights->init(platformContext));
 
+    ui = new UI();
+
     try(platformContext->getWindow()->getInput()->attach(view));
 
     renderTargets = new RenderTargets();
@@ -53,8 +57,23 @@ Result SceneInfo::init(platform::Context* platformContext)
     return postInit(platformContext);
 }
 
-Result SceneInfo::udpate(platform::Context* context)
+Result SceneInfo::updateUI(platform::Context* platformContext)
 {
+    return Result::Continue;
+}
+
+Result SceneInfo::udpateScene(platform::Context* context)
+{
+    return Result::Continue;
+}
+
+Result SceneInfo::update(platform::Context* context)
+{
+    try(ui->startRender(context, this));
+    try(updateUI(context));
+    try(ui->endRender());
+    try(udpateScene(context));
+    try(lights->updateUniformBuffer(context));
     try(view->updateUniformBuffer(context));
     return Result::Continue;
 }
@@ -70,6 +89,10 @@ void SceneInfo::terminate(platform::Context* platformContext)
     preTerminate(platformContext);
     platformContext->getWindow()->getInput()->dettach();
 
+    {
+        delete ui;
+        ui = nullptr;
+    }
     TERMINATE(textures, context);
     TERMINATE(sceneDescriptorSet, context);
     TERMINATE(lights, platformContext);

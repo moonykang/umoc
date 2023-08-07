@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/util.h"
+#include "imgui.h"
 #include "renderer/option.h"
 #include <vector>
 
@@ -25,6 +26,7 @@ class Lights;
 class View;
 class RenderTargets;
 class Textures;
+class UI;
 
 class SceneInfo
 {
@@ -39,7 +41,11 @@ class SceneInfo
 
     virtual Result load(platform::Context* context) = 0;
 
-    virtual Result udpate(platform::Context* context);
+    virtual Result updateUI(platform::Context* context);
+
+    virtual Result udpateScene(platform::Context* context);
+
+    Result update(platform::Context* context);
 
     virtual void preTerminate(platform::Context* context);
 
@@ -88,6 +94,7 @@ class SceneInfo
     std::vector<model::Object*> models;
     View* view;
     Lights* lights;
+    UI* ui;
     RenderTargets* renderTargets;
     rhi::DescriptorSet* sceneDescriptorSet;
     Textures* textures;
