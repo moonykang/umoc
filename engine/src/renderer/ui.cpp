@@ -157,8 +157,6 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     uiPushBlock.scale = glm::vec2(2.0f / io.DisplaySize.x, 2.0f / io.DisplaySize.y);
     uiPushBlock.translate = glm::vec2(-1.0f);
 
-    context->pushConstant(rhi::ShaderStage::Vertex, sizeof(UIPushBlock), &uiPushBlock);
-
     // Render commands
     ImDrawData* imDrawData = ImGui::GetDrawData();
     int32_t vertexOffset = 0;
@@ -183,6 +181,7 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
 
                 context->setScissor(x, y, width, height);
 
+                context->pushConstant(rhi::ShaderStage::Vertex, sizeof(UIPushBlock), &uiPushBlock);
                 context->drawIndexed(pcmd->ElemCount, 1, indexOffset, vertexOffset, 0);
 
                 indexOffset += pcmd->ElemCount;
@@ -200,15 +199,17 @@ Result UIPass::updateUI()
 {
     ImGui::NewFrame();
 
-    // Init imGui windows and elements
-    // SRS - Set initial position of default Debug window (note: Debug window sets its own initial size, use
-    // ImGuiSetCond_Always to override)
     ImGui::SetWindowPos(ImVec2(20, 20), ImGuiCond_::ImGuiCond_FirstUseEver);
     ImGui::SetWindowSize(ImVec2(300, 300), ImGuiCond_::ImGuiCond_Always);
     ImGui::TextUnformatted("Hello");
     ImGui::TextUnformatted("WTF");
     ImGui::Text("Camera");
 
+    {
+        ImGui::Begin("Another window");
+        ImGui::Text("Hello from another window!");
+        ImGui::End();
+    }
     ImGui::ShowDemoWindow();
     ImGui::Render();
 

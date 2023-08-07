@@ -45,16 +45,14 @@ Result Material::update(platform::Context* platformContext)
     if (uniformBuffer.first)
     {
         offsets.push_back(uniformBuffer.first->getOffset());
-        auto bufferDescriptor = uniformBuffer.first->getBufferDescriptor();
-
-        descriptorInfoList.push_back({binding, rhi::ShaderStage::Pixel | rhi::ShaderStage::Compute,
-                                      rhi::DescriptorType::Uniform_Buffer_Dynamic});
-        descriptorList.push_back(
-            {{binding++, rhi::ShaderStage::Pixel, rhi::DescriptorType::Uniform_Buffer_Dynamic}, bufferDescriptor});
+        descriptorInfoList.push_back({binding, uniformBuffer.second, rhi::DescriptorType::Uniform_Buffer_Dynamic});
+        descriptorList.push_back({{binding++, uniformBuffer.second, rhi::DescriptorType::Uniform_Buffer_Dynamic},
+                                  uniformBuffer.first->getBufferDescriptor()});
     }
 
     for (auto storageBuffer : externalStorageBuffers)
     {
+        offsets.push_back(storageBuffer.first->getOffset());
         descriptorInfoList.push_back({binding, storageBuffer.second, rhi::DescriptorType::Storage_Buffer_Dynamic});
         descriptorList.push_back({{binding++, storageBuffer.second, rhi::DescriptorType::Storage_Buffer_Dynamic},
                                   storageBuffer.first->getBufferDescriptor()});

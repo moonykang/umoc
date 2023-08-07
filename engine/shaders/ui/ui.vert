@@ -12,6 +12,7 @@ struct VSOutput
     [[vk::location(1)]] float4 color : COLOR0;
 };
 
+
 struct PushBlock
 {
     float2 scale;
@@ -22,7 +23,7 @@ struct PushBlock
 VSOutput main(VSInput input)
 {
     VSOutput output = (VSOutput) 0;
-
+    
     output.uv = input.uv;
     output.color = input.color;
     output.pos = float4(input.pos * pushConstants.scale + pushConstants.translate, 0.0f, 1.0f);
