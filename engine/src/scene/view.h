@@ -1,6 +1,7 @@
 #pragma once
 #include "common/transform.h"
 #include "common/util.h"
+#include "ui/component.h"
 #include <mutex>
 
 namespace rhi
@@ -16,7 +17,7 @@ class Context;
 
 namespace scene
 {
-class View
+class View : public ui::Component
 {
   public:
     enum class Type
@@ -50,6 +51,8 @@ class View
     void translate(glm::vec3 delta);
 
     void setType(Type type);
+
+    Result updateUI() override;
 
   private:
     Type type;

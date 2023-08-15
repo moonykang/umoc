@@ -60,8 +60,10 @@ Result SponzaScene::load(platform::Context* platformContext)
         lights->setLightNumber(1);
         auto& directionalLight = lights->getDirectionalLight();
         directionalLight.setProjection(45.0f, 1.0f, 1.0f, 96.0f);
-        directionalLight.setPosition(glm::vec3(0.f, 20.f, 0.f));
-        directionalLight.setDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
+
+        auto& transform = directionalLight.getTransform();
+        transform.translate(glm::vec3(0.f, 20.f, 0.f));
+        transform.rotate(glm::vec3(-0.2f, -1.0f, -0.3f));
     }
     try(lights->updateUniformBuffer(context));
 
@@ -76,21 +78,6 @@ Result SponzaScene::udpateScene(platform::Context* context)
 
     auto frameTimer = context->getTimer().getCurrentFrameTimer();
     float speed = timer * 0.001f;
-
-    // Lights
-    {
-        auto& directionalLight = lights->getDirectionalLight();
-
-        glm::vec3 position;
-        position.x = 0.0f;
-        position.y = sin(glm::radians(360.f * speed)) * 40.0f;
-        position.z = cos(glm::radians(360.f * speed)) * 40.0f;
-
-        glm::vec3 direction = -position;
-
-        directionalLight.setPosition(position);
-        directionalLight.setDirection(direction);
-    }
 
     try(lights->updateUniformBuffer(context));
 

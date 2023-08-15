@@ -2,6 +2,7 @@
 
 #include "common/transform.h"
 #include "common/util.h"
+#include "ui/component.h"
 #include <mutex>
 
 constexpr uint32_t num_lights = 6;
@@ -102,10 +103,32 @@ struct LightUniformBuffer
     uint32_t numLights;
 };
 
-class DirectionalLight
+class Light : public ui::Component
 {
   public:
-    DirectionalLight() : enabled(false), position(0.0f), direction(0.0f), color(1.0f), projection(1.0f), dirty(true)
+    Light() : dirty(true), color(1.0f)
+    {
+    }
+
+    Result updateUI() override;
+
+    util::Transform& getTransform()
+    {
+        return transform;
+    }
+
+  protected:
+    util::Transform transform;
+
+    glm::vec3 color;
+
+    bool dirty;
+};
+
+class DirectionalLight : public Light
+{
+  public:
+    DirectionalLight() : enabled(false), projection(1.0f)
     {
     }
 
@@ -113,36 +136,29 @@ class DirectionalLight
     {
     }
 
-    void setPosition(glm::vec3 position)
-    {
-        this->position = position;
-        dirty = true;
-    }
-
-    void setDirection(glm::vec3 direction)
-    {
-        this->direction = direction;
-        dirty = true;
-    }
-
     bool updateLightData(LightData& lightData, glm::mat4& lightMatrix)
     {
         if (dirty)
         {
-            lightData.set_light_type(LightType::LIGHT_TYPE_DIRECTIONAL);
+            auto& m = transform.get();
+            glm::vec3 direction = glm::normalize(glm::mat3(m) * glm::vec3(0.0f, -1.0f, 0.0f));
+            glm::vec3 position = glm::vec3(m[3][0], m[3][1], m[3][2]);
+
             lightData.set_light_position(position);
             lightData.set_light_direction(direction);
             lightData.set_light_color(color);
 
             glm::mat4 viewMatrix = glm::lookAt(position, position + direction, glm::vec3(0, 1, 0));
             lightMatrix = projection * viewMatrix;
-            /*
-                        LOGD("LightMatrix");
-                        LOGD("%f %f %f %f", lightMatrix[0][1], lightMatrix[0][1], lightMatrix[0][2], lightMatrix[0][3]);
-                        LOGD("%f %f %f %f", lightMatrix[1][1], lightMatrix[1][1], lightMatrix[1][2], lightMatrix[1][3]);
-                        LOGD("%f %f %f %f", lightMatrix[2][1], lightMatrix[2][1], lightMatrix[2][2], lightMatrix[2][3]);
-                        LOGD("%f %f %f %f", lightMatrix[3][1], lightMatrix[3][1], lightMatrix[3][2], lightMatrix[3][3]);
-            */
+
+            LOGD("Position %f %f %f", position.x, position.y, position.z);
+            LOGD("Rotate %f %f %f", direction.x, direction.y, direction.z);
+            LOGD("LightMatrix");
+            LOGD("%f %f %f %f", lightMatrix[0][1], lightMatrix[0][1], lightMatrix[0][2], lightMatrix[0][3]);
+            LOGD("%f %f %f %f", lightMatrix[1][1], lightMatrix[1][1], lightMatrix[1][2], lightMatrix[1][3]);
+            LOGD("%f %f %f %f", lightMatrix[2][1], lightMatrix[2][1], lightMatrix[2][2], lightMatrix[2][3]);
+            LOGD("%f %f %f %f", lightMatrix[3][1], lightMatrix[3][1], lightMatrix[3][2], lightMatrix[3][3]);
+
             dirty = false;
 
             return true;
@@ -159,14 +175,7 @@ class DirectionalLight
 
   private:
     bool enabled;
-
-    glm::vec3 position;
-    glm::vec3 direction;
-    glm::vec3 color;
-
     glm::mat4 projection;
-
-    bool dirty;
 };
 
 class PointLight
@@ -177,7 +186,7 @@ class SpotLight
 {
 };
 
-class Lights
+class Lights : public ui::Component
 {
   public:
     Lights();
@@ -204,6 +213,8 @@ class Lights
     {
         return directionalLight;
     }
+
+    Result updateUI() override;
 
   private:
     std::mutex mutex;

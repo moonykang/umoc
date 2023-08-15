@@ -35,9 +35,8 @@ void View::setView(glm::vec3 position, glm::vec3 rotation)
 
 void View::updateView()
 {
-    if (keyInput.any())
+    if (keyInput.any() || dirty)
     {
-
         glm::vec3 camFront;
         camFront.x = -cos(glm::radians(rotation.x)) * sin(glm::radians(rotation.y));
         camFront.y = sin(glm::radians(rotation.x));
@@ -124,11 +123,6 @@ Result View::updateUniformBuffer(platform::Context* platformContext)
 
     if (dirty)
     {
-        LOGD("=== View State changes ===");
-        LOGD("view_pos %f %f %f", ubo.view_pos.x, ubo.view_pos.y, ubo.view_pos.z);
-        LOGD("position %f %f %f", position.x, position.y, position.z);
-        LOGD("rotation %f %f %f", rotation.x, rotation.y, rotation.z);
-
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
         try(uniformBuffer->update(context, uniformDataSize, &ubo));
         dirty = false;
@@ -197,5 +191,14 @@ void View::handle_mouse_RB(bool pressed)
 void View::setType(Type type)
 {
     this->type = type;
+}
+
+Result View::updateUI()
+{
+    ImGui::Text("Camera");
+    ImGui::InputFloat3("Position", glm::value_ptr(position));
+    ImGui::InputFloat3("Rotation", glm::value_ptr(rotation));
+
+    return Result::Continue;
 }
 } // namespace scene

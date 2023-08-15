@@ -19,10 +19,6 @@ class UI
 
     Result startRender(platform::Context* platformContext, SceneInfo* sceneInfo);
 
-    Result renderSceneLight(Lights* lights);
-
-    Result renderSceneView(View* view);
-
     Result endRender();
 
   private:

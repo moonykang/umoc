@@ -1,11 +1,13 @@
 #pragma once
 
+// GLM
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// GLFW
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -17,8 +19,14 @@
 
 #include <GLFW/glfw3native.h>
 
+// Tiny GLTF
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #ifdef PLATFORM_ANDROID
 #define TINYGLTF_ANDROID_LOAD_FROM_ASSETS
 #endif
 #include "tiny_gltf.h"
+
+// ImGUI
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"

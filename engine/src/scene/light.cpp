@@ -5,6 +5,29 @@
 
 namespace scene
 {
+Result Light::updateUI()
+{
+    bool changed = false;
+
+    auto& position = transform.getPosition();
+    auto& rotation = transform.getRotation();
+
+    ImGui::Text("Directional Light");
+    changed |= ImGui::SliderFloat3("Position", &transform.position.x, -100, 100);
+    changed |= ImGui::SliderFloat3("Rotation", &rotation.x, -360, 360);
+
+    if (changed)
+    {
+        transform.updateExternal();
+
+        auto m = transform.get();
+        transform.debug();
+
+        dirty = true;
+    }
+    return Result::Continue;
+}
+
 Lights::Lights() : uniformBuffer(nullptr), dirty(false)
 {
     ubo.numLights = 1;
@@ -77,5 +100,12 @@ void Lights::setLightNumber(uint32_t val)
 {
     ubo.numLights = val;
     dirty = true;
+}
+
+Result Lights::updateUI()
+{
+    try(directionalLight.updateUI());
+
+    return Result::Continue;
 }
 } // namespace scene
