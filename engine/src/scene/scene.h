@@ -47,6 +47,8 @@ class SceneInfo
 
     Result update(platform::Context* context);
 
+    Result postUpdate(platform::Context* context);
+
     virtual void preTerminate(platform::Context* context);
 
     void terminate(platform::Context* context);

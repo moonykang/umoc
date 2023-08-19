@@ -270,6 +270,7 @@ Result Loader::loadNode(Node* parent, const tinygltf::Node& node, uint32_t nodeI
     newNode->skinIndex = node.skin;
     newNode->matrix = glm::mat4(1.0f);
 
+    LOGD("Node %s", node.name.c_str());
     // Generate local node matrix
     glm::vec3 translation = glm::vec3(0.0f);
     if (node.translation.size() == 3)

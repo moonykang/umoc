@@ -107,6 +107,12 @@ Result BaseRenderPass::render(platform::Context* platformContext, scene::SceneIn
 
     for (auto& pass : passes)
     {
+        try(pass->updateUI());
+    }
+    try(sceneInfo->postUpdate(platformContext));
+
+    for (auto& pass : passes)
+    {
         try(pass->render(platformContext, sceneInfo));
     }
     try(context->present());

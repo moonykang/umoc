@@ -18,7 +18,13 @@ class ShadowMap : public Base
 
     Result render(platform::Context* context, scene::SceneInfo* sceneInfo) override;
 
+    Result updateUI() override;
+
   private:
     rhi::ShaderParameters* shaderParameters;
+
+    float depthBiasFactor = 1.25f;
+    float depthBiasSlope = 1.75;
 };
+
 } // namespace renderer

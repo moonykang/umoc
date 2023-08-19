@@ -188,4 +188,10 @@ Result Context::flushTransition()
 
     return Result::Continue;
 }
+
+void Context::setDepthBias(float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor)
+{
+    CommandBuffer* commandBuffer = getActiveCommandBuffer();
+    commandBuffer->setDepthBias(depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+}
 } // namespace vk

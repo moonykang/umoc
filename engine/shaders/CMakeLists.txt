@@ -18,6 +18,7 @@ SET(SUBDIRECTORIES
 	nbody
 	shadowmap
 	ui
+	forward
 )
 
 FOREACH(DIRECTORY ${SUBDIRECTORIES})

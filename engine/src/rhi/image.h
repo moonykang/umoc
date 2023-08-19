@@ -8,6 +8,13 @@
 namespace rhi
 {
 class Context;
+
+class Sampler
+{
+  public:
+  private:
+};
+
 class Image : public Descriptor
 {
   public:

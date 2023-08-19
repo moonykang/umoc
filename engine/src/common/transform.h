@@ -5,10 +5,21 @@
 
 namespace util
 {
+enum class TransformType
+{
+    FirstPlayerView,
+    LookAt
+};
+
 class Transform
 {
   public:
-    Transform() : transform(1.0f), position(0.f), vRotate(0.f), vScale(1.f), dirty(false)
+    Transform()
+        : type(TransformType::FirstPlayerView), transform(1.0f), position(0.f), vRotate(0.f), vScale(1.f), dirty(false)
+    {
+    }
+
+    Transform(TransformType type) : type(type), transform(1.0f), position(0.f), vRotate(0.f), vScale(1.f), dirty(false)
     {
     }
 
@@ -46,12 +57,23 @@ class Transform
         std::lock_guard<std::mutex> lock(mutex);
         if (dirty)
         {
-            glm::mat4 rotM = glm::mat4(1.0f);
-            rotM = glm::rotate(rotM, glm::radians(vRotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            rotM = glm::rotate(rotM, glm::radians(vRotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            rotM = glm::rotate(rotM, glm::radians(vRotate.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            glm::mat4 R = glm::mat4(1.0f);
+            R = glm::rotate(R, glm::radians(vRotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            R = glm::rotate(R, glm::radians(vRotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            R = glm::rotate(R, glm::radians(vRotate.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-            transform = glm::scale(rotM * glm::translate(glm::mat4(1.0f), position), vScale);
+            glm::mat4 T = glm::translate(glm::mat4(1.0f), position);
+            switch (type)
+            {
+            case TransformType::FirstPlayerView:
+                transform = glm::scale(R * T, vScale);
+                break;
+            case TransformType::LookAt:
+                transform = glm::scale(T * R, vScale);
+                break;
+            }
+
+            dirty = false;
         }
 
         return transform;
@@ -95,6 +117,7 @@ class Transform
     }
 
   public:
+    TransformType type;
     glm::mat4 transform;
     glm::vec3 position;
     glm::vec3 vRotate;

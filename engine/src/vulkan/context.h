@@ -90,6 +90,8 @@ class Context : public rhi::Context
     Result bindindexBuffer(rhi::Buffer* buffer, size_t offset, rhi::IndexType type) override;
 
     void setScissor(int x, int y, uint32_t width, uint32_t height) override;
+
+    void setDepthBias(float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor) override;
     // factory
   public:
     rhi::Buffer* allocateBuffer(rhi::BufferUsageFlags bufferUsage, rhi::MemoryPropertyFlags memoryProperty,

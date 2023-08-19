@@ -1,4 +1,4 @@
-#include "sponza.h"
+#include "shadow.h"
 #include "common/util.h"
 #include "model/gltf/loader.h"
 #include "model/gltf/material.h"
@@ -17,29 +17,34 @@
 
 namespace scene
 {
-Result SponzaScene::load(platform::Context* platformContext)
+Result ShadowScene::load(platform::Context* platformContext)
 {
     rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
 
-    renderingOptions.enableDeferredRendering();
+    renderingOptions.enableForwardRendering();
     renderingOptions.setFinalTarget(renderTargets->getSceneColor());
     // renderingOptions.setFinalTarget(renderTargets->getShadowDepth());
 
     rhi::ShaderParameters shaderParameters;
     shaderParameters.vertexShader = context->allocateVertexShader(
-        "deferred/geometry.vert.spv", rhi::VertexChannel::Position | rhi::VertexChannel::Uv |
-                                          rhi::VertexChannel::Normal | rhi::VertexChannel::Tangent);
-    shaderParameters.pixelShader = context->allocatePixelShader("deferred/geometry.frag.spv");
+        "forward/forward.vert.spv",
+        rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal | rhi::VertexChannel::Color);
+    shaderParameters.pixelShader = context->allocatePixelShader("forward/forward.frag.spv");
 
-    // Sponza
     {
+        model::Material* material = new model::Material();
+        try(material->init(platformContext));
+        material->updateTexture(model::MaterialFlag::External, getRenderTargets()->getShadowDepth(),
+                                rhi::ShaderStage::Pixel);
+        try(material->update(platformContext));
+
         auto loader = model::gltf::Loader::Builder()
-                          .setPath("sponza/")
-                          .setFileName("Sponza.gltf")
+                          .setPath("")
+                          .setFileName("vulkanscene_shadow.gltf")
                           .setMaterialFlags(model::MaterialFlag::All)
+                          .addExternalMaterial(material)
                           .setShaderParameters(&shaderParameters)
                           .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
-                          .setForcedTextureExt("png")
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
@@ -63,7 +68,7 @@ Result SponzaScene::load(platform::Context* platformContext)
         directionalLight.setProjection(45.0f, 1.0f, 1.0f, 96.0f);
 
         directionalLight.rotate(glm::vec3(90.0f, 0.0f, 0.f));
-        directionalLight.translate(glm::vec3(1.f, 25.f, 0.f));
+        directionalLight.translate(glm::vec3(0.f, 10.f, 0.f));
     }
     try(lights->updateUniformBuffer(context));
 
@@ -72,7 +77,7 @@ Result SponzaScene::load(platform::Context* platformContext)
     return Result::Continue;
 }
 
-Result SponzaScene::udpateScene(platform::Context* context)
+Result ShadowScene::udpateScene(platform::Context* context)
 {
     timer++;
 

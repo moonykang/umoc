@@ -84,6 +84,8 @@ class Context : public platform::Context
 
     virtual void setScissor(int x, int y, uint32_t width, uint32_t height) = 0;
 
+    virtual void setDepthBias(float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor) = 0;
+
   public:
     SubAllocatedBuffer* allocateVertexBuffer(size_t size, void* data);
 

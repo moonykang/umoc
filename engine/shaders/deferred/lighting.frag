@@ -1,6 +1,6 @@
 #include "../common.hlsl"
 
-#define USE_PHONG 0
+#define USE_PHONG 1
 #include "../light.hlsl"
 
 struct VSOutput
@@ -46,9 +46,19 @@ float shadowVisibility(float3 fragPos)
 {
 	float shadow = 1.0f;
 
-	float4 shadowUV = mul(biasMat, mul(lightUBO.lightMatrix, float4(fragPos, 1.0f)));
+	//float4 shadowUV = mul(biasMat, mul(lightUBO.lightMatrix, float4(fragPos, 1.0f)));
+	float4 shadowUV = mul(lightUBO.lightMatrix, float4(fragPos, 1.0f));
 	shadowUV = shadowUV / shadowUV.w;
 
+	float3 projCoords = shadowUV.xyz / shadowUV.w;
+	projCoords = projCoords * 0.5 + 0.5;
+
+	float closestDepth = shadowDepthTexture.Sample( shadowDepthSampler, shadowUV.xy).r;
+	float currentDepth = projCoords.z;
+
+	shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+/*
 	if (shadowUV.z > -1.0f && shadowUV.z < 1.0f)
 	{
 		float dist = shadowDepthTexture.Sample( shadowDepthSampler, shadowUV.xy).r;
@@ -57,6 +67,7 @@ float shadowVisibility(float3 fragPos)
 			shadow = ambient;
 		}
 	}
+	*/
 	return shadow;
 }
 
@@ -68,6 +79,7 @@ float4 main(VSOutput input) : SV_TARGET
 	float depth = sceneDepthTexture.Sample(sceneDepthSampler, input.uv).r;
 
 	float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
+
 	float visibility = shadowVisibility(fragPos);
 
 	float3 normal = gBufferBTexture.Sample(gBufferBSampler, input.uv).rgb;
@@ -75,8 +87,6 @@ float4 main(VSOutput input) : SV_TARGET
 
 	float roughness = gBufferC.x;
 	float metallic = gBufferA.w;
-
-	#define ambient 0.2
 
 	// Ambient part
 	float3 color = albedo * ambient;

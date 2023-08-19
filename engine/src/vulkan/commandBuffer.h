@@ -182,6 +182,11 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         vkCmdCopyImageToBuffer(mHandle, srcImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dstBuffer, 1, &copyRegion);
     }
 
+    inline void setDepthBias(float depthBiasConstantFactor, float depthBiasClamp, float depthBiasSlopeFactor)
+    {
+        ASSERT(valid());
+        vkCmdSetDepthBias(mHandle, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor);
+    }
     /*
     End of command functions
     */

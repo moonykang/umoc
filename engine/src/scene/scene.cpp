@@ -71,10 +71,15 @@ Result SceneInfo::update(platform::Context* context)
 {
     try(ui->startRender(context, this));
     try(updateUI(context));
-    try(ui->endRender());
     try(udpateScene(context));
     try(lights->updateUniformBuffer(context));
     try(view->updateUniformBuffer(context));
+    return Result::Continue;
+}
+
+Result SceneInfo::postUpdate(platform::Context* context)
+{
+    try(ui->endRender());
     return Result::Continue;
 }
 

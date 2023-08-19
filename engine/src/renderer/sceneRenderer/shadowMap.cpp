@@ -76,6 +76,7 @@ Result ShadowMap::render(platform::Context* platformContext, scene::SceneInfo* s
             sceneInfo->getDescriptorSet()->bind(context, 0);
             instance->getDescriptorSet()->bind(context, 1);
 
+            context->setDepthBias(depthBiasFactor, 0.0f, depthBiasSlope);
             model->draw(context);
             instance->draw(context);
         }
@@ -83,6 +84,13 @@ Result ShadowMap::render(platform::Context* platformContext, scene::SceneInfo* s
 
     try(context->endRenderpass());
 
+    return Result::Continue;
+}
+
+Result ShadowMap::updateUI()
+{
+    ImGui::SliderFloat("depthBiasFactor", &depthBiasFactor, 0, 10);
+    ImGui::SliderFloat("depthBiasSlope", &depthBiasSlope, 0, 10);
     return Result::Continue;
 }
 } // namespace renderer

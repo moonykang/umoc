@@ -5,8 +5,6 @@
 #include "ui/component.h"
 #include <mutex>
 
-constexpr uint32_t num_lights = 6;
-
 #define NUM_LIGHTS 8
 
 namespace rhi
@@ -41,9 +39,13 @@ struct LightData
         set_light_color(glm::vec3(1.0f));
     }
 
+    ALIGNED(4)
     glm::vec4 data0;
+    ALIGNED(4)
     glm::vec4 data1;
+    ALIGNED(4)
     glm::vec4 data2;
+    ALIGNED(4)
     glm::vec4 data3;
 
     inline void set_light_direction(glm::vec3 value)
@@ -95,34 +97,30 @@ struct LightData
 
 struct LightUniformBuffer
 {
-    ALIGNED(16)
-    glm::mat4 lightMatrix;
     ALIGNED(128)
     LightData light[NUM_LIGHTS];
-    ALIGNED(1)
+    ALIGNED(16)
+    glm::mat4 lightMatrix;
+    ALIGNED(4)
     uint32_t numLights;
 };
 
-class Light : public ui::Component
+class Light : public ui::Component, public util::Transform
 {
   public:
-    Light() : dirty(true), color(1.0f)
+    Light() : util::Transform(util::TransformType::LookAt), color(1.0f)
     {
     }
 
     Result updateUI() override;
 
-    util::Transform& getTransform()
+    void setColor(glm::vec3 v)
     {
-        return transform;
+        color = v;
     }
 
   protected:
-    util::Transform transform;
-
     glm::vec3 color;
-
-    bool dirty;
 };
 
 class DirectionalLight : public Light
@@ -136,40 +134,12 @@ class DirectionalLight : public Light
     {
     }
 
-    bool updateLightData(LightData& lightData, glm::mat4& lightMatrix)
-    {
-        if (dirty)
-        {
-            auto& m = transform.get();
-            glm::vec3 direction = glm::normalize(glm::mat3(m) * glm::vec3(0.0f, -1.0f, 0.0f));
-            glm::vec3 position = glm::vec3(m[3][0], m[3][1], m[3][2]);
-
-            lightData.set_light_position(position);
-            lightData.set_light_direction(direction);
-            lightData.set_light_color(color);
-
-            glm::mat4 viewMatrix = glm::lookAt(position, position + direction, glm::vec3(0, 1, 0));
-            lightMatrix = projection * viewMatrix;
-
-            LOGD("Position %f %f %f", position.x, position.y, position.z);
-            LOGD("Rotate %f %f %f", direction.x, direction.y, direction.z);
-            LOGD("LightMatrix");
-            LOGD("%f %f %f %f", lightMatrix[0][1], lightMatrix[0][1], lightMatrix[0][2], lightMatrix[0][3]);
-            LOGD("%f %f %f %f", lightMatrix[1][1], lightMatrix[1][1], lightMatrix[1][2], lightMatrix[1][3]);
-            LOGD("%f %f %f %f", lightMatrix[2][1], lightMatrix[2][1], lightMatrix[2][2], lightMatrix[2][3]);
-            LOGD("%f %f %f %f", lightMatrix[3][1], lightMatrix[3][1], lightMatrix[3][2], lightMatrix[3][3]);
-
-            dirty = false;
-
-            return true;
-        }
-
-        return false;
-    }
+    bool updateLightData(LightData& lightData, glm::mat4& lightMatrix);
 
     void setProjection(float fov, float aspect, float near, float far)
     {
-        projection = glm::perspective(glm::radians(fov), aspect, near, far);
+        projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, near, far);
+        // projection = glm::perspective(glm::radians(fov), aspect, near, far);
         dirty = true;
     }
 

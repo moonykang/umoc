@@ -9,23 +9,74 @@ Result Light::updateUI()
 {
     bool changed = false;
 
-    auto& position = transform.getPosition();
-    auto& rotation = transform.getRotation();
-
     ImGui::Text("Directional Light");
-    changed |= ImGui::SliderFloat3("Position", &transform.position.x, -100, 100);
-    changed |= ImGui::SliderFloat3("Rotation", &rotation.x, -360, 360);
+
+    changed |= ImGui::SliderFloat3("Position", &position.x, -10, 10);
+    changed |= ImGui::SliderFloat3("Rotation", &vRotate.x, -180.f, 180.f);
+    changed |= ImGui::SliderFloat3("Color", &color.x, 0.0f, 1.0f);
 
     if (changed)
     {
-        transform.updateExternal();
-
-        auto m = transform.get();
-        transform.debug();
-
         dirty = true;
     }
     return Result::Continue;
+}
+
+bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMatrix)
+{
+    if (dirty)
+    {
+        auto& m = get();
+
+        auto inv = glm::inverse(m);
+        // glm::vec3 direction = glm::normalize(glm::mat3(m) * glm::vec3(0.0f, 0.0f, 1.0f));
+        // glm::vec3 position = glm::vec3(m[3][0], m[3][1], m[3][2]);
+        glm::vec3 lookat = glm::vec3(0, 0, 0);
+
+        glm::vec3 direction = glm::normalize(lookat - position);
+
+        lightData.set_light_type(LightType::LIGHT_TYPE_DIRECTIONAL);
+        lightData.set_light_position(position);
+        lightData.set_light_direction(direction);
+        lightData.set_light_color(color);
+
+        // position.y = -position.y;
+        //  glm::mat4 viewMatrix = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 viewMatrix = glm::lookAt(-position, lookat, glm::vec3(0.0f, 1.0f, 0.0f));
+        lightMatrix = projection * viewMatrix;
+
+        LOGD("Position %f %f %f", position.x, position.y, position.z);
+        LOGD("Direction %f %f %f", direction.x, direction.y, direction.z);
+        LOGD("LightMatrix");
+        LOGD("%f %f %f %f", lightMatrix[0][0], lightMatrix[0][1], lightMatrix[0][2], lightMatrix[0][3]);
+        LOGD("%f %f %f %f", lightMatrix[1][0], lightMatrix[1][1], lightMatrix[1][2], lightMatrix[1][3]);
+        LOGD("%f %f %f %f", lightMatrix[2][0], lightMatrix[2][1], lightMatrix[2][2], lightMatrix[2][3]);
+        LOGD("%f %f %f %f", lightMatrix[3][0], lightMatrix[3][1], lightMatrix[3][2], lightMatrix[3][3]);
+
+        LOGD("LightView");
+        LOGD("%f %f %f %f", viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3]);
+        LOGD("%f %f %f %f", viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3]);
+        LOGD("%f %f %f %f", viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3]);
+        LOGD("%f %f %f %f", viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
+
+        LOGD("m");
+        LOGD("%f %f %f %f", m[0][0], m[0][1], m[0][2], m[0][3]);
+        LOGD("%f %f %f %f", m[1][0], m[1][1], m[1][2], m[1][3]);
+        LOGD("%f %f %f %f", m[2][0], m[2][1], m[2][2], m[2][3]);
+        LOGD("%f %f %f %f", m[3][0], m[3][1], m[3][2], m[3][3]);
+
+        LOGD("inv");
+        LOGD("%f %f %f %f", inv[0][0], inv[0][1], inv[0][2], inv[0][3]);
+        LOGD("%f %f %f %f", inv[1][0], inv[1][1], inv[1][2], inv[1][3]);
+        LOGD("%f %f %f %f", inv[2][0], inv[2][1], inv[2][2], inv[2][3]);
+        LOGD("%f %f %f %f", inv[3][0], inv[3][1], inv[3][2], inv[3][3]);
+
+        dirty = false;
+
+        return true;
+    }
+
+    return false;
 }
 
 Lights::Lights() : uniformBuffer(nullptr), dirty(false)
@@ -83,6 +134,20 @@ Result Lights::updateUniformBuffer(platform::Context* platformContext)
 
     if (dirty)
     {
+        if (false)
+        {
+            LOGD("Debug light ubo, numLights %u, uniformDataSize %u", ubo.numLights, uniformDataSize);
+
+            for (uint32_t i = 0; i < NUM_LIGHTS; i++)
+            {
+                auto light = ubo.light[i];
+                LOGD("Light%u", i);
+                LOGD("%f %f %f %f", light.data0.x, light.data0.y, light.data0.z, light.data0.w);
+                LOGD("%f %f %f %f", light.data1.x, light.data1.y, light.data1.z, light.data1.w);
+                LOGD("%f %f %f %f", light.data2.x, light.data2.y, light.data2.z, light.data2.w);
+                LOGD("%f %f %f %f", light.data3.x, light.data3.y, light.data3.z, light.data3.w);
+            }
+        }
         rhi::Context* context = reinterpret_cast<rhi::Context*>(platformContext);
         try(uniformBuffer->update(context, uniformDataSize, &ubo));
         dirty = false;

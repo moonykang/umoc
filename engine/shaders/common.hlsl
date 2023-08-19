@@ -4,7 +4,7 @@
 #define PI 3.14159265359
 #define EPSILON 0.0001f
 #define INFINITY 100000.0f
-#define NUM_LIGHTS 6
+#define NUM_LIGHTS 8
 
 #define LIGHT_TYPE_NONE 0
 #define LIGHT_TYPE_DIRECTIONAL 1
@@ -97,9 +97,10 @@ float3 world_position_from_depth(float2 uv, float depth, float4x4 view_proj_inve
 
 struct SceneLight
 {
-    float4x4 lightMatrix;
     Light lights[NUM_LIGHTS];
+    float4x4 lightMatrix;
     uint numLights;
+    uint padding[3];
 };
 
 struct SceneView

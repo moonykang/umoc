@@ -24,6 +24,11 @@ class Base
     virtual void terminate(platform::Context* context) = 0;
 
     virtual Result render(platform::Context* context, scene::SceneInfo* sceneInfo) = 0;
+
+    virtual Result updateUI()
+    {
+        return Result::Continue;
+    }
 };
 
 class BaseRenderPass
