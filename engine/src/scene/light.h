@@ -39,13 +39,9 @@ struct LightData
         set_light_color(glm::vec3(1.0f));
     }
 
-    ALIGNED(4)
     glm::vec4 data0;
-    ALIGNED(4)
     glm::vec4 data1;
-    ALIGNED(4)
     glm::vec4 data2;
-    ALIGNED(4)
     glm::vec4 data3;
 
     inline void set_light_direction(glm::vec3 value)
@@ -117,6 +113,13 @@ class Light : public ui::Component, public util::Transform
     void setColor(glm::vec3 v)
     {
         color = v;
+        dirty = true;
+    }
+
+    void setPosition(glm::vec3 v)
+    {
+        position = v;
+        dirty = true;
     }
 
   protected:

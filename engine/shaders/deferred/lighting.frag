@@ -1,6 +1,6 @@
 #include "../common.hlsl"
 
-#define USE_PHONG 1
+#define USE_PHONG 0
 #include "../light.hlsl"
 
 struct VSOutput
@@ -42,33 +42,42 @@ static const float4x4 biasMat = float4x4(
 
 #define ambient 0.1
 
-float shadowVisibility(float3 fragPos)
+float textureProj(float4 shadowCoord, float2 off)
 {
-	float shadow = 1.0f;
-
-	//float4 shadowUV = mul(biasMat, mul(lightUBO.lightMatrix, float4(fragPos, 1.0f)));
-	float4 shadowUV = mul(lightUBO.lightMatrix, float4(fragPos, 1.0f));
-	shadowUV = shadowUV / shadowUV.w;
-
-	float3 projCoords = shadowUV.xyz / shadowUV.w;
-	projCoords = projCoords * 0.5 + 0.5;
-
-	float closestDepth = shadowDepthTexture.Sample( shadowDepthSampler, shadowUV.xy).r;
-	float currentDepth = projCoords.z;
-
-	shadow = currentDepth > closestDepth ? 1.0 : 0.0;
-
-/*
-	if (shadowUV.z > -1.0f && shadowUV.z < 1.0f)
+	float shadow = 1.0;
+	if ( shadowCoord.z > -1.0 && shadowCoord.z < 1.0 )
 	{
-		float dist = shadowDepthTexture.Sample( shadowDepthSampler, shadowUV.xy).r;
-		if ( shadowUV.w > 0.0 && dist < shadowUV.z )
+		float dist = shadowDepthTexture.Sample(shadowDepthSampler, shadowCoord.xy + off ).r;
+		if ( shadowCoord.w > 0.0 && dist < shadowCoord.z )
 		{
 			shadow = ambient;
 		}
 	}
-	*/
 	return shadow;
+}
+
+float filterPCF(float4 sc)
+{
+	int2 texDim;
+	shadowDepthTexture.GetDimensions(texDim.x, texDim.y);
+	float scale = 1.5;
+	float dx = scale * 1.0 / float(texDim.x);
+	float dy = scale * 1.0 / float(texDim.y);
+
+	float shadowFactor = 0.0;
+	int count = 0;
+	int range = 1;
+
+	for (int x = -range; x <= range; x++)
+	{
+		for (int y = -range; y <= range; y++)
+		{
+			shadowFactor += textureProj(sc, float2(dx*x, dy*y));
+			count++;
+		}
+
+	}
+	return shadowFactor / count;
 }
 
 float4 main(VSOutput input) : SV_TARGET
@@ -78,9 +87,11 @@ float4 main(VSOutput input) : SV_TARGET
 	float4 gBufferC = gBufferCTexture.Sample(gBufferCSampler, input.uv);
 	float depth = sceneDepthTexture.Sample(sceneDepthSampler, input.uv).r;
 
+
 	float3 fragPos = world_position_from_depth(input.uv, depth, sceneUBO.view_proj_inverse);
 
-	float visibility = shadowVisibility(fragPos);
+	float4 shadowUV = mul(biasMat, mul(lightUBO.lightMatrix, float4(fragPos, 1.0f)));
+	float visibility = filterPCF(shadowUV);
 
 	float3 normal = gBufferBTexture.Sample(gBufferBSampler, input.uv).rgb;
 	float3 albedo = gBufferA.xyz;
@@ -100,7 +111,15 @@ float4 main(VSOutput input) : SV_TARGET
 
     for (int i = 0; i < lightUBO.numLights; i++)
     {
-		float3 Lo = direct_lighting(lightUBO.lights[i], V, N, fragPos, F0, diffuse, roughness) * visibility;
+		float3 Lo;
+		if (i == 0)
+		{
+		 	Lo = direct_lighting(lightUBO.lights[i], V, N, fragPos, F0, diffuse, roughness) * visibility;
+		}
+		else
+		{
+			Lo = direct_lighting(lightUBO.lights[i], V, N, fragPos, F0, diffuse, roughness);
+		}
 		color += Lo;
     }
 

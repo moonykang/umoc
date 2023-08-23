@@ -20,7 +20,7 @@ Result RenderTargets::init(platform::Context* platformContext)
     rhi::Extent3D extent = context->getSurfaceSize();
 
     sceneColor = new rhi::Texture("SceneColor");
-    try(sceneColor->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+    try(sceneColor->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
                          rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     sceneDepth = new rhi::Texture("SceneDepth");
@@ -56,15 +56,15 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     // Bloomp
     bloomSetup = new rhi::Texture("BloomSetup");
-    try(bloomSetup->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+    try(bloomSetup->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
                          rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     bloomHorizontal = new rhi::Texture("bloomHorizontal");
-    try(bloomHorizontal->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+    try(bloomHorizontal->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
                               rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     bloomVertical = new rhi::Texture("bloomVertical");
-    try(bloomVertical->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
+    try(bloomVertical->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
                             rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
 
     uint32_t white = -1;

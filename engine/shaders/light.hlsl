@@ -97,7 +97,7 @@ float3 direct_lighting(
         float spec = pow(max(dot(N, H), 0.0f), 32.0f);
 
         //Lo += diff + spec;
-        Lo += (diff + spec);// * attenuation;
+        Lo += (diff + spec) * attenuation;
     }
 #else // USE_PHONG
     {
