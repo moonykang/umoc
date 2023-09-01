@@ -17,7 +17,7 @@ class ConstantBlock
 
     void udpate(rhi::ShaderStageFlags shaderStage, size_t size, const void* data);
 
-    Result push(rhi::Context* context);
+    void push(rhi::Context* context);
 
     size_t getSize();
 

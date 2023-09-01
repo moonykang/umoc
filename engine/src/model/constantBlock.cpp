@@ -15,7 +15,7 @@ void ConstantBlock::udpate(rhi::ShaderStageFlags shaderStage, size_t size, const
     memoryBuffer.set(size, data);
 }
 
-Result ConstantBlock::push(rhi::Context* context)
+void ConstantBlock::push(rhi::Context* context)
 {
     context->pushConstant(shaderStage, memoryBuffer.size(), memoryBuffer.data());
 }
