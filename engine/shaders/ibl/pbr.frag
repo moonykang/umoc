@@ -39,8 +39,6 @@ struct PushConsts {
 [[vk::binding(2, 2)]] TextureCube prefilteredMapTexture;
 [[vk::binding(2, 2)]] SamplerState prefilteredMapSampler;
 
-static const float PI = 3.14159265359;
-
 //#define ROUGHNESS_PATTERN 1
 
 float3 materialcolor()
@@ -145,8 +143,8 @@ float4 main(VSOutput input) : SV_TARGET
 
 	float3 Lo = float3(0.0, 0.0, 0.0);
 	for(int i = 0; i < 4; i++) {
-		float3 L = normalize(sceneLight.lights[i].pos.xyz - input.worldPos);
-		Lo += specularContribution(L, V, N, F0, sceneLight.lights[i].color.xyz, metallic, roughness);
+		//float3 L = normalize(sceneLight.lights[i].pos.xyz - input.worldPos);
+		//Lo += specularContribution(L, V, N, F0, sceneLight.lights[i].color.xyz, metallic, roughness);
 	}
 
 	float2 brdf = textureBRDFLUT.Sample(samplerBRDFLUT, float2(max(dot(N, V), 0.0), roughness)).rg;

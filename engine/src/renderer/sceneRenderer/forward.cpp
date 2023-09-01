@@ -50,31 +50,16 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
 
     try(context->beginRenderpass(renderpassInfo));
 
-<<<<<<< HEAD
-    rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.colorBlendState.attachmentCount = 1;
-    graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
-    graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
-    graphicsPipelineState.depthStencilState.depthTestEnable = true;
-    graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
-    graphicsPipelineState.depthStencilState.depthWriteEnable = true;
-
-=======
->>>>>>> d3143e2 (Update IBL)
-    int idx = 0;
     for (auto& model : sceneInfo->getModels())
     {
         for (auto& instance : model->getInstances())
         {
-
             rhi::GraphicsPipelineState graphicsPipelineState;
             graphicsPipelineState.colorBlendState.attachmentCount = 1;
             graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
             graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
             graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-            graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+            graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
             graphicsPipelineState.depthStencilState.depthTestEnable = true;
             graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
             graphicsPipelineState.depthStencilState.depthWriteEnable = true;

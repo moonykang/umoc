@@ -3,10 +3,10 @@
 struct VSOutput
 {
     float4 pos : SV_POSITION;
-    [[vk::location(0)]] float3 normal : NORMAL;
-    [[vk::location(1)]] float3 color : COLOR0;
-    [[vk::location(2)]] float3 view : TEXCOORD1;
-    [[vk::location(3)]] float3 light : TEXCOORD2;
+    [[vk::location(0)]] float3 worldPos : POSITION;
+    [[vk::location(1)]] float3 normal : NORMAL;
+    [[vk::location(2)]] float2 uv : TEXCOORD;
+    [[vk::location(3)]] float3 color : COLOR0;
     [[vk::location(4)]] float4 shadowUv : TEXCOORD3;
 };
 
@@ -28,6 +28,16 @@ float textureProj(float4 shadowCoord, float2 off)
 		}
 	}
 	return shadow;
+}
+
+[[vk::binding(0, 0)]] cbuffer ubo
+{
+    SceneView sceneView;
+}
+
+[[vk::binding(1, 0)]] cbuffer ubo
+{
+    SceneLight sceneLight;
 }
 
 float filterPCF(float4 sc)
@@ -54,18 +64,32 @@ float filterPCF(float4 sc)
 	return shadowFactor / count;
 }
 
+#define BLIN_PHONG 0
+
 float4 main(VSOutput input) : SV_TARGET
 {
     //float shadow = textureProj(input.shadowUv / input.shadowUv.w, float2(0.f, 0.f));
     float shadow = filterPCF(input.shadowUv / input.shadowUv.w);
 
     float3 N = normalize(input.normal);
-    float3 L = normalize(input.light);
-    float3 V = normalize(input.view);
-    float3 R = normalize(-reflect(L, N));
-    float3 diffuse = max(dot(N, L), ambient) * input.color;
 
-    float3 outColor = diffuse * shadow;
+	//float3 L = normalize(light_position(sceneLight.lights[0]) - input.worldPos);
+	float3 L = normalize(light_direction(sceneLight.lights[0]));
+	float3 V = normalize(sceneView.pos.xyz - input.worldPos);
 
-    return float4(outColor, 1.0f);
+#if BLIN_PHONG
+	float3 H = normalize(L + V);
+	float spec = pow(max(dot(N, H), 0.0f), 32.0f);
+#else
+	float3 R = reflect(-L, N);
+	float spec = pow(max(dot(V, R), 0.0f), 8.0f);
+#endif
+
+	float3 S = float3(0.3f, 0.3f, 0.3f) * spec;
+	float3 D = max(dot(L, N), 0.0f);
+	float3 A = input.color * ambient;
+
+	float3 color = (A + D + S) * shadow;
+
+    return float4(color, 1.0f);
 }

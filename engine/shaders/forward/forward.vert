@@ -25,10 +25,10 @@ struct VSInput
 struct VSOutput
 {
     float4 pos : SV_POSITION;
-    [[vk::location(0)]] float3 normal : NORMAL;
-    [[vk::location(1)]] float3 color : COLOR0;
-    [[vk::location(2)]] float3 view : TEXCOORD1;
-    [[vk::location(3)]] float3 light : TEXCOORD2;
+    [[vk::location(0)]] float3 worldPos : POSITION;
+    [[vk::location(1)]] float3 normal : NORMAL;
+    [[vk::location(2)]] float2 uv : TEXCOORD;
+    [[vk::location(3)]] float3 color : COLOR0;
     [[vk::location(4)]] float4 shadowUv : TEXCOORD3;
 };
 
@@ -47,7 +47,6 @@ struct VSOutput
     Model model;
 }
 
-
 static const float4x4 biasMat = float4x4(
 	0.5, 0.0, 0.0, 0.5,
 	0.0, 0.5, 0.0, 0.5,
@@ -56,19 +55,22 @@ static const float4x4 biasMat = float4x4(
 
 VSOutput main(VSInput input)
 {
-    VSOutput output = (VSOutput) 0;
+	VSOutput output = (VSOutput)0;
 
     output.color = input.color.xyz;
 
-    float4 worldPos = mul(model.transform, float4(input.pos.xyz, 1.0f));
-    output.pos = mul(sceneView.view_proj, worldPos);
+    float4 worldPos = mul(model.transform, float4(input.pos, 1.0f));
+    output.worldPos = worldPos.xyz;
 
+	output.pos = mul(sceneView.view_proj, worldPos);
+
+	output.uv = input.uv;
+
+	// Normal in world space
     output.normal = mul((float3x3)model.transform, input.normal);
-
-    float3 lightDirection = light_direction(sceneLight.lights[0]);
-    output.light = normalize(lightDirection);
-    output.view = -worldPos.xyz;
     output.shadowUv = mul(biasMat, mul(sceneLight.lightMatrix, worldPos));
+
+	return output;
 
     return output;
 }

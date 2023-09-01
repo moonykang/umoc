@@ -49,7 +49,7 @@ VSOutput main(VSInput input)
     float3x3 TBN = float3x3(T, B, N);
 
 
-    output.tangentLightPos = mul(TBN, lightUBO.lights[0].pos.xyz);
+    //output.tangentLightPos = mul(TBN, lightUBO.lights[0].pos.xyz);
     output.tangentViewPos = mul(TBN, sceneUBO.pos.xyz);
     output.tangentFragPos = mul(TBN, worldPos.xyz);
 

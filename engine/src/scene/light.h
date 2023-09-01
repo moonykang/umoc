@@ -4,6 +4,7 @@
 #include "common/util.h"
 #include "ui/component.h"
 #include <mutex>
+#include <optional>
 
 #define NUM_LIGHTS 8
 
@@ -146,16 +147,34 @@ class DirectionalLight : public Light
         dirty = true;
     }
 
+    void activate()
+    {
+        enabled = true;
+        dirty = true;
+    }
+
   private:
     bool enabled;
     glm::mat4 projection;
 };
 
-class PointLight
+class PointLight : public Light
 {
+  public:
+    PointLight() : radius(1.f)
+    {
+    }
+
+    void setRadius(float radius)
+    {
+        this->radius = radius;
+    }
+
+  private:
+    float radius;
 };
 
-class SpotLight
+class SpotLight : public Light
 {
 };
 
@@ -188,6 +207,24 @@ class Lights : public ui::Component
     }
 
     Result updateUI() override;
+
+    void enableDirectionalLight(glm::vec3 position, glm::vec3 direction, glm::vec3 color)
+    {
+        dirty = true;
+        directionalLight.activate();
+        directionalLight.setPosition(position);
+        directionalLight.setColor(color);
+    }
+
+    void addPointLight(glm::vec3 position, glm::vec3 color, float radius)
+    {
+        /*
+        auto& light = pointLights.emplace_back();
+        light.setPosition(position);
+        light.setColor(color);
+        light.setRadius(radius);
+        */
+    }
 
   private:
     std::mutex mutex;

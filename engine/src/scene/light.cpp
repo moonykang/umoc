@@ -40,8 +40,8 @@ bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMat
         lightData.set_light_direction(direction);
         lightData.set_light_color(color);
 
-        //   glm::mat4 viewMatrix = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 viewMatrix = glm::lookAt(-position, lookat, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 viewMatrix = glm::lookAt(-position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+        // glm::mat4 viewMatrix = glm::lookAt(position, lookat, glm::vec3(0.0f, 1.0f, 0.0f));
         lightMatrix = projection * viewMatrix;
 
         LOGD("Position %f %f %f", position.x, position.y, position.z);
@@ -119,11 +119,14 @@ Result Lights::updateUniformBuffer(platform::Context* platformContext)
 
     dirty |= directionalLight.updateLightData(ubo.light[0], ubo.lightMatrix);
 
+    for (auto& light : pointLights)
+    {
+    }
     if (dirty)
     {
         if (false)
         {
-            LOGD("Debug light ubo, numLights %u, uniformDataSize %u", ubo.numLights, uniformDataSize);
+            LOGD("Debug light ubo, numLights %u, uniformDataSize %zu", ubo.numLights, uniformDataSize);
 
             for (uint32_t i = 0; i < NUM_LIGHTS; i++)
             {
