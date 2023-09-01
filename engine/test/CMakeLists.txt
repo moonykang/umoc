@@ -27,7 +27,7 @@ TARGET_LINK_LIBRARIES(
   umoc
   ${THIRD_PARTY_LIBS}
   ${VULKAN_LIBRARY}
-  ${VULKAN_LAYER}
+  # ${VULKAN_LAYER}
 )
 
 include(GoogleTest)
