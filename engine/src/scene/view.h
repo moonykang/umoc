@@ -17,7 +17,7 @@ class Context;
 
 namespace scene
 {
-class View : public ui::Component
+class View
 {
   public:
     enum class Type
@@ -52,7 +52,20 @@ class View : public ui::Component
 
     void setType(Type type);
 
-    Result updateUI() override;
+    glm::vec3& getPosition()
+    {
+        return position;
+    }
+
+    const glm::mat4& getProjectionMatrix()
+    {
+        return ubo.proj;
+    }
+
+    const glm::mat4& getViewMatrix()
+    {
+        return ubo.view;
+    }
 
   private:
     Type type;

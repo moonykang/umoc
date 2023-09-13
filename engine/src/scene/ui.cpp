@@ -33,12 +33,16 @@ Result UI::startRender(platform::Context* platformContext, SceneInfo* sceneInfo)
     io.MouseDown[2] = mouseStatus.middle;
 
     ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
+
     ImGui::SetWindowPos(ImVec2(20, 20), ImGuiCond_::ImGuiCond_FirstUseEver);
     ImGui::SetWindowSize(ImVec2(300, 300), ImGuiCond_::ImGuiCond_Always);
 
-    try(sceneView->updateUI());
+    ImGui::Text("Camera");
+    auto& viewPosition = sceneView->getPosition();
+    ImGui::InputFloat3("Position", &viewPosition.x);
 
-    try(sceneLights->updateUI());
+    try(sceneLights->updateUI(sceneView));
 
     return Result::Continue;
 }

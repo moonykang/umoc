@@ -2,23 +2,53 @@
 #include "rhi/buffer.h"
 #include "rhi/context.h"
 #include "rhi/descriptor.h"
+#include "view.h"
 
 namespace scene
 {
-Result Light::updateUI()
+Result Light::updateUI(scene::View* view)
 {
-    bool changed = false;
+    static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::ROTATE);
+    static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 
     ImGui::Text("Directional Light");
 
-    changed |= ImGui::SliderFloat3("Position", &position.x, -10, 30);
-    changed |= ImGui::SliderFloat3("Rotation", &vRotate.x, -180.f, 180.f);
-    changed |= ImGui::SliderFloat3("Color", &color.x, 0.0f, 1.0f);
+    if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+        mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+        mCurrentGizmoOperation = ImGuizmo::ROTATE;
+    ImGui::SameLine();
+    if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+        mCurrentGizmoOperation = ImGuizmo::SCALE;
+
+    ImGuizmo::DecomposeMatrixToComponents(&temp[0][0], &position.x, &vRotate.x, &vScale.x);
+    ImGui::InputFloat3("Tr", &position.x);
+    ImGui::InputFloat3("Rt", &vRotate.x);
+    ImGui::InputFloat3("Sc", &vScale.x);
+    ImGuizmo::RecomposeMatrixFromComponents(&position.x, &vRotate.x, &vScale.x, &temp[0][0]);
+
+    if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+    {
+        if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+            mCurrentGizmoMode = ImGuizmo::LOCAL;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+            mCurrentGizmoMode = ImGuizmo::WORLD;
+    }
+
+    bool changed = false;
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    changed |= ImGuizmo::Manipulate(&view->getViewMatrix()[0][0], &view->getProjectionMatrix()[0][0],
+                                    mCurrentGizmoOperation, mCurrentGizmoMode, &temp[0][0], NULL, NULL);
 
     if (changed)
     {
         dirty = true;
     }
+
     return Result::Continue;
 }
 
@@ -34,13 +64,12 @@ bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMat
         glm::vec3 lookat = glm::vec3(0, 0, 0);
 
         glm::vec3 direction = glm::normalize(lookat - position);
-
         lightData.set_light_type(LightType::LIGHT_TYPE_DIRECTIONAL);
         lightData.set_light_position(position);
         lightData.set_light_direction(direction);
         lightData.set_light_color(color);
 
-        glm::mat4 viewMatrix = glm::lookAt(-position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 viewMatrix = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
         // glm::mat4 viewMatrix = glm::lookAt(position, lookat, glm::vec3(0.0f, 1.0f, 0.0f));
         lightMatrix = projection * viewMatrix;
 
@@ -157,9 +186,9 @@ void Lights::setLightNumber(uint32_t val)
     dirty = true;
 }
 
-Result Lights::updateUI()
+Result Lights::updateUI(scene::View* view)
 {
-    try(directionalLight.updateUI());
+    try(directionalLight.updateUI(view));
 
     return Result::Continue;
 }

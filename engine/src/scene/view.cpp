@@ -192,13 +192,4 @@ void View::setType(Type type)
 {
     this->type = type;
 }
-
-Result View::updateUI()
-{
-    ImGui::Text("Camera");
-    ImGui::InputFloat3("Position", glm::value_ptr(position));
-    ImGui::InputFloat3("Rotation", glm::value_ptr(rotation));
-
-    return Result::Continue;
-}
 } // namespace scene

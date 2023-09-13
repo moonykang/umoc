@@ -105,11 +105,11 @@ struct LightUniformBuffer
 class Light : public ui::Component, public util::Transform
 {
   public:
-    Light() : util::Transform(util::TransformType::LookAt), color(1.0f)
+    Light() : util::Transform(util::TransformType::LookAt), color(1.0f), temp(1.0f)
     {
     }
 
-    Result updateUI() override;
+    Result updateUI(scene::View* view) override;
 
     void setColor(glm::vec3 v)
     {
@@ -125,6 +125,7 @@ class Light : public ui::Component, public util::Transform
 
   protected:
     glm::vec3 color;
+    glm::mat4 temp;
 };
 
 class DirectionalLight : public Light
@@ -206,7 +207,7 @@ class Lights : public ui::Component
         return directionalLight;
     }
 
-    Result updateUI() override;
+    Result updateUI(scene::View* view) override;
 
     void enableDirectionalLight(glm::vec3 position, glm::vec3 direction, glm::vec3 color)
     {
