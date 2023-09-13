@@ -145,7 +145,7 @@ Image::Image(std::string name, rhi::DescriptorType descriptorType)
 // Regular Image
 Result Image::init(rhi::Context* rhiContext, rhi::Format format, rhi::ImageType imageType,
                    rhi::ImageUsageFlags imageUsage, rhi::MemoryPropertyFlags memoryProperty, uint32_t mipLevels,
-                   uint32_t layers, uint32_t samples, rhi::Extent3D extent)
+                   uint32_t layers, uint32_t samples, rhi::Extent3D extent, const rhi::SamplerInfo& samplerInfo)
 {
     Context* context = reinterpret_cast<Context*>(rhiContext);
 
@@ -174,7 +174,12 @@ Result Image::init(rhi::Context* rhiContext, rhi::Format format, rhi::ImageType 
     try(initView(context, components, subresourceRange));
 
     sampler = new Sampler();
-    try(sampler->init(context));
+    try(sampler->init(context, convertToVkFilter(samplerInfo.magFilter), convertToVkFilter(samplerInfo.minFilter),
+                      convertToVkSamplerAddressMode(samplerInfo.u), convertToVkSamplerAddressMode(samplerInfo.v),
+                      convertToVkSamplerAddressMode(samplerInfo.w), samplerInfo.anisotropyEnable,
+                      samplerInfo.maxAnisotropy, convertToSamplerMipmapMode(samplerInfo.mipmapMode),
+                      samplerInfo.mipLodBias, samplerInfo.minLod, samplerInfo.maxLod,
+                      convertToBorderColor(samplerInfo.borderColor)));
 
     imageInfo.sampler = sampler->getHandle();
     imageInfo.imageView = view->getHandle();
@@ -212,7 +217,9 @@ Result Image::init(Context* context, VkImage image, rhi::Format format, rhi::Ima
     try(initView(context, components, subresourceRange));
 
     sampler = new Sampler();
-    try(sampler->init(context));
+    try(sampler->init(context, VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT,
+                      VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_REPEAT, false, 0.f,
+                      VK_SAMPLER_MIPMAP_MODE_NEAREST, 0.f, 0.f, 0.f, VK_BORDER_COLOR_INT_OPAQUE_BLACK));
 
     imageInfo.sampler = sampler->getHandle();
     imageInfo.imageView = view->getHandle();
@@ -443,24 +450,26 @@ uint32_t Image::getSamples()
     return samples;
 }
 
-// TODO
-Result Sampler::init(Context* context)
+Result Sampler::init(Context* context, VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode addressModeU,
+                     VkSamplerAddressMode addressModeV, VkSamplerAddressMode addressModeW, bool anisotropyEnable,
+                     float maxAnisotropy, VkSamplerMipmapMode mipmapMode, float mipLodBias, float minLod, float maxLod,
+                     VkBorderColor borderColor)
 {
     VkSamplerCreateInfo samplerCreateInfo = {};
     samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     samplerCreateInfo.pNext = nullptr;
-    samplerCreateInfo.magFilter = VK_FILTER_NEAREST;
-    samplerCreateInfo.minFilter = VK_FILTER_NEAREST;
-    samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerCreateInfo.anisotropyEnable = false;
-    samplerCreateInfo.maxAnisotropy = 0.0f;
-    samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    samplerCreateInfo.mipLodBias = 0.0f;
-    samplerCreateInfo.minLod = 0.0f;
-    samplerCreateInfo.maxLod = 0.0f;
-    samplerCreateInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerCreateInfo.magFilter = magFilter;
+    samplerCreateInfo.minFilter = minFilter;
+    samplerCreateInfo.addressModeU = addressModeU;
+    samplerCreateInfo.addressModeV = addressModeV;
+    samplerCreateInfo.addressModeW = addressModeW;
+    samplerCreateInfo.anisotropyEnable = anisotropyEnable;
+    samplerCreateInfo.maxAnisotropy = maxAnisotropy;
+    samplerCreateInfo.mipmapMode = mipmapMode;
+    samplerCreateInfo.mipLodBias = mipLodBias;
+    samplerCreateInfo.minLod = minLod;
+    samplerCreateInfo.maxLod = maxLod;
+    samplerCreateInfo.borderColor = borderColor;
     samplerCreateInfo.unnormalizedCoordinates = false;
 
     vk_try(create(context->getDevice()->getHandle(), samplerCreateInfo));

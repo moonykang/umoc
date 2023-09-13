@@ -377,3 +377,74 @@ inline VkImageType convertToVkImageType(rhi::ImageType imageType)
         return VK_IMAGE_TYPE_1D;
     }
 }
+
+inline VkFilter convertToVkFilter(rhi::texture::Filter filter)
+{
+    switch (filter)
+    {
+    case rhi::texture::Filter::Linear:
+        return VK_FILTER_LINEAR;
+    case rhi::texture::Filter::Nearest:
+        return VK_FILTER_NEAREST;
+    case rhi::texture::Filter::Cubic:
+        return VK_FILTER_CUBIC_EXT;
+    default:
+        UNREACHABLE();
+        return VK_FILTER_NEAREST;
+    }
+}
+
+inline VkSamplerAddressMode convertToVkSamplerAddressMode(rhi::texture::Wrapping wrapping)
+{
+    switch (wrapping)
+    {
+    case rhi::texture::Wrapping::Repeat:
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    case rhi::texture::Wrapping::Mirrored_Repeat:
+        return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+    case rhi::texture::Wrapping::Clamp_to_Edge:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    case rhi::texture::Wrapping::Border:
+        return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+    default:
+        UNREACHABLE();
+        return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    }
+}
+
+inline VkSamplerMipmapMode convertToSamplerMipmapMode(rhi::texture::MipmapMode mode)
+{
+    switch (mode)
+    {
+    case rhi::texture::MipmapMode::Nearest:
+        return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    case rhi::texture::MipmapMode::Linear:
+        return VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    default:
+        UNREACHABLE();
+        return VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    }
+}
+
+inline VkBorderColor convertToBorderColor(rhi::texture::BorderColor color)
+{
+    switch (color)
+    {
+    case rhi::texture::BorderColor::Float_Transparent_Black:
+        return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+    case rhi::texture::BorderColor::Int_Transparent_Black:
+        return VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+    case rhi::texture::BorderColor::Float_Opaque_Black:
+        return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+    case rhi::texture::BorderColor::Int_Opauqe_Black:
+        return VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    case rhi::texture::BorderColor::Float_Opaque_White:
+        return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    case rhi::texture::BorderColor::Int_Opaque_White:
+        return VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+
+    default:
+        UNREACHABLE();
+        return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+    }
+}

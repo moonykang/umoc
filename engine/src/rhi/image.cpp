@@ -41,9 +41,12 @@ Result Texture::init(Context* context, std::string path, platform::ImageLoader i
         imageType = ImageType::IMAGE_CUBE;
     }
 
+    SamplerInfo samplerInfo;
+
     // TODO: IMAGE_2D
     try(image->init(context, format, imageType, ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST,
-                    MemoryProperty::DEVICE_LOCAL, numLevels, numLayers, 1, {extent.width, extent.height, 1}));
+                    MemoryProperty::DEVICE_LOCAL, numLevels, numLayers, 1, {extent.width, extent.height, 1},
+                    samplerInfo));
 
     try(image->update(context, buffer.size(), buffer.data(), offsets));
 
@@ -51,7 +54,7 @@ Result Texture::init(Context* context, std::string path, platform::ImageLoader i
 }
 
 Result Texture::init(Context* context, Format format, Extent3D extent, uint32_t mipLevels, uint32_t layers,
-                     ImageUsageFlags imageUsageFlags)
+                     ImageUsageFlags imageUsageFlags, const SamplerInfo& samplerInfo)
 {
     image = context->allocateImage(name, rhi::DescriptorType::Combined_Image_Sampler);
 
@@ -61,8 +64,10 @@ Result Texture::init(Context* context, Format format, Extent3D extent, uint32_t 
     {
         iamgeType = ImageType::IMAGE_CUBE;
     }
+
     try(image->init(context, format, iamgeType, ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST | imageUsageFlags,
-                    MemoryProperty::DEVICE_LOCAL, mipLevels, layers, 1, {extent.width, extent.height, extent.depth}));
+                    MemoryProperty::DEVICE_LOCAL, mipLevels, layers, 1, {extent.width, extent.height, extent.depth},
+                    samplerInfo));
 
     return Result::Continue;
 }
@@ -76,8 +81,9 @@ Result Texture::init(Context* context, Format format, Extent3D extent, ImageUsag
 
     std::vector<std::vector<size_t>> offsets = {{0}};
 
+    SamplerInfo samplerInfo;
     try(image->init(context, format, imageType, ImageUsage::SAMPLED | ImageUsage::TRANSFER_DST,
-                    MemoryProperty::DEVICE_LOCAL, 1, 1, 1, {extent.width, extent.height, 1}));
+                    MemoryProperty::DEVICE_LOCAL, 1, 1, 1, {extent.width, extent.height, 1}, samplerInfo));
 
     try(image->update(context, size, data, offsets));
 

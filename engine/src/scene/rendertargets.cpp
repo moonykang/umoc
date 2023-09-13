@@ -19,53 +19,62 @@ Result RenderTargets::init(platform::Context* platformContext)
 
     rhi::Extent3D extent = context->getSurfaceSize();
 
+    rhi::SamplerInfo sampler;
     sceneColor = new rhi::Texture("SceneColor");
     try(sceneColor->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
-                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
 
     sceneDepth = new rhi::Texture("SceneDepth");
     try(sceneDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, extent, 1, 1,
-                         rhi::ImageUsage::SAMPLED | rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
+                         rhi::ImageUsage::SAMPLED | rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT, sampler));
+
+    rhi::SamplerInfo shadowDepthSampler;
+    shadowDepthSampler.u = rhi::texture::Wrapping::Clamp_to_Edge;
+    shadowDepthSampler.v = rhi::texture::Wrapping::Clamp_to_Edge;
+    shadowDepthSampler.w = rhi::texture::Wrapping::Clamp_to_Edge;
+    shadowDepthSampler.mipmapMode = rhi::texture::MipmapMode::Linear;
+    shadowDepthSampler.maxLod = 1.f;
+    shadowDepthSampler.borderColor = rhi::texture::BorderColor::Float_Opaque_White;
 
     shadowDepth = new rhi::Texture("ShadowDepth");
     try(shadowDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, {2048, 2048, 1}, 1, 1,
-                          rhi::ImageUsage::SAMPLED | rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT));
+                          rhi::ImageUsage::SAMPLED | rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT, shadowDepthSampler));
 
     computeTarget = new rhi::Texture("computeTarget");
     try(computeTarget->init(context, rhi::Format::R8G8B8A8_UNORM, extent, 1, 1,
-                            rhi::ImageUsage::SAMPLED | rhi::ImageUsage::STORAGE));
+                            rhi::ImageUsage::SAMPLED | rhi::ImageUsage::STORAGE, sampler));
 
     // G buffers
     gBufferA = new rhi::Texture("gBufferA");
     try(gBufferA->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
-                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
     gBufferB = new rhi::Texture("gBufferB");
     try(gBufferB->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
-                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
     gBufferC = new rhi::Texture("gBufferC");
     try(gBufferC->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
-                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
 
     // SSAO
     ssao = new rhi::Texture("SSAO");
     try(ssao->init(context, rhi::Format::R8_UNORM, extent, 1, 1,
-                   rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                   rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
     ssaoBlur = new rhi::Texture("ssaoBlur");
     try(ssaoBlur->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, 1, 1,
-                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                       rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
 
     // Bloomp
     bloomSetup = new rhi::Texture("BloomSetup");
     try(bloomSetup->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
-                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                         rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
 
     bloomHorizontal = new rhi::Texture("bloomHorizontal");
     try(bloomHorizontal->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
-                              rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                              rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
 
     bloomVertical = new rhi::Texture("bloomVertical");
     try(bloomVertical->init(context, rhi::Format::R16G16B16A16_UNORM, extent, 1, 1,
-                            rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                            rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
 
     uint32_t white = -1;
     whiteDummy = new rhi::Texture("whiteDummy");
@@ -82,7 +91,7 @@ Result RenderTargets::init(platform::Context* platformContext)
         rhi::Extent3D brdfExtent = {512, 512, 1};
         brdfLutTexture = new rhi::Texture("BRDF LUT Texture");
         try(brdfLutTexture->init(context, rhi::Format::R16G16_FLOAT, brdfExtent, 1, 1,
-                                 rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED));
+                                 rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::SAMPLED, sampler));
 
         environmentCube = new rhi::Texture("Environment Cube Texture");
         try(environmentCube->init(context, "uffizi_cube.ktx", platform::ImageLoader::KTX));
@@ -97,7 +106,7 @@ Result RenderTargets::init(platform::Context* platformContext)
 
         irradianceCube = new rhi::Texture("Irradiance Cube Texture");
         try(irradianceCube->init(context, rhi::Format::R32G32B32A32_FLOAT, extent, mipLevels, layers,
-                                 rhi::ImageUsage::TRANSFER_DST | rhi::ImageUsage::SAMPLED));
+                                 rhi::ImageUsage::TRANSFER_DST | rhi::ImageUsage::SAMPLED, sampler));
     }
 
     // PreFilter
@@ -109,7 +118,7 @@ Result RenderTargets::init(platform::Context* platformContext)
 
         preFilterCube = new rhi::Texture("PreFilter Cube Texture");
         try(preFilterCube->init(context, rhi::Format::R16G16B16A16_FLOAT, extent, mipLevels, layers,
-                                rhi::ImageUsage::TRANSFER_DST | rhi::ImageUsage::SAMPLED));
+                                rhi::ImageUsage::TRANSFER_DST | rhi::ImageUsage::SAMPLED, sampler));
     }
 
     return Result::Continue;

@@ -89,8 +89,10 @@ Result IrradiancePass::render(platform::Context* platformContext, scene::SceneIn
 
     const int32_t dim = 64;
     const uint32_t numMips = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
+
+    rhi::SamplerInfo sampler;
     try(offscreenTexture->init(context, rhi::Format::R32G32B32A32_FLOAT, {dim, dim, 1}, 1, 1,
-                               rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC));
+                               rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC, sampler));
 
     try(context->addTransition(sceneInfo->getRenderTargets()->getEnvironmentCube()->getImage(),
                                rhi::ImageLayout::FragmentShaderReadOnly));

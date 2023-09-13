@@ -994,4 +994,33 @@ class Descriptor
 };
 using DescriptorList = std::vector<std::pair<DescriptorInfo, Descriptor*>>;
 using DescriptorListSet = std::vector<DescriptorList>;
+
+class SamplerInfo
+{
+  public:
+    SamplerInfo()
+        : magFilter(texture::Filter::Nearest), minFilter(texture::Filter::Nearest), u(texture::Wrapping::Repeat),
+          v(texture::Wrapping::Repeat), w(texture::Wrapping::Repeat), anisotropyEnable(false), maxAnisotropy(0.f),
+          mipmapMode(texture::MipmapMode::Nearest), mipLodBias(0.f), minLod(0.f), maxLod(0.f),
+          borderColor(texture::BorderColor::Int_Opauqe_Black)
+    {
+    }
+
+  public:
+    texture::Filter magFilter;
+    texture::Filter minFilter;
+    texture::Wrapping u;
+    texture::Wrapping v;
+    texture::Wrapping w;
+
+    bool anisotropyEnable;
+    float maxAnisotropy;
+
+    texture::MipmapMode mipmapMode;
+    float mipLodBias;
+    float minLod;
+    float maxLod;
+
+    texture::BorderColor borderColor;
+};
 } // namespace rhi

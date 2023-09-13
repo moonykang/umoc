@@ -24,7 +24,7 @@ class Image : public Descriptor
 
     virtual Result init(Context* context, Format format, ImageType imageType, ImageUsageFlags imageUsage,
                         MemoryPropertyFlags memoryProperty, uint32_t mipLevels, uint32_t layers, uint32_t samples,
-                        Extent3D extent) = 0;
+                        Extent3D extent, const SamplerInfo& samplerInfo) = 0;
 
     virtual Result update(Context* context, size_t size, void* data, std::vector<std::vector<size_t>>& offsets) = 0;
 
@@ -56,7 +56,7 @@ class Texture : public Resource
 
     // For render targets
     Result init(Context* context, Format format, Extent3D extent, uint32_t mipLevels, uint32_t layers,
-                ImageUsageFlags imageUsageFlags);
+                ImageUsageFlags imageUsageFlags, const SamplerInfo& samplerInfo);
 
     // For texture loading
     Result init(Context* context, Format format, Extent3D extent, ImageUsageFlags imageUsageFlags, size_t size,

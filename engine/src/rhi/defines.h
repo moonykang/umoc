@@ -593,4 +593,48 @@ enum class IndexType
     UINT16,
     UINT32
 };
+
+namespace texture
+{
+
+enum class Filter
+{
+    Nearest,
+    Linear,
+    Cubic
+};
+
+enum class Wrapping
+{
+    Repeat,
+    Mirrored_Repeat,
+    Clamp_to_Edge,
+    Border
+};
+
+enum class MipmapMode
+{
+    Nearest,
+    Linear
+};
+
+/*
+    VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK = 0,
+    VK_BORDER_COLOR_INT_TRANSPARENT_BLACK = 1,
+    VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK = 2,
+    VK_BORDER_COLOR_INT_OPAQUE_BLACK = 3,
+    VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE = 4,
+    VK_BORDER_COLOR_INT_OPAQUE_WHITE = 5,
+*/
+
+enum class BorderColor
+{
+    Float_Transparent_Black,
+    Int_Transparent_Black,
+    Float_Opaque_Black,
+    Int_Opauqe_Black,
+    Float_Opaque_White,
+    Int_Opaque_White
+};
+} // namespace texture
 } // namespace rhi

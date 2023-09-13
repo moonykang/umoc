@@ -48,7 +48,8 @@ Result PreFilterPass::init(platform::Context* platformContext, scene::SceneInfo*
     rhi::Context* context = platformContext->getRHI();
 
     PreFilterPassMaterial* material = new PreFilterPassMaterial();
-    material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube(), rhi::ShaderStage::Pixel);
+    material->updateTexture(model::MaterialFlag::BaseColorTexture, sceneInfo->getRenderTargets()->getEnvironmentCube(),
+                            rhi::ShaderStage::Pixel);
 
     try(material->init(context));
     try(material->update(context));
@@ -91,8 +92,9 @@ Result PreFilterPass::render(platform::Context* platformContext, scene::SceneInf
     const int32_t dim = 512;
     const uint32_t numMips = static_cast<uint32_t>(std::floor(std::log2(dim))) + 1;
 
+    rhi::SamplerInfo sampler;
     try(offscreenTexture->init(context, rhi::Format::R16G16B16A16_FLOAT, {dim, dim, 1}, 1, 1,
-                               rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC));
+                               rhi::ImageUsage::COLOR_ATTACHMENT | rhi::ImageUsage::TRANSFER_SRC, sampler));
 
     try(context->addTransition(sceneInfo->getRenderTargets()->getEnvironmentCube()->getImage(),
                                rhi::ImageLayout::FragmentShaderReadOnly));

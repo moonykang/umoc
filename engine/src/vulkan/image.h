@@ -17,7 +17,9 @@ class Sampler final : public WrappedObject<Sampler, VkSampler>
   public:
     Sampler() = default;
 
-    Result init(Context* context);
+    Result init(Context* context, VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode addressModeU,
+                VkSamplerAddressMode addressModeV, VkSamplerAddressMode addressModeW, bool anisotropyEnable,
+                float maxAnisotropy, VkSamplerMipmapMode mipmapMode, float mipLodBias, float minLod, float maxLod, VkBorderColor borderColor);
 
     void terminate(Context* context);
 
@@ -48,7 +50,7 @@ class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
 
     Result init(rhi::Context* context, rhi::Format format, rhi::ImageType imageType, rhi::ImageUsageFlags imageUsage,
                 rhi::MemoryPropertyFlags memoryProperty, uint32_t mipLevels, uint32_t layers, uint32_t samples,
-                rhi::Extent3D extent) override;
+                rhi::Extent3D extent, const rhi::SamplerInfo& samplerInfo) override;
 
     // For swapchain images
     Result init(Context* context, VkImage image, rhi::Format format, rhi::ImageType imageType,
