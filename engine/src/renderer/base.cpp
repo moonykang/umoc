@@ -10,6 +10,7 @@
 #include "compute/filter.h"
 #include "compute/nbody.h"
 #include "compute/particle.h"
+#include "debug/gridLayerPass.h"
 #include "environment/brdfLutPass.h"
 #include "environment/irradiancePass.h"
 #include "environment/preFilterPass.h"
@@ -62,6 +63,8 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
             }
         }
     }
+
+    passes.push_back(new GridLayerPass());
 
     if (renderingOptions.getComputePostProcess() != ComputePostProcess::None)
     {

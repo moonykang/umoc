@@ -55,7 +55,7 @@ Result ShadowScene::load(platform::Context* platformContext)
         model::Instance* instance = object->instantiate(context, transform.get(), true);
     }
 
-    view->setView(glm::vec3(5.0f, 1.0f, 0.0f), glm::vec3(0.0f, 90.0f, 0.0f));
+    view->setView(glm::vec3(0.1f, 5.0f, 0.1f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();
 

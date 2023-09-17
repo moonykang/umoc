@@ -22,11 +22,11 @@ Result Light::updateUI(scene::View* view)
     if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
         mCurrentGizmoOperation = ImGuizmo::SCALE;
 
-    ImGuizmo::DecomposeMatrixToComponents(&temp[0][0], &position.x, &vRotate.x, &vScale.x);
+    ImGuizmo::DecomposeMatrixToComponents(&transform[0][0], &position.x, &vRotate.x, &vScale.x);
     ImGui::InputFloat3("Tr", &position.x);
     ImGui::InputFloat3("Rt", &vRotate.x);
     ImGui::InputFloat3("Sc", &vScale.x);
-    ImGuizmo::RecomposeMatrixFromComponents(&position.x, &vRotate.x, &vScale.x, &temp[0][0]);
+    ImGuizmo::RecomposeMatrixFromComponents(&position.x, &vRotate.x, &vScale.x, &transform[0][0]);
 
     if (mCurrentGizmoOperation != ImGuizmo::SCALE)
     {
@@ -42,7 +42,7 @@ Result Light::updateUI(scene::View* view)
     ImGuiIO& io = ImGui::GetIO();
     ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
     changed |= ImGuizmo::Manipulate(&view->getViewMatrix()[0][0], &view->getProjectionMatrix()[0][0],
-                                    mCurrentGizmoOperation, mCurrentGizmoMode, &temp[0][0], NULL, NULL);
+                                    mCurrentGizmoOperation, mCurrentGizmoMode, &transform[0][0], NULL, NULL);
 
     if (changed)
     {
@@ -56,11 +56,11 @@ bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMat
 {
     if (dirty)
     {
-        auto& m = get();
+        // auto& m = get();
 
-        auto inv = glm::inverse(m);
-        // glm::vec3 direction = glm::normalize(glm::mat3(m) * glm::vec3(0.0f, 0.0f, 1.0f));
-        // glm::vec3 position = glm::vec3(m[3][0], m[3][1], m[3][2]);
+        // auto inv = glm::inverse(m);
+        //  glm::vec3 direction = glm::normalize(glm::mat3(m) * glm::vec3(0.0f, 0.0f, 1.0f));
+        //  glm::vec3 position = glm::vec3(m[3][0], m[3][1], m[3][2]);
         glm::vec3 lookat = glm::vec3(0, 0, 0);
 
         glm::vec3 direction = glm::normalize(lookat - position);

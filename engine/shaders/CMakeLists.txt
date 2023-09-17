@@ -5,6 +5,7 @@ FILE(GLOB GLSL_SHADERS *.vert *.frag *.comp *.rgen *.rchit *.rint *.rmiss)
 
 SET(SUBDIRECTORIES
 	bloom
+	debug
 	deferred
     quad
 	brickwall

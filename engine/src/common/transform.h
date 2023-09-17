@@ -1,5 +1,6 @@
 #pragma once
 
+#include "external.h"
 #include "util.h"
 #include <mutex>
 
@@ -57,6 +58,7 @@ class Transform
         std::lock_guard<std::mutex> lock(mutex);
         if (dirty)
         {
+            /*
             glm::mat4 R = glm::mat4(1.0f);
             R = glm::rotate(R, glm::radians(vRotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
             R = glm::rotate(R, glm::radians(vRotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -72,7 +74,8 @@ class Transform
                 transform = glm::scale(T * R, vScale);
                 break;
             }
-
+*/
+            ImGuizmo::RecomposeMatrixFromComponents(&position.x, &vRotate.x, &vScale.x, &transform[0][0]);
             dirty = false;
         }
 

@@ -85,6 +85,9 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 ### End of third party libraries
 
+# Khronos validation layer
+FIND_LIBRARY(VULKAN_VALIDATION_LAYER NAMES VkLayer_khronos_validation PATHS ${VULKAN_PATH}/lib NO_DEFAULT_PATH)
+
 # Assets
 ADD_SUBDIRECTORY(shaders)
 ADD_DEFINITIONS(-DSHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/shaders")
