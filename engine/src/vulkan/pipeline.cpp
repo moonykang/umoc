@@ -624,9 +624,11 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         graphicsPipelineCreateInfo.subpass = 0;
         graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
 
+
         call(newPipeline->createGraphics(context->getDevice()->getHandle(), graphicsPipelineCreateInfo, nullptr));
 
         pipelineMap.insert({pipelineHash, newPipeline});
+
 
         return newPipeline;
     }

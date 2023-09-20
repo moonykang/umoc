@@ -19,6 +19,7 @@
 #include "sceneRenderer/forward.h"
 #include "sceneRenderer/lighting.h"
 #include "sceneRenderer/ssao.h"
+#include "debug/gridPass.h"
 
 #include <fstream>
 
@@ -52,6 +53,8 @@ Result BaseRenderPass::init(platform::Context* context, scene::SceneInfo* sceneI
             // passes.push_back(new SSAOPass());
         }
     }
+
+    passes.push_back(new GridPass());
 
     if (renderingOptions.getComputePostProcess() != ComputePostProcess::None)
     {

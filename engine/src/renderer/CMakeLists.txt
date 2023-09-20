@@ -1,5 +1,6 @@
 SET(SUBDIRECTORIES
     compute
+    debug
     environment
     postprocess
     sceneRenderer
