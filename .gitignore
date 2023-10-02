@@ -42,3 +42,5 @@ engine/.DS_Store
 
 engine/external
 xcode
+
+.DS_Store
