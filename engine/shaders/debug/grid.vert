@@ -13,12 +13,8 @@ struct VSInput
 struct VSOutput
 {
     float4 pos : SV_POSITION;
-    [[vk::location(0)]] float near : POSITION0;
-    [[vk::location(1)]] float far : POSITION1;
-    [[vk::location(2)]] float3 nearPoint : POSITION2;
-    [[vk::location(3)]] float3 farPoint : POSITION3;
-    [[vk::location(4)]] float4x4 fragView : POSITION4;
-    [[vk::location(5)]] float4x4 fragProj : POSITION5;
+    [[vk::location(0)]] float3 nearPoint : POSITION0;
+    [[vk::location(1)]] float3 farPoint : POSITION1;
 };
 
 // Grid position are in xy clipped space
@@ -56,8 +52,6 @@ VSOutput main(VSInput input)
     output.farPoint = unprojectPoint(pos.x, pos.y, 1.0f);
 
     output.pos = float4(pos, 1.0f);
-    output.fragView = sceneView.view;
-    output.fragView = sceneView.projection;
 
     return output;
 }

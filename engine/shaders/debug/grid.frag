@@ -1,12 +1,10 @@
+#include "../common.hlsl"
+
 struct VSOutput
 {
     float4 pos : SV_POSITION;
-    [[vk::location(0)]] float near : POSITION0;
-    [[vk::location(1)]] float far : POSITION1;
-    [[vk::location(2)]] float3 nearPoint : POSITION2;
-    [[vk::location(3)]] float3 farPoint : POSITION3;
-    [[vk::location(4)]] float4x4 fragView : POSITION4;
-    [[vk::location(5)]] float4x4 fragProj : POSITION5;
+    [[vk::location(0)]] float3 nearPoint : POSITION0;
+    [[vk::location(1)]] float3 farPoint : POSITION1;
 };
 
 struct FSOutput
@@ -15,8 +13,15 @@ struct FSOutput
     float depth : SV_Depth;
 };
 
-float4 grid(float3 fragPos3D, float scale) {
-    float2 coord = fragPos3D.xz * scale; // use the scale variable to set the distance between the lines
+
+[[vk::binding(0, 0)]] cbuffer ubo
+{
+    SceneView sceneView;
+}
+
+float4 grid(float3 worldPos, float scale)
+{
+    float2 coord = worldPos.xz * scale; // use the scale variable to set the distance between the lines
     float2 derivative = fwidth(coord);
     float2 grid = abs(frac(coord - 0.5) - 0.5) / derivative;
     float gridLine = min(grid.x, grid.y);
@@ -26,18 +31,27 @@ float4 grid(float3 fragPos3D, float scale) {
     float4 color = float4(0.2, 0.2, 0.2, 1.0 - min(gridLine, 1.0));
 
     // z axis
-    if(fragPos3D.x > -0.1 * minimumx && fragPos3D.x < 0.1 * minimumx)
+    if(worldPos.x > -0.1 * minimumx && worldPos.x < 0.1 * minimumx)
         color.z = 1.0;
     // x axis
-    if(fragPos3D.z > -0.1 * minimumz && fragPos3D.z < 0.1 * minimumz)
+    if(worldPos.z > -0.1 * minimumz && worldPos.z < 0.1 * minimumz)
         color.x = 1.0;
 
     return color;
 }
 
-float computeDepth(float3 pos, float4x4 fragView, float4x4 fragProj) {
-    float4 clip_space_pos = mul(fragProj, mul(fragView, float4(pos.xyz, 1.0)));
+float computeDepth(float3 pos)
+{
+    float4 clip_space_pos = mul(sceneView.view_proj, float4(pos.xyz, 1.0));
     return (clip_space_pos.z / clip_space_pos.w);
+}
+
+float computeLinearDepth(float3 pos)
+{
+    float4 clip_space_pos = mul(sceneView.view_proj, float4(pos.xyz, 1.0));
+    float clip_space_depth = (clip_space_pos.z / clip_space_pos.w) * 2.0 - 1.0; // put back between -1 and 1
+    float linearDepth = (2.0 * sceneView.nearPlane * sceneView.farPlane) / (sceneView.farPlane + sceneView.nearPlane - clip_space_depth * (sceneView.farPlane - sceneView.nearPlane)); // get linear value between 0.01 and 100
+    return linearDepth / sceneView.farPlane; // normalize
 }
 
 FSOutput main(VSOutput input)
@@ -45,13 +59,15 @@ FSOutput main(VSOutput input)
     FSOutput output = (FSOutput) 0;
 
     float t = -input.nearPoint.y / (input.farPoint.y - input.nearPoint.y);
-    float3 fragPos3D = input.nearPoint + t * (input.farPoint - input.nearPoint);
-    float4 gridColor = grid(fragPos3D, 10);
+    float3 worldPos = input.nearPoint + t * (input.farPoint - input.nearPoint);
 
-    output.depth = computeDepth(fragPos3D, input.fragView, input.fragProj);
+    output.depth = computeDepth(worldPos);
 
-    float4 outColor = gridColor * float(t > 0);
-    output.color = outColor;
+    float linearDepth = computeLinearDepth(worldPos);
+    float fading = max(0.f, (0.5f - linearDepth));
+
+    output.color = (grid(worldPos, 10) + grid(worldPos, 1)) * float(t > 0);
+    output.color.a *= fading;
 
     return output;
 }

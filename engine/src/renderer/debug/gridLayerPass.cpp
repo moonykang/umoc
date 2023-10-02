@@ -53,12 +53,13 @@ Result GridLayerPass::render(platform::Context* platformContext, scene::SceneInf
              rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::ColorAttachment, rhi::ImageLayout::ColorAttachment});
 
         rhi::AttachmentId depthAttachmentId = renderpassInfo.registerDepthStencilAttachment(
-            {sceneInfo->getRenderTargets()->getSceneDepth()->getImage(), rhi::AttachmentLoadOp::Clear,
+            {sceneInfo->getRenderTargets()->getSceneDepth()->getImage(), rhi::AttachmentLoadOp::Load,
              rhi::AttachmentStoreOp::Store, 1, rhi::ImageLayout::DepthStencilAttachment,
              rhi::ImageLayout::DepthStencilAttachment});
 
         auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
         subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
+        subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
 
         try(context->addTransition(sceneInfo->getRenderTargets()->getSceneColor()->getImage(),
                                    rhi::ImageLayout::ColorAttachment));
