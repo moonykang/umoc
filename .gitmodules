@@ -10,6 +10,3 @@
 [submodule "engine/external/glm"]
 	path = engine/external/glm
 	url = https://github.com/g-truc/glm.git
-[submodule "engine/external/ImGuizMo"]
-	path = engine/external/ImGuizMo
-	url = https://github.com/CedricGuillemet/ImGuizmo.git
