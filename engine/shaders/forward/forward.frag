@@ -72,7 +72,6 @@ float4 main(VSOutput input) : SV_TARGET
     float shadow = filterPCF(input.shadowUv / input.shadowUv.w);
 
     float3 N = normalize(input.normal);
-
 	float3 L = normalize(light_position(sceneLight.lights[0]) - input.worldPos);
 	float3 V = normalize(sceneView.pos.xyz - input.worldPos);
 
