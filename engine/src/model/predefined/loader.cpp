@@ -3,6 +3,8 @@
 #include "model/node.h"
 #include "model/object.h"
 #include "model/vertexInput.h"
+
+#include "cube.h"
 #include "quad.h"
 #include "storage.h"
 
@@ -64,6 +66,7 @@ Object* createObject(PredefinedModel predefinedType)
     case PredefinedModel::Quad:
         return new Quad();
     case PredefinedModel::Cube:
+        return new Cube();
     case PredefinedModel::Sphere:
         return nullptr; // TODO
     case PredefinedModel::Storage:
