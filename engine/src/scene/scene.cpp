@@ -129,8 +129,8 @@ Result SceneInfo::updateDescriptor(platform::Context* platformContext)
     rhi::SubAllocatedBuffer* lightUniformBuffer = lights->getUniformBuffer();
 
     std::vector<uint32_t> offsets;
-    offsets.push_back(viewUniformBuffer->getOffset());
-    offsets.push_back(lightUniformBuffer->getOffset());
+    offsets.push_back(static_cast<uint32_t>(viewUniformBuffer->getOffset()));
+    offsets.push_back(static_cast<uint32_t>(lightUniformBuffer->getOffset()));
 
     uint32_t binding = 0;
     rhi::DescriptorList descriptorList;

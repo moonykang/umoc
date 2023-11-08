@@ -11,8 +11,10 @@ struct VSOutput
 };
 
 
-[[vk::binding(0, 2)]] Texture2D shadowDepthTexture;
-[[vk::binding(0, 2)]] SamplerState shadowDepthSampler;
+[[vk::binding(0, 2)]] Texture2D albedoTexture;
+[[vk::binding(0, 2)]] SamplerState albedoSampler;
+[[vk::binding(1, 2)]] Texture2D shadowDepthTexture;
+[[vk::binding(1, 2)]] SamplerState shadowDepthSampler;
 
 #define ambient 0.1
 
@@ -68,6 +70,8 @@ float filterPCF(float4 sc)
 
 float4 main(VSOutput input) : SV_TARGET
 {
+	float3 albedo = albedoTexture.Sample(albedoSampler, input.uv).xyz;
+
     //float shadow = textureProj(input.shadowUv / input.shadowUv.w, float2(0.f, 0.f));
     float shadow = filterPCF(input.shadowUv / input.shadowUv.w);
 
@@ -85,7 +89,7 @@ float4 main(VSOutput input) : SV_TARGET
 
 	float3 S = float3(0.3f, 0.3f, 0.3f) * spec;
 	float3 D = max(dot(L, N), 0.0f);
-	float3 A = input.color * ambient;
+	float3 A = albedo * ambient;
 
 	float3 color = (A + D + S) * shadow;
 

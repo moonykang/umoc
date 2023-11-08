@@ -78,7 +78,7 @@ struct LightData
 
     inline void set_light_type(LightType value)
     {
-        data3.x = value;
+        data3.x = static_cast<float>(value);
     }
 
     inline void set_light_cos_theta_outer(float value)

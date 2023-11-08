@@ -32,30 +32,68 @@ Result ShadowScene::load(platform::Context* platformContext)
     shaderParameters.pixelShader = context->allocatePixelShader("forward/forward.frag.spv");
 
     {
+        auto [id, redBlueTexture] = textures->get(context, "Red Blue Texture", "redblue.png");
         model::Material* material = new model::Material();
         try(material->init(platformContext));
+        material->updateTexture(model::MaterialFlag::External, redBlueTexture, rhi::ShaderStage::Pixel);
         material->updateTexture(model::MaterialFlag::External, getRenderTargets()->getShadowDepth(),
                                 rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         auto loader = model::gltf::Loader::Builder()
                           .setPath("")
-                          .setFileName("vulkanscene_shadow.gltf")
+                          .setFileName("sphere.gltf")
                           .setMaterialFlags(model::MaterialFlag::All)
                           .addExternalMaterial(material)
                           .setShaderParameters(&shaderParameters)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
         registerObject(context, object);
 
-        util::Transform transform;
-        transform.scale(glm::vec3(1.0f));
-        model::Instance* instance = object->instantiate(context, transform.get(), true);
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                for (int k = 0; k < 3; k++)
+                {
+                    util::Transform transform;
+                    transform.scale(glm::vec3(0.5f));
+                    transform.translate(glm::vec3(-2.f + (i * 2.f), -2.f + (j * 2.f), -2.f + (k * 2.f)));
+                    model::Instance* instance = object->instantiate(context, transform.get(), true);
+                }
+            }
+        }
     }
 
-    view->setView(glm::vec3(0.1f, 5.0f, 0.1f), glm::vec3(0.0f, 90.0f, 0.0f));
+    {
+        auto [id, checkTexture] = textures->get(context, "Check Texture", "check.png");
+        model::Material* material = new model::Material();
+        try(material->init(platformContext));
+        material->updateTexture(model::MaterialFlag::External, checkTexture, rhi::ShaderStage::Pixel);
+        material->updateTexture(model::MaterialFlag::External, getRenderTargets()->getShadowDepth(),
+            rhi::ShaderStage::Pixel);
+        try(material->update(platformContext));
+
+        auto loader = model::gltf::Loader::Builder()
+            .setPath("")
+            .setFileName("cube.gltf")
+            .setMaterialFlags(model::MaterialFlag::All)
+            .addExternalMaterial(material)
+            .setShaderParameters(&shaderParameters)
+            .build();
+
+        model::Object* object = loader->load(platformContext, this);
+        registerObject(context, object);
+
+        util::Transform transform;
+        transform.scale(glm::vec3(10.f, 0.001f, 10.f));
+        transform.translate(glm::vec3(0.f, -3.f, 0.f));
+        model::Instance* instance = object->instantiate(context, transform.get(), true);
+
+    }
+
+    view->setView(glm::vec3(0.1f, 0.0f, -1.0f), glm::vec3(0.0f, 90.0f, 0.0f));
     view->setPerspective(45.0f, 1, 0.1f, 64.f);
     view->updateViewMatrix();
 
