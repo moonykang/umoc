@@ -70,29 +70,33 @@ void View::updateView()
 void View::updateViewMatrix()
 {
     glm::mat4 rotM = glm::mat4(1.0f);
-    rotM = glm::rotate(rotM, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 transM;
+
+    rotM = glm::rotate(rotM, glm::radians(rotation.x * (flipY ? -1.0f : 1.0f)), glm::vec3(1.0f, 0.0f, 0.0f));
     rotM = glm::rotate(rotM, glm::radians(rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
     rotM = glm::rotate(rotM, glm::radians(rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
-    glm::mat4 view;
+    glm::vec3 translation = position;
+    if (flipY) {
+        translation.y *= -1.0f;
+    }
+    transM = glm::translate(glm::mat4(1.0f), translation);
 
     switch (type)
     {
     case Type::FirstPerson:
-        view = rotM * glm::translate(glm::mat4(1.0f), position);
+        ubo.view = rotM * transM;
         break;
     case Type::LookAt:
-        view = glm::translate(glm::mat4(1.0f), position) * rotM;
+        ubo.view = transM * rotM;
         break;
     }
 
-    ubo.view_inverse = glm::inverse(view);
-    ubo.proj_inverse = glm::inverse(projection);
-    ubo.view_proj = projection * view;
+    ubo.prev_view_proj = ubo.view_proj;
+    ubo.view_inverse = glm::inverse(ubo.view);
+    ubo.proj_inverse = glm::inverse(ubo.proj);
+    ubo.view_proj = ubo.proj * ubo.view;
     ubo.view_proj_inverse = glm::inverse(ubo.view_proj);
-    ubo.prev_view_proj = glm::mat4(1.f);
-    ubo.view = view;
-    ubo.proj = projection;
     ubo.view_pos = glm::vec4(position, 1.f);
 
     {
@@ -103,10 +107,14 @@ void View::updateViewMatrix()
 
 void View::setPerspective(float fov, float ratio, float minDepth, float maxDepth)
 {
-    projection = glm::perspective(glm::radians(fov), ratio, minDepth, maxDepth);
+    ubo.proj = glm::perspective(glm::radians(fov), ratio, minDepth, maxDepth);
     ubo.nearPlane = minDepth;
     ubo.farPlane = maxDepth;
-    // projection[1][1] *= -1;
+
+    if (flipY)
+    {
+        ubo.proj[1][1] *= -1.f;
+    }
 
     // lock
     {
@@ -167,8 +175,8 @@ void View::handle_key_D(bool pressed)
 
 void View::handle_mouse_move(float x, float y)
 {
-    int32_t dx = (int32_t)mouseCursorPos.x - x;
-    int32_t dy = (int32_t)mouseCursorPos.y - y;
+    int32_t dx = static_cast<int32_t>(mouseCursorPos.x - x);
+    int32_t dy = static_cast<int32_t>(mouseCursorPos.y - y);
 
     if (mouseButtonInput.right)
     {

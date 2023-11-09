@@ -100,7 +100,8 @@ class View
     // input
     glm::vec3 position;
     glm::vec3 rotation;
-    glm::mat4 projection;
+
+    bool flipY = true;
 
   public:
     void handle_key_W(bool pressed);

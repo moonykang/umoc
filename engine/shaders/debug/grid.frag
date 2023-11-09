@@ -66,7 +66,7 @@ FSOutput main(VSOutput input)
     float linearDepth = computeLinearDepth(worldPos);
     float fading = max(0.f, (0.5f - linearDepth));
 
-    output.color = (grid(worldPos, 10) + grid(worldPos, 1)) * float(t > 0);
+    output.color = (grid(worldPos, 2) + grid(worldPos, 0.2f)) * float(t > 0);
     output.color.a *= fading;
 
     return output;
