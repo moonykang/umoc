@@ -13,7 +13,7 @@ Quad::Quad() : Object(4, 6)
 {
 }
 
-Result Quad::loadVertexBuffer(platform::Context* context, double uvScale)
+Result Quad::loadVertexBuffer(platform::Context* context, float uvScale)
 {
     const uint32_t slices = 2;
     const uint32_t stacks = 2;

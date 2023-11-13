@@ -29,7 +29,7 @@ class Loader : public model::Loader
 
         Builder& setShaderParameters(rhi::ShaderParameters* shaderParameters);
 
-        Builder& setUvScale(double uvScale);
+        Builder& setUvScale(float uvScale);
 
         Builder& setExternalVertexBuffer(std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer);
 
@@ -40,11 +40,11 @@ class Loader : public model::Loader
         Material* material;
         rhi::ShaderParameters* shaderParameters;
         std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer;
-        double uvScale;
+        float uvScale;
     };
 
   public:
-    Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters, double uvScale,
+    Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters, float uvScale,
            std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer);
 
     Object* load(platform::Context* context, scene::SceneInfo* sceneInfo) override;
@@ -54,7 +54,7 @@ class Loader : public model::Loader
     Material* material;
     rhi::ShaderParameters* shaderParameters;
     std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer;
-    double uvScale;
+    float uvScale;
 };
 } // namespace predefined
 } // namespace model

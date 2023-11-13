@@ -35,7 +35,7 @@ Loader::Builder& Loader::Builder::setShaderParameters(rhi::ShaderParameters* sha
     return *this;
 }
 
-Loader::Builder& Loader::Builder::setUvScale(double uvScale)
+Loader::Builder& Loader::Builder::setUvScale(float uvScale)
 {
     this->uvScale = uvScale;
     return *this;
@@ -53,7 +53,7 @@ std::shared_ptr<Loader> Loader::Builder::build()
 }
 
 Loader::Loader(PredefinedModel predefinedType, Material* material, rhi::ShaderParameters* shaderParameters,
-               double uvScale, std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer)
+               float uvScale, std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer)
     : predefinedType(predefinedType), material(material), shaderParameters(shaderParameters), uvScale(uvScale),
       storageBuffer(storageBuffer)
 {

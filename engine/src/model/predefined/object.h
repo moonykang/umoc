@@ -18,7 +18,7 @@ class Object : public model::Object
 
     Result loadMesh();
 
-    virtual Result loadVertexBuffer(platform::Context* context, double uvScale) = 0;
+    virtual Result loadVertexBuffer(platform::Context* context, float uvScale) = 0;
 
     virtual Result loadVertexBuffer(platform::Context* context,
                                     std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer)

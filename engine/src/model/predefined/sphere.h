@@ -10,7 +10,7 @@ class Sphere : public Object
   public:
     Sphere();
 
-    Result loadVertexBuffer(platform::Context* context, double uvScale);
+    Result loadVertexBuffer(platform::Context* context, float uvScale);
 
     Result loadIndexBuffer(platform::Context* context);
 };

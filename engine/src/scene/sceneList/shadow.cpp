@@ -79,13 +79,11 @@ Result ShadowScene::load(platform::Context* platformContext)
                                 rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
-        auto loader = model::gltf::Loader::Builder()
-                          .setPath("")
-                          .setFileName("cube.gltf")
-                          .setMaterialFlags(model::MaterialFlag::All)
-                          .addExternalMaterial(material)
+        auto loader = model::predefined::Loader::Builder()
+                          .setMaterial(material)
+                          .setPredefineModelType(model::PredefinedModel::Cube)
                           .setShaderParameters(&shaderParameters)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .setUvScale(25.f)
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
@@ -96,7 +94,7 @@ Result ShadowScene::load(platform::Context* platformContext)
         registerObject(context, object);
 
         util::Transform transform;
-        transform.scale(glm::vec3(10.f, 0.001f, 10.f));
+        transform.scale(glm::vec3(100.f, 0.1f, 100.f));
         transform.translate(glm::vec3(0.f, 3.f, 0.f));
         model::Instance* instance = object->instantiate(context, transform.get(), true);
     }

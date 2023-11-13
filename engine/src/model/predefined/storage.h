@@ -10,7 +10,7 @@ class Storage : public Object
   public:
     Storage();
 
-    Result loadVertexBuffer(platform::Context* context, double uvScale) override;
+    Result loadVertexBuffer(platform::Context* context, float uvScale) override;
 
     Result loadVertexBuffer(platform::Context* context,
                             std::pair<rhi::SubAllocatedBuffer*, uint32_t> storageBuffer) override;

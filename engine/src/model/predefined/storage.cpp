@@ -14,7 +14,7 @@ Storage::Storage() : Object(0, 0)
 {
 }
 
-Result Storage::loadVertexBuffer(platform::Context* context, double uvScale)
+Result Storage::loadVertexBuffer(platform::Context* context, float uvScale)
 {
     UNREACHABLE();
     return Result::Continue;

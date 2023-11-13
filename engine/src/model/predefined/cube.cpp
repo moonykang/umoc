@@ -14,7 +14,7 @@ Cube::Cube() : Object(36, 0)
 {
 }
 
-Result Cube::loadVertexBuffer(platform::Context* context, double uvScale)
+Result Cube::loadVertexBuffer(platform::Context* context, float uvScale)
 {
     const uint32_t vertexCount = 36;
 
@@ -149,7 +149,7 @@ Result Cube::loadVertexBuffer(platform::Context* context, double uvScale)
         {1.0f, 1.0f}, // top-right
         {1.0f, 0.0f}, // bottom-right
         {1.0f, 0.0f}, // bottom-right
-        {0.0f, 0.0f},  // bottom-left
+        {0.0f, 0.0f}, // bottom-left
         {0.0f, 1.0f}, // top-left
     };
 
@@ -180,7 +180,7 @@ Result Cube::loadVertexBuffer(platform::Context* context, double uvScale)
         rhi::Vertex vertex;
 
         vertex.position = positions[i];
-        vertex.uv = uvs[i];
+        vertex.uv = uvs[i] * uvScale;
         vertex.color = colors[i];
         vertex.normal = normals[i];
         vertex.tangent = {0.0f, 0.0f, 0.0f};
