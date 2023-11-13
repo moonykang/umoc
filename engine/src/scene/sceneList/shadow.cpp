@@ -46,6 +46,7 @@ Result ShadowScene::load(platform::Context* platformContext)
                           .setMaterialFlags(model::MaterialFlag::All)
                           .addExternalMaterial(material)
                           .setShaderParameters(&shaderParameters)
+                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
@@ -72,16 +73,17 @@ Result ShadowScene::load(platform::Context* platformContext)
         try(material->init(platformContext));
         material->updateTexture(model::MaterialFlag::External, checkTexture, rhi::ShaderStage::Pixel);
         material->updateTexture(model::MaterialFlag::External, getRenderTargets()->getShadowDepth(),
-            rhi::ShaderStage::Pixel);
+                                rhi::ShaderStage::Pixel);
         try(material->update(platformContext));
 
         auto loader = model::gltf::Loader::Builder()
-            .setPath("")
-            .setFileName("cube.gltf")
-            .setMaterialFlags(model::MaterialFlag::All)
-            .addExternalMaterial(material)
-            .setShaderParameters(&shaderParameters)
-            .build();
+                          .setPath("")
+                          .setFileName("cube.gltf")
+                          .setMaterialFlags(model::MaterialFlag::All)
+                          .addExternalMaterial(material)
+                          .setShaderParameters(&shaderParameters)
+                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          .build();
 
         model::Object* object = loader->load(platformContext, this);
         registerObject(context, object);
@@ -90,7 +92,6 @@ Result ShadowScene::load(platform::Context* platformContext)
         transform.scale(glm::vec3(10.f, 0.001f, 10.f));
         transform.translate(glm::vec3(0.f, -3.f, 0.f));
         model::Instance* instance = object->instantiate(context, transform.get(), true);
-
     }
 
     view->setView(glm::vec3(0.1f, 0.0f, -1.0f), glm::vec3(0.0f, 90.0f, 0.0f));

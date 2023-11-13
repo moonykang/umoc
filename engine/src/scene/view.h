@@ -101,7 +101,7 @@ class View
     glm::vec3 position;
     glm::vec3 rotation;
 
-    bool flipY = true;
+    bool flipY = false;
 
   public:
     void handle_key_W(bool pressed);
