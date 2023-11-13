@@ -57,18 +57,18 @@ Result Deferred::render(platform::Context* platformContext, scene::SceneInfo* sc
 
     try(context->beginRenderpass(renderpassInfo));
 
-    rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.colorBlendState.attachmentCount = 3;
-    graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
-    graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::BACK_BIT;
-    graphicsPipelineState.depthStencilState.depthTestEnable = true;
-    graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
-    graphicsPipelineState.depthStencilState.depthWriteEnable = true;
 
     for (auto& model : sceneInfo->getModels())
     {
+
+        rhi::GraphicsPipelineState graphicsPipelineState;
+        graphicsPipelineState.colorBlendState.attachmentCount = 3;
+        graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
+        graphicsPipelineState.depthStencilState.depthTestEnable = true;
+        graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
+        graphicsPipelineState.depthStencilState.depthWriteEnable = true;
+        graphicsPipelineState.rasterizationState.polygonState = model->getPolygonState();
+
         for (auto& instance : model->getInstances())
         {
             model::Material* material = instance->getMaterial();

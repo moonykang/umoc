@@ -122,9 +122,9 @@ Result UIPass::render(platform::Context* platformContext, scene::SceneInfo* scen
     rhi::GraphicsPipelineState graphicsPipelineState;
     graphicsPipelineState.shaderParameters = shaderParameters.get();
     graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
-    graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-    graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
+    graphicsPipelineState.rasterizationState.polygonState.polygonMode = rhi::PolygonMode::FILL;
+    graphicsPipelineState.rasterizationState.polygonState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+    graphicsPipelineState.rasterizationState.polygonState.cullMode = rhi::CullMode::NONE;
     graphicsPipelineState.colorBlendState.attachmentCount = 1;
 
     graphicsPipelineState.colorBlendState.colorBlendAttachmentStates[0].srcColorBlendFactor =

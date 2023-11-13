@@ -51,6 +51,9 @@ Result ShadowScene::load(platform::Context* platformContext)
 
         model::Object* object = loader->load(platformContext, this);
         registerObject(context, object);
+        object->getPolygonState().update(rhi::CullMode::FRONT_BIT);
+        object->getPolygonState().update(rhi::PolygonMode::FILL);
+        object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
 
         for (int i = 0; i < 3; i++)
         {
@@ -86,11 +89,15 @@ Result ShadowScene::load(platform::Context* platformContext)
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
+        object->getPolygonState().update(rhi::CullMode::FRONT_BIT);
+        object->getPolygonState().update(rhi::PolygonMode::FILL);
+        object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
+
         registerObject(context, object);
 
         util::Transform transform;
         transform.scale(glm::vec3(10.f, 0.001f, 10.f));
-        transform.translate(glm::vec3(0.f, -3.f, 0.f));
+        transform.translate(glm::vec3(0.f, 3.f, 0.f));
         model::Instance* instance = object->instantiate(context, transform.get(), true);
     }
 

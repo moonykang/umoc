@@ -50,24 +50,23 @@ Result ShadowMap::render(platform::Context* platformContext, scene::SceneInfo* s
 
     try(context->beginRenderpass(renderpassInfo));
 
-    rhi::GraphicsPipelineState graphicsPipelineState;
-    graphicsPipelineState.colorBlendState.attachmentCount = 0;
-    graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
-    graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-    graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-    graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
-    graphicsPipelineState.rasterizationState.depthBiasEnable = true;
-    graphicsPipelineState.depthStencilState.depthTestEnable = true;
-    graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
-    graphicsPipelineState.depthStencilState.depthWriteEnable = true;
-    graphicsPipelineState.dynamicState =
-        rhi::DynamicState::Viewport | rhi::DynamicState::Scissor | rhi::DynamicState::DepthBias;
-
-    graphicsPipelineState.shaderParameters = shaderParameters;
-    shaderParameters->globalDescriptor = sceneInfo->getDescriptorSet();
 
     for (auto& model : sceneInfo->getModels())
     {
+        rhi::GraphicsPipelineState graphicsPipelineState;
+        graphicsPipelineState.colorBlendState.attachmentCount = 0;
+        graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
+        graphicsPipelineState.rasterizationState.polygonState = model->getPolygonState();
+        graphicsPipelineState.rasterizationState.depthBiasEnable = true;
+        graphicsPipelineState.depthStencilState.depthTestEnable = true;
+        graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
+        graphicsPipelineState.depthStencilState.depthWriteEnable = true;
+        graphicsPipelineState.dynamicState =
+            rhi::DynamicState::Viewport | rhi::DynamicState::Scissor | rhi::DynamicState::DepthBias;
+
+        graphicsPipelineState.shaderParameters = shaderParameters;
+        shaderParameters->globalDescriptor = sceneInfo->getDescriptorSet();
+
         for (auto& instance : model->getInstances())
         {
             shaderParameters->localDescriptor = instance->getDescriptorSet();

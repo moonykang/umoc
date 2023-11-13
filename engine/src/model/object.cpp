@@ -8,7 +8,7 @@
 
 namespace model
 {
-Object::Object() : vertexInput(nullptr)
+Object::Object() : vertexInput(nullptr), polygonState()
 {
 }
 
@@ -81,6 +81,11 @@ void Object::addNode(Node* node)
 void Object::addLinearNode(Node* node)
 {
     linearNodes.push_back(node);
+}
+
+rhi::PolygonState& Object::getPolygonState()
+{
+    return polygonState;
 }
 
 Instance* Object::instantiate(platform::Context* context, glm::mat4 transform, bool initDescriptor,

@@ -357,6 +357,9 @@ inline VkDescriptorType convertToVkDescriptorType(rhi::DescriptorType descriptor
         return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
     case rhi::DescriptorType::Acceleration_structure:
         return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+    default:
+        UNREACHABLE();
+        return VK_DESCRIPTOR_TYPE_SAMPLER;
     }
 }
 

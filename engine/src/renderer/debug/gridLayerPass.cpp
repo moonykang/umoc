@@ -74,8 +74,8 @@ Result GridLayerPass::render(platform::Context* platformContext, scene::SceneInf
         rhi::GraphicsPipelineState graphicsPipelineState;
         graphicsPipelineState.shaderParameters = shaderParameters;
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
-        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+        graphicsPipelineState.rasterizationState.polygonState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.polygonState.cullMode = rhi::CullMode::FRONT_BIT;
 
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
 

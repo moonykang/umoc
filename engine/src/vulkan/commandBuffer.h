@@ -165,7 +165,7 @@ class CommandBuffer final : public WrappedObject<CommandBuffer, VkCommandBuffer>
         ASSERT(valid());
         CAPTURE_COMMAND("[vkCmdPushConstants] CB: %p, pipelinelayout: %p, shaderStage: %u, size: %zu, data: %p",
                         mHandle, pipelinelayout, shaderStage, size, data);
-        vkCmdPushConstants(mHandle, pipelinelayout, shaderStage, 0, size, data);
+        vkCmdPushConstants(mHandle, pipelinelayout, shaderStage, 0, static_cast<uint32_t>(size), data);
     }
 
     inline void copyImage(VkImage srcImage, VkImage dstImage, const VkImageCopy& copyRegion)

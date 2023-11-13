@@ -219,8 +219,8 @@ Result BloomPass::render(platform::Context* platformContext, scene::SceneInfo* s
         rhi::GraphicsPipelineState graphicsPipelineState;
         graphicsPipelineState.shaderParameters = shaderParameters;
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
-        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+        graphicsPipelineState.rasterizationState.polygonState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.polygonState.cullMode = rhi::CullMode::FRONT_BIT;
 
         context->createGfxPipeline(graphicsPipelineState);
 
@@ -260,8 +260,8 @@ Result BloomPass::render(platform::Context* platformContext, scene::SceneInfo* s
         rhi::GraphicsPipelineState graphicsPipelineState;
         graphicsPipelineState.shaderParameters = shaderParameters;
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
-        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+        graphicsPipelineState.rasterizationState.polygonState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.polygonState.cullMode = rhi::CullMode::FRONT_BIT;
         graphicsPipelineState.pushConstants.push_back(
             rhi::PushConstant(rhi::ShaderStage::Pixel, 0, sizeof(bloom::PushBlock)));
 
@@ -306,8 +306,8 @@ Result BloomPass::render(platform::Context* platformContext, scene::SceneInfo* s
         rhi::GraphicsPipelineState graphicsPipelineState;
         graphicsPipelineState.shaderParameters = shaderParameters;
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
-        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+        graphicsPipelineState.rasterizationState.polygonState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.polygonState.cullMode = rhi::CullMode::FRONT_BIT;
         graphicsPipelineState.pushConstants.push_back(
             rhi::PushConstant(rhi::ShaderStage::Pixel, 0, sizeof(bloom::PushBlock)));
 
@@ -352,8 +352,8 @@ Result BloomPass::render(platform::Context* platformContext, scene::SceneInfo* s
         rhi::GraphicsPipelineState graphicsPipelineState;
         graphicsPipelineState.shaderParameters = shaderParameters;
         graphicsPipelineState.colorBlendState.attachmentCount = 1;
-        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+        graphicsPipelineState.rasterizationState.polygonState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.polygonState.cullMode = rhi::CullMode::FRONT_BIT;
 
         context->createGfxPipeline(graphicsPipelineState);
 

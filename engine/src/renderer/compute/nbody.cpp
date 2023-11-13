@@ -290,9 +290,9 @@ Result NBodyPass::render(platform::Context* platformContext, scene::SceneInfo* s
 
         graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::POINT_LIST;
         graphicsPipelineState.assemblyState.primitiveRestartEnable = false;
-        graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
-        graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-        graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::NONE;
+        graphicsPipelineState.rasterizationState.polygonState.frontFace = rhi::FrontFace::COUNTER_CLOCKWISE;
+        graphicsPipelineState.rasterizationState.polygonState.polygonMode = rhi::PolygonMode::FILL;
+        graphicsPipelineState.rasterizationState.polygonState.cullMode = rhi::CullMode::NONE;
         graphicsPipelineState.depthStencilState.depthTestEnable = false;
         graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::ALWAYS;
         graphicsPipelineState.depthStencilState.depthWriteEnable = false;

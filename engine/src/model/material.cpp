@@ -44,7 +44,7 @@ Result Material::update(platform::Context* platformContext)
     std::vector<uint32_t> offsets;
     if (uniformBuffer.first)
     {
-        offsets.push_back(uniformBuffer.first->getOffset());
+        offsets.push_back(static_cast<uint32_t>(uniformBuffer.first->getOffset()));
         descriptorInfoList.push_back({binding, uniformBuffer.second, rhi::DescriptorType::Uniform_Buffer_Dynamic});
         descriptorList.push_back({{binding++, uniformBuffer.second, rhi::DescriptorType::Uniform_Buffer_Dynamic},
                                   uniformBuffer.first->getBufferDescriptor()});
@@ -52,7 +52,7 @@ Result Material::update(platform::Context* platformContext)
 
     for (auto storageBuffer : externalStorageBuffers)
     {
-        offsets.push_back(storageBuffer.first->getOffset());
+        offsets.push_back(static_cast<uint32_t>(storageBuffer.first->getOffset()));
         descriptorInfoList.push_back({binding, storageBuffer.second, rhi::DescriptorType::Storage_Buffer_Dynamic});
         descriptorList.push_back({{binding++, storageBuffer.second, rhi::DescriptorType::Storage_Buffer_Dynamic},
                                   storageBuffer.first->getBufferDescriptor()});

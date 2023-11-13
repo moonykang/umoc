@@ -600,13 +600,41 @@ enum class FrontFace : bool
     CLOCKWISE = 1,
 };
 
+class PolygonState
+{
+  public:
+    PolygonState()
+        : polygonMode(PolygonMode::FILL), cullMode(CullMode::BACK_BIT), frontFace(FrontFace::COUNTER_CLOCKWISE)
+    {
+    }
+
+    void update(PolygonMode polygonMode)
+    {
+        this->polygonMode = polygonMode;
+    }
+
+    void update(CullMode cullMode)
+    {
+        this->cullMode = cullMode;
+    }
+
+    void update(FrontFace frontFace)
+    {
+        this->frontFace = frontFace;
+    }
+
+  public:
+    PolygonMode polygonMode;
+    CullMode cullMode;
+    FrontFace frontFace;
+};
+
 class RasterizationState
 {
   public:
     RasterizationState()
-        : depthBiasConstantFactor(0.f), depthBiasClamp(0.f), depthBiasSlopeFactor(0.f), lineWidth(1.f),
-          polygonMode(PolygonMode::FILL), cullMode(CullMode::BACK_BIT), depthClampEnable(false),
-          rasterizerDiscardEnable(false), depthBiasEnable(false), frontFace(FrontFace::COUNTER_CLOCKWISE)
+        : depthBiasConstantFactor(0.f), depthBiasClamp(0.f), depthBiasSlopeFactor(0.f), lineWidth(1.f), polygonState(),
+          depthClampEnable(false), rasterizerDiscardEnable(false), depthBiasEnable(false)
     {
     }
 
@@ -615,12 +643,10 @@ class RasterizationState
     float depthBiasClamp;
     float depthBiasSlopeFactor;
     float lineWidth;
-    PolygonMode polygonMode;
-    CullMode cullMode;
+    PolygonState polygonState;
     bool depthClampEnable;
     bool rasterizerDiscardEnable;
     bool depthBiasEnable;
-    FrontFace frontFace;
 };
 
 class TessellationState

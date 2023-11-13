@@ -2,6 +2,7 @@
 
 #include "common/util.h"
 #include "defines.h"
+#include "rhi/resources.h"
 #include <vector>
 
 namespace platform
@@ -51,6 +52,8 @@ class Object
 
     void addLinearNode(Node* node);
 
+    rhi::PolygonState& getPolygonState();
+
   public:
     Instance* instantiate(platform::Context* context, glm::mat4 transform, const bool initDescriptor,
                           const bool ignoreHierarchy = false);
@@ -65,5 +68,7 @@ class Object
     std::vector<Instance*> linearInstances;
 
     std::vector<TextureID> textures;
+
+    rhi::PolygonState polygonState;
 };
 } // namespace model

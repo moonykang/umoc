@@ -57,9 +57,7 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
             rhi::GraphicsPipelineState graphicsPipelineState;
             graphicsPipelineState.colorBlendState.attachmentCount = 1;
             graphicsPipelineState.assemblyState.primitiveTopology = rhi::PrimitiveTopology::TRIANGLE_LIST;
-            graphicsPipelineState.rasterizationState.frontFace = rhi::FrontFace::CLOCKWISE;
-            graphicsPipelineState.rasterizationState.polygonMode = rhi::PolygonMode::FILL;
-            graphicsPipelineState.rasterizationState.cullMode = rhi::CullMode::FRONT_BIT;
+            graphicsPipelineState.rasterizationState.polygonState = model->getPolygonState();
             graphicsPipelineState.depthStencilState.depthTestEnable = true;
             graphicsPipelineState.depthStencilState.depthCompareOp = rhi::CompareOp::LESS_OR_EQUAL;
             graphicsPipelineState.depthStencilState.depthWriteEnable = true;

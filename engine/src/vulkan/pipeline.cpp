@@ -209,8 +209,8 @@ Result PipelineLayout::init(Context* context, std::vector<VkDescriptorSetLayout>
     {
         auto& pushConstant = pushConstants.emplace_back();
         pushConstant.stageFlags = convertToVkShaderStage(rhiPushConstant.shaderStageFlags);
-        pushConstant.offset = rhiPushConstant.offset;
-        pushConstant.size = rhiPushConstant.size;
+        pushConstant.offset = static_cast<uint32_t>(rhiPushConstant.offset);
+        pushConstant.size = static_cast<uint32_t>(rhiPushConstant.size);
     }
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
@@ -488,9 +488,9 @@ Pipeline* PipelineMap::getPipeline(Context* context, rhi::GraphicsPipelineState&
         rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizationState.depthClampEnable = gfxPipelineState.rasterizationState.depthClampEnable;
         rasterizationState.rasterizerDiscardEnable = gfxPipelineState.rasterizationState.rasterizerDiscardEnable;
-        rasterizationState.polygonMode = convertToVkPolygonMode(gfxPipelineState.rasterizationState.polygonMode);
-        rasterizationState.cullMode = convertToVkCullMode(gfxPipelineState.rasterizationState.cullMode);
-        rasterizationState.frontFace = convertToVkFrontFace(gfxPipelineState.rasterizationState.frontFace);
+        rasterizationState.polygonMode = convertToVkPolygonMode(gfxPipelineState.rasterizationState.polygonState.polygonMode);
+        rasterizationState.cullMode = convertToVkCullMode(gfxPipelineState.rasterizationState.polygonState.cullMode);
+        rasterizationState.frontFace = convertToVkFrontFace(gfxPipelineState.rasterizationState.polygonState.frontFace);
         rasterizationState.depthBiasEnable = gfxPipelineState.rasterizationState.depthBiasEnable;
         rasterizationState.depthBiasConstantFactor = gfxPipelineState.rasterizationState.depthBiasConstantFactor;
         rasterizationState.depthBiasClamp = gfxPipelineState.rasterizationState.depthBiasClamp;
