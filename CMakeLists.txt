@@ -62,6 +62,31 @@ ELSEIF (APPLE)
     endif()
 
     SET(PLATFORM_GLFW TRUE)
+ELSEIF (LINUX)
+    SET(BUILD_SHARED_LIBS TRUE)
+    SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+
+    FIND_LIBRARY(VULKAN_LIBRARY NAMES vulkan PATHS ${VULKAN_PATH}/lib NO_DEFAULT_PATH)
+
+    IF (VULKAN_LIBRARY)
+        INCLUDE_DIRECTORIES(${VULKAN_PATH}/include)
+        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVK_USE_PLATFORM_XCB_KHR -DPLATFORM_LINUX")
+    ELSE()
+        message(FATAL_ERROR "Couldn't find Vulkan library. VULKAN_SDK must be set")
+    ENDIF()
+
+    message(${VULKAN_PATH})
+    IF (VULKAN_LIBRARY)
+        message("Found VulkanSDK")
+    ELSE()
+        meesage("Can't find VulkanSDK")
+    ENDIF()
+
+    if (VULKAN_LAYER)
+        message("Found layers")
+    endif()
+
+    SET(PLATFORM_GLFW TRUE)
 ENDIF()
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX -D_USE_MATH_DEFINES")

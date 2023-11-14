@@ -36,6 +36,6 @@ class Timer
   private:
     uint64_t current;
     float frameTimer;
-    std::chrono::steady_clock::time_point last;
+    std::chrono::system_clock::time_point last;
 };
 } // namespace platform
