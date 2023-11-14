@@ -66,7 +66,7 @@ float filterPCF(float4 sc)
 	return shadowFactor / count;
 }
 
-#define BLIN_PHONG 0
+#define BLIN_PHONG 1
 
 float4 main(VSOutput input) : SV_TARGET
 {
