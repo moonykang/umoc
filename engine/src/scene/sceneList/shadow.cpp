@@ -31,6 +31,7 @@ Result ShadowScene::load(platform::Context* platformContext)
         rhi::VertexChannel::Position | rhi::VertexChannel::Uv | rhi::VertexChannel::Normal | rhi::VertexChannel::Color);
     shaderParameters.pixelShader = context->allocatePixelShader("forward/forward.frag.spv");
 
+    if (true)
     {
         auto [id, redBlueTexture] = textures->get(context, "Red Blue Texture", "redblue.png");
         model::Material* material = new model::Material();
@@ -42,61 +43,90 @@ Result ShadowScene::load(platform::Context* platformContext)
 
         auto loader = model::gltf::Loader::Builder()
                           .setPath("")
-                          .setFileName("sphere.gltf")
+                          .setFileName("vulkanscene_shadow.gltf")
                           .setMaterialFlags(model::MaterialFlag::All)
                           .addExternalMaterial(material)
                           .setShaderParameters(&shaderParameters)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
         registerObject(context, object);
-        object->getPolygonState().update(rhi::CullMode::FRONT_BIT);
+        object->getPolygonState().update(rhi::CullMode::BACK_BIT);
         object->getPolygonState().update(rhi::PolygonMode::FILL);
-        object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
+        object->getPolygonState().update(rhi::FrontFace::COUNTER_CLOCKWISE);
 
-        for (int i = 0; i < 3; i++)
+        util::Transform transform;
+        transform.scale(glm::vec3(1.f));
+        model::Instance* instance = object->instantiate(context, transform.get(), true);
+    }
+    else
+    {
         {
-            for (int j = 0; j < 3; j++)
+            auto [id, redBlueTexture] = textures->get(context, "Red Blue Texture", "redblue.png");
+            model::Material* material = new model::Material();
+            try(material->init(platformContext));
+            material->updateTexture(model::MaterialFlag::External, redBlueTexture, rhi::ShaderStage::Pixel);
+            material->updateTexture(model::MaterialFlag::External, getRenderTargets()->getShadowDepth(),
+                                    rhi::ShaderStage::Pixel);
+            try(material->update(platformContext));
+
+            auto loader = model::gltf::Loader::Builder()
+                              .setPath("")
+                              .setFileName("sphere.gltf")
+                              .setMaterialFlags(model::MaterialFlag::All)
+                              .addExternalMaterial(material)
+                              .setShaderParameters(&shaderParameters)
+                              .build();
+
+            model::Object* object = loader->load(platformContext, this);
+            registerObject(context, object);
+            object->getPolygonState().update(rhi::CullMode::FRONT_BIT);
+            object->getPolygonState().update(rhi::PolygonMode::FILL);
+            object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
+
+            for (int i = 0; i < 3; i++)
             {
-                for (int k = 0; k < 3; k++)
+                for (int j = 0; j < 3; j++)
                 {
-                    util::Transform transform;
-                    transform.scale(glm::vec3(0.5f));
-                    transform.translate(glm::vec3(-2.f + (i * 2.f), -2.f + (j * 2.f), -2.f + (k * 2.f)));
-                    model::Instance* instance = object->instantiate(context, transform.get(), true);
+                    for (int k = 0; k < 3; k++)
+                    {
+                        util::Transform transform;
+                        transform.scale(glm::vec3(0.5f));
+                        transform.translate(glm::vec3(-2.f + (i * 2.f), -2.f + (j * 2.f), -2.f + (k * 2.f)));
+                        model::Instance* instance = object->instantiate(context, transform.get(), true);
+                    }
                 }
             }
         }
-    }
 
-    {
-        auto [id, checkTexture] = textures->get(context, "Check Texture", "check.png");
-        model::Material* material = new model::Material();
-        try(material->init(platformContext));
-        material->updateTexture(model::MaterialFlag::External, checkTexture, rhi::ShaderStage::Pixel);
-        material->updateTexture(model::MaterialFlag::External, getRenderTargets()->getShadowDepth(),
-                                rhi::ShaderStage::Pixel);
-        try(material->update(platformContext));
+        {
+            auto [id, checkTexture] = textures->get(context, "Check Texture", "check.png");
+            model::Material* material = new model::Material();
+            try(material->init(platformContext));
+            material->updateTexture(model::MaterialFlag::External, checkTexture, rhi::ShaderStage::Pixel);
+            material->updateTexture(model::MaterialFlag::External, getRenderTargets()->getShadowDepth(),
+                                    rhi::ShaderStage::Pixel);
+            try(material->update(platformContext));
 
-        auto loader = model::predefined::Loader::Builder()
-                          .setMaterial(material)
-                          .setPredefineModelType(model::PredefinedModel::Cube)
-                          .setShaderParameters(&shaderParameters)
-                          .setUvScale(25.f)
-                          .build();
+            auto loader = model::predefined::Loader::Builder()
+                              .setMaterial(material)
+                              .setPredefineModelType(model::PredefinedModel::Cube)
+                              .setShaderParameters(&shaderParameters)
+                              .setUvScale(25.f)
+                              .build();
 
-        model::Object* object = loader->load(platformContext, this);
-        object->getPolygonState().update(rhi::CullMode::FRONT_BIT);
-        object->getPolygonState().update(rhi::PolygonMode::FILL);
-        object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
+            model::Object* object = loader->load(platformContext, this);
+            object->getPolygonState().update(rhi::CullMode::FRONT_BIT);
+            object->getPolygonState().update(rhi::PolygonMode::FILL);
+            object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
 
-        registerObject(context, object);
+            registerObject(context, object);
 
-        util::Transform transform;
-        transform.scale(glm::vec3(100.f, 0.1f, 100.f));
-        transform.translate(glm::vec3(0.f, 3.f, 0.f));
-        model::Instance* instance = object->instantiate(context, transform.get(), true);
+            util::Transform transform;
+            transform.scale(glm::vec3(100.f, 0.1f, 100.f));
+            transform.translate(glm::vec3(0.f, 3.f, 0.f));
+            model::Instance* instance = object->instantiate(context, transform.get(), true);
+        }
     }
 
     view->setView(glm::vec3(0.1f, 0.0f, -1.0f), glm::vec3(0.0f, 90.0f, 0.0f));
