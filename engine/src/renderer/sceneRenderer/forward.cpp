@@ -48,6 +48,9 @@ Result Forward::render(platform::Context* platformContext, scene::SceneInfo* sce
     subpass.colorAttachmentReference.push_back({attachmentId, rhi::ImageLayout::ColorAttachment});
     subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
 
+    try(context->addTransition(sceneInfo->getRenderTargets()->getShadowDepth()->getImage(),
+                               rhi::ImageLayout::DepthStencilAttachmentReadOnly));
+
     try(context->beginRenderpass(renderpassInfo));
 
     for (auto& model : sceneInfo->getModels())

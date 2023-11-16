@@ -54,7 +54,7 @@ Result Light::updateUI(scene::View* view)
 
 bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMatrix)
 {
-    if (dirty)
+    //if (dirty)
     {
         // auto& m = get();
 
@@ -93,6 +93,14 @@ bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMat
     }
 
     return false;
+}
+
+void DirectionalLight::setProjection(float fov, float aspect, float near, float far)
+{
+    // projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, near, far);
+    projection = glm::perspective(glm::radians(fov), aspect, near, far);
+    projection[1][1] *= -1;
+    dirty = true;
 }
 
 Lights::Lights() : uniformBuffer(nullptr), dirty(false)

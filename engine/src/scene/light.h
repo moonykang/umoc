@@ -141,12 +141,7 @@ class DirectionalLight : public Light
 
     bool updateLightData(LightData& lightData, glm::mat4& lightMatrix);
 
-    void setProjection(float fov, float aspect, float near, float far)
-    {
-        projection = glm::ortho(-10.f, 10.f, -10.f, 10.f, near, far);
-        // projection = glm::perspective(glm::radians(fov), aspect, near, far);
-        dirty = true;
-    }
+    void setProjection(float fov, float aspect, float near, float far);
 
     void activate()
     {

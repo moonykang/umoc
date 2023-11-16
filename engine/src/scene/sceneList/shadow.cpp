@@ -129,8 +129,8 @@ Result ShadowScene::load(platform::Context* platformContext)
         }
     }
 
-    view->setView(glm::vec3(0.1f, 0.0f, -1.0f), glm::vec3(0.0f, 90.0f, 0.0f));
-    view->setPerspective(45.0f, 1, 0.1f, 64.f);
+    view->setView(glm::vec3(-13.1f, 5.0f, -13.0f), glm::vec3(0.0f, 90.0f, 0.0f));
+    view->setPerspective(45.0f, 1, 1.f, 96.f);
     view->updateViewMatrix();
 
     try(view->updateUniformBuffer(context));
@@ -142,7 +142,8 @@ Result ShadowScene::load(platform::Context* platformContext)
         directionalLight.setProjection(45.0f, 1.0f, 1.0f, 96.0f);
 
         directionalLight.rotate(glm::vec3(90.0f, 0.0f, 0.f));
-        directionalLight.translate(glm::vec3(0.f, 10.f, 0.f));
+        directionalLight.translate(glm::vec3(40.f, 30.f, 25.f));
+        directionalLight.get();
     }
     try(lights->updateUniformBuffer(context));
 

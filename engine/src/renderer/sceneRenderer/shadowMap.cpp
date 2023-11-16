@@ -48,8 +48,10 @@ Result ShadowMap::render(platform::Context* platformContext, scene::SceneInfo* s
     auto& subpass = renderpassInfo.subpassDescriptions.emplace_back();
     subpass.depthAttachmentReference = {depthAttachmentId, rhi::ImageLayout::DepthStencilAttachment};
 
-    try(context->beginRenderpass(renderpassInfo));
+    try(context->addTransition(sceneInfo->getRenderTargets()->getShadowDepth()->getImage(),
+                               rhi::ImageLayout::DepthStencilAttachment));
 
+    try(context->beginRenderpass(renderpassInfo));
 
     for (auto& model : sceneInfo->getModels())
     {

@@ -72,8 +72,9 @@ float4 main(VSOutput input) : SV_TARGET
 {
 	float3 albedo = albedoTexture.Sample(albedoSampler, input.uv).xyz;
 
-    //float shadow = textureProj(input.shadowUv / input.shadowUv.w, float2(0.f, 0.f));
-    float shadow = filterPCF(input.shadowUv / input.shadowUv.w);
+	float4 shadowPos = input.shadowUv / input.shadowUv.w;
+    //float shadow = textureProj(shadowPos, float2(0.f, 0.f));
+    float shadow = filterPCF(shadowPos);
 
     float3 N = normalize(input.normal);
 	float3 L = normalize(light_position(sceneLight.lights[0]) - input.worldPos);
@@ -93,5 +94,8 @@ float4 main(VSOutput input) : SV_TARGET
 
 	float3 color = (A + D + S) * shadow;
 
-    return float4(color, 1.0f);
+    //return float4(color, 1.0f);
+
+	float dist = shadowDepthTexture.Sample(shadowDepthSampler, shadowPos.xy).r;
+	return float4(shadowPos.xyz, dist);
 }
