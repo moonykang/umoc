@@ -37,7 +37,7 @@ Result RenderTargets::init(platform::Context* platformContext)
     shadowDepthSampler.borderColor = rhi::texture::BorderColor::Float_Opaque_White;
 
     shadowDepth = new rhi::Texture("ShadowDepth");
-    try(shadowDepth->init(context, rhi::Format::D32_FLOAT_S8X24_UINT, {2048, 2048, 1}, 1, 1,
+    try(shadowDepth->init(context, rhi::Format::D16_UNORM, {2048, 2048, 1}, 1, 1,
                           rhi::ImageUsage::SAMPLED | rhi::ImageUsage::DEPTH_STENCIL_ATTACHMENT, shadowDepthSampler));
 
     computeTarget = new rhi::Texture("computeTarget");

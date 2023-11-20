@@ -118,18 +118,18 @@ Result ShadowScene::load(platform::Context* platformContext)
             model::Object* object = loader->load(platformContext, this);
             object->getPolygonState().update(rhi::CullMode::FRONT_BIT);
             object->getPolygonState().update(rhi::PolygonMode::FILL);
-            object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
+            object->getPolygonState().update(rhi::FrontFace::COUNTER_CLOCKWISE);
 
             registerObject(context, object);
 
             util::Transform transform;
             transform.scale(glm::vec3(100.f, 0.1f, 100.f));
-            transform.translate(glm::vec3(0.f, 3.f, 0.f));
+            transform.translate(glm::vec3(0.f, -3.f, 0.f));
             model::Instance* instance = object->instantiate(context, transform.get(), true);
         }
     }
 
-    view->setView(glm::vec3(-13.1f, 5.0f, -13.0f), glm::vec3(0.0f, 90.0f, 0.0f));
+    view->setView(glm::vec3(-13.1f, 5.0f, -13.0f), glm::vec3(0.0f, -40.0f, 0.0f));
     view->setPerspective(45.0f, 1, 1.f, 96.f);
     view->updateViewMatrix();
 

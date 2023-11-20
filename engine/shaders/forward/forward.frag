@@ -94,8 +94,5 @@ float4 main(VSOutput input) : SV_TARGET
 
 	float3 color = (A + D + S) * shadow;
 
-    //return float4(color, 1.0f);
-
-	float dist = shadowDepthTexture.Sample(shadowDepthSampler, shadowPos.xy).r;
-	return float4(shadowPos.xyz, dist);
+    return float4(color, 1.0f);
 }
