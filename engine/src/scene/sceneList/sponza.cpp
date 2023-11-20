@@ -38,7 +38,7 @@ Result SponzaScene::load(platform::Context* platformContext)
                           .setFileName("Sponza.gltf")
                           .setMaterialFlags(model::MaterialFlag::All)
                           .setShaderParameters(&shaderParameters)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
+                          //.setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .setForcedTextureExt("png")
                           .build();
 
