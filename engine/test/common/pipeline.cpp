@@ -21,25 +21,25 @@ TEST(PipelineStateFixture, RasterizationStateTest)
     offset += sizeof(float);
     EXPECT_EQ(offsetof(RasterizationState, lineWidth), offset);
     offset += sizeof(float);
-    EXPECT_EQ(offsetof(RasterizationState, polygonMode), offset);
+    EXPECT_EQ(offsetof(RasterizationState, polygonState.polygonMode), offset);
     offset += sizeof(PolygonMode);
-    EXPECT_EQ(offsetof(RasterizationState, cullMode), offset);
+    EXPECT_EQ(offsetof(RasterizationState, polygonState.cullMode), offset);
     offset += sizeof(CullMode);
+    EXPECT_EQ(offsetof(RasterizationState, polygonState.frontFace), offset);
+    offset += sizeof(FrontFace);
     EXPECT_EQ(offsetof(RasterizationState, depthClampEnable), offset);
     offset += sizeof(bool);
     EXPECT_EQ(offsetof(RasterizationState, rasterizerDiscardEnable), offset);
     offset += sizeof(bool);
     EXPECT_EQ(offsetof(RasterizationState, depthBiasEnable), offset);
     offset += sizeof(bool);
-    EXPECT_EQ(offsetof(RasterizationState, frontFace), offset);
-    offset += sizeof(FrontFace);
 
     EXPECT_EQ(sizeof(PolygonMode), sizeof(uint8_t));
     EXPECT_EQ(sizeof(CullMode), sizeof(uint8_t));
     EXPECT_EQ(sizeof(FrontFace), sizeof(bool));
 
     RasterizationState rasterizationState2;
-    rasterizationState2.cullMode = CullMode::FRONT_BIT;
+    rasterizationState2.polygonState.cullMode = CullMode::FRONT_BIT;
 
     size_t hash1 = util::computeGenericHash(&rasterizationState, sizeof(RasterizationState));
     size_t hash2 = util::computeGenericHash(&rasterizationState2, sizeof(RasterizationState));
