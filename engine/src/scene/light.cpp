@@ -54,7 +54,7 @@ Result Light::updateUI(scene::View* view)
 
 bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMatrix)
 {
-    //if (dirty)
+    // if (dirty)
     {
         // auto& m = get();
 
@@ -72,20 +72,6 @@ bool DirectionalLight::updateLightData(LightData& lightData, glm::mat4& lightMat
         glm::mat4 viewMatrix = glm::lookAt(position, position + direction, glm::vec3(0.0f, 1.0f, 0.0f));
         // glm::mat4 viewMatrix = glm::lookAt(position, lookat, glm::vec3(0.0f, 1.0f, 0.0f));
         lightMatrix = projection * viewMatrix;
-
-        LOGD("Position %f %f %f", position.x, position.y, position.z);
-        LOGD("Direction %f %f %f", direction.x, direction.y, direction.z);
-        LOGD("LightMatrix");
-        LOGD("%f %f %f %f", lightMatrix[0][0], lightMatrix[0][1], lightMatrix[0][2], lightMatrix[0][3]);
-        LOGD("%f %f %f %f", lightMatrix[1][0], lightMatrix[1][1], lightMatrix[1][2], lightMatrix[1][3]);
-        LOGD("%f %f %f %f", lightMatrix[2][0], lightMatrix[2][1], lightMatrix[2][2], lightMatrix[2][3]);
-        LOGD("%f %f %f %f", lightMatrix[3][0], lightMatrix[3][1], lightMatrix[3][2], lightMatrix[3][3]);
-
-        LOGD("LightView");
-        LOGD("%f %f %f %f", viewMatrix[0][0], viewMatrix[0][1], viewMatrix[0][2], viewMatrix[0][3]);
-        LOGD("%f %f %f %f", viewMatrix[1][0], viewMatrix[1][1], viewMatrix[1][2], viewMatrix[1][3]);
-        LOGD("%f %f %f %f", viewMatrix[2][0], viewMatrix[2][1], viewMatrix[2][2], viewMatrix[2][3]);
-        LOGD("%f %f %f %f", viewMatrix[3][0], viewMatrix[3][1], viewMatrix[3][2], viewMatrix[3][3]);
 
         dirty = false;
 
