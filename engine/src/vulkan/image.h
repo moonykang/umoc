@@ -19,7 +19,8 @@ class Sampler final : public WrappedObject<Sampler, VkSampler>
 
     Result init(Context* context, VkFilter magFilter, VkFilter minFilter, VkSamplerAddressMode addressModeU,
                 VkSamplerAddressMode addressModeV, VkSamplerAddressMode addressModeW, bool anisotropyEnable,
-                float maxAnisotropy, VkSamplerMipmapMode mipmapMode, float mipLodBias, float minLod, float maxLod, VkBorderColor borderColor);
+                float maxAnisotropy, VkSamplerMipmapMode mipmapMode, float mipLodBias, float minLod, float maxLod,
+                VkBorderColor borderColor);
 
     void terminate(Context* context);
 
@@ -106,6 +107,5 @@ class Image final : public rhi::Image, public WrappedObject<Image, VkImage>
     uint32_t samples;
     ImageView* view;
     Sampler* sampler;
-    VkDescriptorImageInfo imageInfo;
 };
 } // namespace vk

@@ -181,10 +181,6 @@ Result Image::init(rhi::Context* rhiContext, rhi::Format format, rhi::ImageType 
                       samplerInfo.mipLodBias, samplerInfo.minLod, samplerInfo.maxLod,
                       convertToBorderColor(samplerInfo.borderColor)));
 
-    imageInfo.sampler = sampler->getHandle();
-    imageInfo.imageView = view->getHandle();
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; // TODO
-
     try(context->debugMarkerSetObjectName((uint64_t)mHandle, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, name.c_str()));
 
     LOGD("Init image %s %p layout %s", name.c_str(), mHandle, getImageLayoutName(imageLayout).c_str());
@@ -220,10 +216,6 @@ Result Image::init(Context* context, VkImage image, rhi::Format format, rhi::Ima
     try(sampler->init(context, VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT,
                       VK_SAMPLER_ADDRESS_MODE_REPEAT, VK_SAMPLER_ADDRESS_MODE_REPEAT, false, 0.f,
                       VK_SAMPLER_MIPMAP_MODE_NEAREST, 0.f, 0.f, 0.f, VK_BORDER_COLOR_INT_OPAQUE_BLACK));
-
-    imageInfo.sampler = sampler->getHandle();
-    imageInfo.imageView = view->getHandle();
-    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL; // TODO
 
     try(context->debugMarkerSetObjectName((uint64_t)mHandle, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, name.c_str()));
 
