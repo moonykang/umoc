@@ -55,12 +55,14 @@ Result IBLScene::load(platform::Context* platformContext)
 
         auto loader = model::gltf::Loader::Builder()
                           .setFileName("cube.gltf")
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .addExternalMaterial(material)
                           .setShaderParameters(&shaderParameters)
                           .build();
 
         model::Object* object = loader->load(platformContext, this);
+        object->getPolygonState().update(rhi::CullMode::BACK_BIT);
+        object->getPolygonState().update(rhi::PolygonMode::FILL);
+        object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
         registerObject(context, object);
 
         util::Transform transform;
@@ -104,6 +106,9 @@ Result IBLScene::load(platform::Context* platformContext)
                           .build();
 
         model::Object* object = loader->load(context, this);
+        object->getPolygonState().update(rhi::CullMode::BACK_BIT);
+        object->getPolygonState().update(rhi::PolygonMode::FILL);
+        object->getPolygonState().update(rhi::FrontFace::CLOCKWISE);
         registerObject(context, object);
 
         float specular[7] = {1, 2, 4, 8, 16, 32, 64};
@@ -141,6 +146,52 @@ Result IBLScene::load(platform::Context* platformContext)
 
     // light->setLightPosition(0, glm::vec4(0.5f, -1.0f, 0.3f, 1.0f));
 
+    // Lights
+    lights->setLightNumber(5);
+    {
+        auto& directionalLight = lights->getDirectionalLight();
+        directionalLight.setProjection(45.0f, 1.0f, 1.0f, 96.0f);
+
+        directionalLight.rotate(glm::vec3(90.0f, 0.0f, 0.f));
+        directionalLight.translate(glm::vec3(40.f, 30.f, 25.f));
+        directionalLight.get();
+
+        // Red
+        {
+            auto& light = lights->getLight(1);
+            light.set_light_position(glm::vec3(-1.f, 1.f, -1.f));
+            light.set_light_color(glm::vec3(1.0f, 0.6f, 0.6f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
+
+        // Blue
+        {
+            auto& light = lights->getLight(2);
+            light.set_light_position(glm::vec3(1.f, 1.f, -1.f));
+            light.set_light_color(glm::vec3(0.7f, 0.7f, 1.0f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
+
+        // Yellow
+        {
+            auto& light = lights->getLight(3);
+            light.set_light_position(glm::vec3(-1.f, -1.f, -1.f));
+            light.set_light_color(glm::vec3(1.0f, 1.0f, 0.6f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
+
+        // Green
+        {
+            auto& light = lights->getLight(4);
+            light.set_light_position(glm::vec3(1.f, -1.f, -1.f));
+            light.set_light_color(glm::vec3(0.0f, 1.0f, 0.2f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
+    }
     try(lights->updateUniformBuffer(context));
 
     try(updateDescriptor(context));
@@ -151,38 +202,6 @@ Result IBLScene::load(platform::Context* platformContext)
 Result IBLScene::udpateScene(platform::Context* context)
 {
     timer++;
-    /*
-        // White
-        light->setLightPosition(
-            0, glm::vec4(sin(glm::radians(360.0f * timer)) * 5.0f, cos(glm::radians(360.0f * timer)) * 5.0f, -10.0f,
-       0.0f)); light->setLightColor(0, glm::vec3(1.0f)); light->setLightRadius(0, 15.0f);
-
-        // Red
-        light->setLightPosition(1, glm::vec4(-4.0f + sin(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 2.0f,
-                                             0.0f + cos(glm::radians(360.0f * timer) + 45.0f) * 2.0f, 0.0f));
-        light->setLightColor(1, glm::vec3(1.0f, 0.6f, 0.6f));
-        light->setLightRadius(1, 30.0f);
-        // Blue
-        light->setLightPosition(2, glm::vec4(4.0f + sin(glm::radians(360.0f * timer)) * 2.0f, 2.0f,
-                                             0.0f + cos(glm::radians(360.0f * timer)) * 2.0f, 0.0f));
-        light->setLightColor(2, glm::vec3(0.7f, 0.7f, 1.0f));
-        light->setLightRadius(2, 25.0f);
-        // Yellow
-        light->setLightPosition(3, glm::vec4(0.0f + sin(glm::radians(360.0f * timer + 90.0f)) * 5.0f, 20.0f,
-                                             0.0f - cos(glm::radians(360.0f * timer + 45.0f)) * 5.0f, 0.0f));
-        light->setLightColor(3, glm::vec3(1.0f, 1.0f, 0.6f));
-        light->setLightRadius(3, 15.0f);
-        // Green
-        light->setLightPosition(4, glm::vec4(0.0f + sin(glm::radians(-360.0f * timer + 135.0f)) * 10.0f, 2.5f,
-                                             0.0f - cos(glm::radians(-360.0f * timer - 45.0f)) * 10.0f, 0.0f));
-        light->setLightColor(4, glm::vec3(0.0f, 1.0f, 0.2f));
-        light->setLightRadius(4, 45.0f);
-
-        // Yellow
-        light->setLightPosition(5, glm::vec4(0.0f, 3.0f, 0.0f, 0.0f));
-        light->setLightColor(5, glm::vec3(1.0f, 0.7f, 0.3f));
-        light->setLightRadius(5, 25.0f);
-    */
     try(lights->updateUniformBuffer(context));
 
     try(view->updateUniformBuffer(context));

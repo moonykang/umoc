@@ -222,6 +222,12 @@ class Lights : public ui::Component
         */
     }
 
+    // temp
+    LightData& getLight(uint32_t idx)
+    {
+        return ubo.light[idx];
+    }
+
   private:
     std::mutex mutex;
     bool dirty;

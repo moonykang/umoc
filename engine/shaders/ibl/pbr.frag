@@ -1,6 +1,7 @@
 // Copyright 2020 Google LLC
 
 #include "../common.hlsl"
+#include "../light.hlsl"
 
 struct VSOutput
 {
@@ -46,37 +47,6 @@ float3 materialcolor()
 	return float3(material.r, material.g, material.b);
 }
 
-// From http://filmicgames.com/archives/75
-float3 Uncharted2Tonemap(float3 x)
-{
-	float A = 0.15;
-	float B = 0.50;
-	float C = 0.10;
-	float D = 0.20;
-	float E = 0.02;
-	float F = 0.30;
-	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
-}
-
-// Normal Distribution function --------------------------------------
-float D_GGX(float dotNH, float roughness)
-{
-	float alpha = roughness * roughness;
-	float alpha2 = alpha * alpha;
-	float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
-	return (alpha2)/(PI * denom*denom);
-}
-
-// Geometric Shadowing function --------------------------------------
-float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
-{
-	float r = (roughness + 1.0);
-	float k = (r*r) / 8.0;
-	float GL = dotNL / (dotNL * (1.0 - k) + k);
-	float GV = dotNV / (dotNV * (1.0 - k) + k);
-	return GL * GV;
-}
-
 // Fresnel function ----------------------------------------------------
 float3 F_Schlick(float cosTheta, float3 F0)
 {
@@ -98,35 +68,6 @@ float3 prefilteredReflection(float3 R, float roughness)
 	return lerp(a, b, lod - lodf);
 }
 
-float3 specularContribution(float3 L, float3 V, float3 N, float3 F0, float3 lightColor, float metallic, float roughness)
-{
-	// Precalculate vectors and dot products
-	float3 H = normalize (V + L);
-	float dotNH = clamp(dot(N, H), 0.0, 1.0);
-	float dotNV = clamp(dot(N, V), 0.0, 1.0);
-	float dotNL = clamp(dot(N, L), 0.0, 1.0);
-
-	float3 albedo = materialcolor();
-
-	// Light color fixed
-	//float3 lightColor = float3(1.0, 1.0, 1.0);
-
-	float3 color = float3(0.0, 0.0, 0.0);
-
-	if (dotNL > 0.0) {
-		// D = Normal distribution (Distribution of the microfacets)
-		float D = D_GGX(dotNH, roughness);
-		// G = Geometric shadowing term (Microfacets shadowing)
-		float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
-		// F = Fresnel factor (Reflectance depending on angle of incidence)
-		float3 F = F_Schlick(dotNV, F0);
-		float3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);
-		float3 kD = (float3(1.0, 1.0, 1.0) - F) * (1.0 - metallic);
-		color += (kD * albedo / PI + spec) * dotNL * lightColor;
-	}
-
-	return color;
-}
 // ----------------------------------------------------------------------------
 float4 main(VSOutput input) : SV_TARGET
 {
@@ -140,11 +81,12 @@ float4 main(VSOutput input) : SV_TARGET
 
 	float3 F0 = float3(0.04, 0.04, 0.04);
 	F0 = lerp(F0, albedo, metallic);
+    const float3 d = mix(albedo * (1.0f - F0), float3(0.0f, 0.0f, 0.0f), metallic);
 
 	float3 Lo = float3(0.0, 0.0, 0.0);
-	for(int i = 0; i < 4; i++) {
-		//float3 L = normalize(sceneLight.lights[i].pos.xyz - input.worldPos);
-		//Lo += specularContribution(L, V, N, F0, sceneLight.lights[i].color.xyz, metallic, roughness);
+	
+	for(int i = 0; i < sceneLight.numLights; i++) {
+		Lo += direct_lighting(sceneLight.lights[i], V, N, input.worldPos, F0, d, roughness);
 	}
 
 	float2 brdf = textureBRDFLUT.Sample(samplerBRDFLUT, float2(max(dot(N, V), 0.0), roughness)).rg;
@@ -166,12 +108,5 @@ float4 main(VSOutput input) : SV_TARGET
 
 	float3 color = ambient + Lo;
 
-/*
-	// Tone mapping
-	color = Uncharted2Tonemap(color);// * uboParams.exposure);
-	color = color * (1.0f / Uncharted2Tonemap((11.2f).xxx));
-	// Gamma correction
-	color = pow(color, (1.0f / uboParams.gamma).xxx);
-*/
 	return float4(color, 1.0);
 }
