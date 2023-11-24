@@ -100,7 +100,6 @@ Result IBLScene::load(platform::Context* platformContext)
                           .setPath("")
                           .setFileName("sphere.gltf")
                           .setMaterialFlags(model::MaterialFlag::NONE)
-                          .setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .setShaderParameters(&shaderParameters)
                           .addExternalMaterial(material)
                           .build();

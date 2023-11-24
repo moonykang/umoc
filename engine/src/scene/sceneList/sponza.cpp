@@ -35,10 +35,9 @@ Result SponzaScene::load(platform::Context* platformContext)
     {
         auto loader = model::gltf::Loader::Builder()
                           .setPath("sponza/")
-                          .setFileName("Sponza.gltf")
+                          .setFileName("sponza.gltf")
                           .setMaterialFlags(model::MaterialFlag::All)
                           .setShaderParameters(&shaderParameters)
-                          //.setGltfLoadingFlags(model::GltfLoadingFlag::FlipY)
                           .setForcedTextureExt("png")
                           .build();
 
@@ -57,18 +56,52 @@ Result SponzaScene::load(platform::Context* platformContext)
     try(view->updateUniformBuffer(context));
 
     // Lights
+    lights->setLightNumber(5);
     {
-        lights->setLightNumber(2);
         auto& directionalLight = lights->getDirectionalLight();
         directionalLight.setProjection(45.0f, 1.0f, 1.0f, 96.0f);
 
         directionalLight.rotate(glm::vec3(90.0f, 0.0f, 0.f));
         directionalLight.translate(glm::vec3(1.f, 25.f, 0.f));
+        directionalLight.get();
 
-        lights->setLightPosition(1, glm::vec3(3.f, 1.f, 3.f));
-        lights->setLightRadius(1, 0.5f);
-        lights->setLightColor(1, glm::vec3(1.f, 0.8f, 0.5f));
+        // Red
+        {
+            auto& light = lights->getLight(1);
+            light.set_light_position(glm::vec3(-1.f, 1.f, -1.f));
+            light.set_light_color(glm::vec3(1.0f, 0.6f, 0.6f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
+
+        // Blue
+        {
+            auto& light = lights->getLight(2);
+            light.set_light_position(glm::vec3(1.f, 1.f, -1.f));
+            light.set_light_color(glm::vec3(0.7f, 0.7f, 1.0f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
+
+        // Yellow
+        {
+            auto& light = lights->getLight(3);
+            light.set_light_position(glm::vec3(-1.f, 1.f, 1.f));
+            light.set_light_color(glm::vec3(1.0f, 1.0f, 0.6f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
+
+        // Green
+        {
+            auto& light = lights->getLight(4);
+            light.set_light_position(glm::vec3(1.f, 1.f, 1.f));
+            light.set_light_color(glm::vec3(0.0f, 1.0f, 0.2f));
+            light.set_light_radius(30.f);
+            light.set_light_type(scene::LightType::LIGHT_TYPE_POINT);
+        }
     }
+
     try(lights->updateUniformBuffer(context));
 
     try(updateDescriptor(context));
